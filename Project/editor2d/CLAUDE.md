@@ -5,14 +5,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 `editor2d` is the 2D scene editor (React + Konva) for the larger LCT hackathon platform (see
-`../CLAUDE.md` one level up for the full platform brief). It is **contract 6** in that platform:
-Алексей's module, producing the `Scene` JSON that `matching` and `simulation` consume. This directory
-is a standalone Vite app; it is not (yet) a git repository.
+`../../CLAUDE.md` two levels up, at the repo root, for the full platform brief — this module lives at
+`Project/editor2d/`). It is **contract 6** in that platform: Алексей's module, producing the `Scene`
+JSON that `matching` and `simulation` consume. This directory is a standalone Vite app; the repo root
+is a git repository, this directory is not its own repo.
 
 The contract this app produces is documented outside this directory:
 - `../scene.md` — field-by-field spec of the `Scene` JSON (source of truth; read before changing `src/scene/types.ts`).
 - `../scene.example.json` — full example scene, loaded by `App.tsx` as the default/demo scene.
-- `../topology.md` / `../topology.py` — superseded draft contract; `scene.md` has a changelog section against it.
+- `../архив/topology.md` / `../архив/topology.py` — superseded draft contract (pre-dates `scene.md`,
+  archived, not pydantic); `scene.md` has a changelog section against it.
 - `../tools/categories_from_xlsx.py` + `../Книга1.xlsx` — generates `src/catalog/categories.json`, the
   equipment/zone/task category dictionary. Regenerate the script's output, don't hand-edit the JSON.
 
