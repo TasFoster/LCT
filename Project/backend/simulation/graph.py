@@ -66,6 +66,7 @@ class RouteGraph:
     adjacency: dict[NodeId, list[Edge]] = field(default_factory=dict)
     node_of_point: dict[str, NodeId] = field(default_factory=dict)  # id ключевой точки -> узел
     point_of_node: dict[NodeId, str] = field(default_factory=dict)  # узел -> id ключевой точки (если есть)
+    narrow_edges: set[frozenset[NodeId]] = field(default_factory=set)  # §5: рёбра с тегом narrow/single_lane
 
     @classmethod
     def from_scene(cls, scene: Scene) -> RouteGraph:
@@ -77,9 +78,16 @@ class RouteGraph:
                 if point.ref is not None:
                     graph.node_of_point[point.ref] = node
                     graph.point_of_node[node] = point.ref
+            narrow = "narrow" in route.tags or "single_lane" in route.tags
             for a, b in zip(nodes, nodes[1:]):
                 graph._add_edge(a, b, route.bidirectional)
+                if narrow:
+                    graph.narrow_edges.add(frozenset((a, b)))
         return graph
+
+    def is_narrow(self, a: NodeId, b: NodeId) -> bool:
+        """§5: ребро пропускает одного робота за раз, если его маршрут помечен narrow/single_lane."""
+        return frozenset((a, b)) in self.narrow_edges
 
     def _add_node(self, node: NodeId) -> None:
         self.nodes.add(node)
@@ -182,17 +190,24 @@ class RouteGraph:
             raise ValueError("граф пуст — нет ни одного маршрута, некуда проецировать позицию")
         return GraphEntry(approach_m=best_approach, via=best_via)
 
-    def shortest_from_position(self, position: Point, target_point_id: str) -> float | None:
-        """Расстояние от произвольной позиции (не обязательно на графе) до ключевой
-        точки: прямой довесок до графа (nearest_entry) + путь по графу (Дейкстра)."""
+    def path_from_position(self, position: Point, target_point_id: str) -> tuple[float, list[NodeId]] | None:
+        """Путь от произвольной позиции (не обязательно на графе) до ключевой точки:
+        прямой довесок до графа (nearest_entry) + путь по графу (Дейкстра). Первый узел
+        возвращённого пути — квантованная позиция старта (может не входить в self.nodes,
+        это нормально — она нужна только для реконструкции пройденного пути и кадров)."""
         target_node = self.node_for_key_point(target_point_id)
+        start_node = _node_id(position.x, position.y)
+        if start_node == target_node:
+            return 0.0, [start_node]
         entry = self.nearest_entry(position)
-        best: float | None = None
+        best: tuple[float, list[NodeId]] | None = None
         for node, via_dist in entry.via:
-            dist = self.distances_from(node).get(target_node)
-            if dist is None:
+            result = self.shortest_path(node, target_node)
+            if result is None:
                 continue
-            total = entry.approach_m + via_dist + dist
-            if best is None or total < best:
-                best = total
+            sub_dist, sub_path = result
+            total = entry.approach_m + via_dist + sub_dist
+            if best is None or total < best[0]:
+                path = [start_node, *sub_path] if start_node != node else [start_node, *sub_path[1:]]
+                best = (total, path)
         return best
