@@ -131,6 +131,7 @@ class Engine:
         self.wait_stats: dict[str, ResourceWaitStats] = {}
         self.pending_tasks: list[TaskInstance] = []
         self.idle_robot_ids: set[str] = set()
+        self.completed_tasks = 0  # завершённых (после разогрева) — сырьё для throughput_per_hour в kpi.py
         self._narrow_edges: dict[frozenset[NodeId], Resource] = {}
 
         self._op_points = {pid: Resource(pid, 1, self.wait_stats, warmup_s) for pid in operation_point_ids}
@@ -292,6 +293,8 @@ class Engine:
     def _on_unloaded(self, clock: float, robot: SimRobot, point: Resource) -> None:
         point.release(clock)
         robot.current_task = None
+        if clock >= self.warmup_s:
+            self.completed_tasks += 1
         if self._needs_charging(robot):
             self._go_charge(clock, robot)
         else:
