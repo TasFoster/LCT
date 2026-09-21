@@ -13,14 +13,14 @@ from .economics import EconomicsResult
 from .enums import ObjectType, ProjectStatus
 from .matching import MatchResult
 from .project_input import ProjectInput
-from .topology import TopologyConfig
+from .topology import Scene
 
 
 class ProjectVersion(BaseModel):
     version: int
     created_at: datetime
     project_input: ProjectInput
-    topology: Optional[TopologyConfig] = None
+    scene: Optional[Scene] = None
     match_result: Optional[MatchResult] = None
     scenarios: list[EconomicsResult] = Field(default_factory=list, description="Минимум 3 сценария по ТЗ")
 

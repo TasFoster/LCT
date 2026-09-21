@@ -11,7 +11,7 @@
 | version | int | да | Номер версии |
 | created_at | datetime | да | Момент создания версии |
 | project_input | ProjectInput | да | Снапшот входных параметров объекта |
-| topology | TopologyConfig \| null | null | Снапшот сцены (если создавалась) |
+| scene | Scene \| null | null | Снапшот сцены (если создавалась); контракт 6, см. `topology.py`/`../../scene.md` |
 | match_result | MatchResult \| null | null | Снапшот результата подбора (если выполнялся) |
 | scenarios | list[EconomicsResult] | [] | Снапшоты рассчитанных сценариев — минимум 3 по ТЗ |
 

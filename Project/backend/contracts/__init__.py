@@ -7,7 +7,7 @@
 3. EconInput / EconOutput   Александра -> Стас (econWrapper), см. econ_io.py
 4. ProjectInput             Владимиров -> Стас
 5. MatchResult              Стас -> фронт, econWrapper, simulation
-6. TopologyConfig           Алексей <-> Владимиров, -> Стас (simulation)
+6. Scene                    Алексей (editor2d) -> Артём/Стас (matching), Стас (simulation), Владимиров (хранение), см. topology.py
 7. SimulationTimeline       Стас -> Алексей
 8. ScenarioInput/EconomicsResult   Стас (econWrapper) -> Владимиров
 9. ProjectRecord            Владимиров (backend-glue) <-> БД, -> фронт
@@ -43,7 +43,19 @@ from .matching import MatchCandidate, MatchFactor, MatchResult, SelectedEquipmen
 from .project_input import AirportParams, MedicalParams, ObjectParams, ProjectInput, WarehouseParams
 from .records import ProjectRecord, ProjectVersion
 from .simulation import Bottleneck, SimulationKPI, SimulationTimeline, TimelineFrame
-from .topology import OperationPoint, Point2D, RobotPlacement, Route, TopologyConfig, Zone
+from .topology import (
+    Background,
+    ChargingPoint,
+    OperationPoint,
+    Point,
+    RobotPlacement,
+    Route,
+    RoutePoint,
+    Scene,
+    Site,
+    Wall,
+    Zone,
+)
 
 __all__ = [
     "Applicability",
@@ -87,10 +99,15 @@ __all__ = [
     "SimulationKPI",
     "SimulationTimeline",
     "TimelineFrame",
+    "Background",
+    "ChargingPoint",
     "OperationPoint",
-    "Point2D",
+    "Point",
     "RobotPlacement",
     "Route",
-    "TopologyConfig",
+    "RoutePoint",
+    "Scene",
+    "Site",
+    "Wall",
     "Zone",
 ]

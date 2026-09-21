@@ -161,11 +161,14 @@ enum — это не меняет набор состояний ниже, тол
 | `kpi.py` | Агрегация статистики ожидания → SimulationKPI + Bottleneck |
 | `service.py` | Оркестрация: Scene + MatchResult + CatalogItem + ScenarioInput → engine → SimulationTimeline; точка входа для async-джобы |
 
-## 8. Что нужно поменять/добавить в контрактах (не сделано сегодня)
+## 8. Что нужно поменять/добавить в контрактах
 
-1. **`contracts/topology.py`** — переписать под реальную схему `scene.md` (или
-   вовсе заменить импортом типов, сгенерированных из неё) — то, что использует
-   симуляция и persistence, сейчас разъехалось с тем, что отдаёт editor2d.
+1. ~~**`contracts/topology.py`** — переписать под реальную схему `scene.md`~~ —
+   **сделано 2026-09-22.** Корневой класс переименован `TopologyConfig` → `Scene`,
+   зеркалит `scene.md` v1.2 целиком (включая `walls`); `contracts/records.py`
+   обновлён (`ProjectVersion.topology` → `.scene: Optional[Scene]`). Проверено
+   парсингом реального `scene.example.json` + глубоким сравнением до/после —
+   расхождений нет. Остальные пункты ниже — не сделано:
 2. **`contracts/records.py` (`ProjectVersion`)** — нет поля для сохранённого
    таймлайна симуляции (у `scenarios: list[EconomicsResult]` есть, у симуляции —
    нет). Нужно для той же воспроизводимости, что и у сценариев экономики.
