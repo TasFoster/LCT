@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "id": "scene-7f3c",
+  "project_id": "proj-012",
+  "name": "Склад А, 1 этаж",
+  "updated_at": "2026-09-17T12:00:00Z",
+
+  "units": "m",
+  "coordinate_system": "y_down",
+
+  "site": {
+    "width": 40.0,
+    "height": 25.0,
+    "boundary": [
+      { "x": 0.0, "y": 0.0 },
+      { "x": 40.0, "y": 0.0 },
+      { "x": 40.0, "y": 25.0 },
+      { "x": 0.0, "y": 25.0 }
+    ],
+    "background": {
+      "image_url": "/files/proj-012/plan-floor1.png",
+      "x": 0.0,
+      "y": 0.0,
+      "width": 40.0,
+      "height": 25.0,
+      "opacity": 0.5
+    }
+  },
+
+  "zones": [
+    {
+      "id": "zone-storage-1",
+      "name": "Стеллажи 1–6",
+      "zone_type": "storage",
+      "polygon": [
+        { "x": 2.0, "y": 2.0 },
+        { "x": 20.0, "y": 2.0 },
+        { "x": 20.0, "y": 12.0 },
+        { "x": 2.0, "y": 12.0 }
+      ],
+      "tags": ["pallets", "high_rack"]
+    },
+    {
+      "id": "zone-op-1",
+      "name": "Участок комплектации",
+      "zone_type": "operation",
+      "polygon": [
+        { "x": 24.0, "y": 2.0 },
+        { "x": 38.0, "y": 2.0 },
+        { "x": 38.0, "y": 10.0 },
+        { "x": 24.0, "y": 10.0 }
+      ],
+      "tags": []
+    },
+    {
+      "id": "zone-charge-1",
+      "name": "Зарядная станция",
+      "zone_type": "charging",
+      "polygon": [
+        { "x": 32.0, "y": 18.0 },
+        { "x": 38.0, "y": 18.0 },
+        { "x": 38.0, "y": 23.0 },
+        { "x": 32.0, "y": 23.0 }
+      ],
+      "tags": []
+    },
+    {
+      "id": "zone-restricted-1",
+      "name": "Серверная",
+      "zone_type": "restricted",
+      "polygon": [
+        { "x": 2.0, "y": 18.0 },
+        { "x": 8.0, "y": 18.0 },
+        { "x": 8.0, "y": 23.0 },
+        { "x": 2.0, "y": 23.0 }
+      ],
+      "tags": ["no_robots"]
+    }
+  ],
+
+  "operation_points": [
+    {
+      "id": "op-pick-1",
+      "name": "Отбор, ряд 3",
+      "position": { "x": 11.0, "y": 13.0 },
+      "zone_id": "zone-storage-1",
+      "categories": ["picking", "pallet_lift"],
+      "tags": []
+    },
+    {
+      "id": "op-pack-1",
+      "name": "Стол упаковки",
+      "position": { "x": 30.0, "y": 6.0 },
+      "zone_id": "zone-op-1",
+      "categories": ["packing"],
+      "tags": ["manual_assist"]
+    }
+  ],
+
+  "charging_points": [
+    {
+      "id": "chg-1",
+      "name": "Зарядка №1",
+      "position": { "x": 35.0, "y": 20.5 },
+      "zone_id": "zone-charge-1",
+      "slots": 2,
+      "categories": ["dock_charger"],
+      "tags": []
+    }
+  ],
+
+  "routes": [
+    {
+      "id": "route-main",
+      "name": "Главный проезд",
+      "points": [
+        { "x": 11.0, "y": 13.0, "ref": "op-pick-1" },
+        { "x": 22.0, "y": 13.0 },
+        { "x": 22.0, "y": 6.0 },
+        { "x": 30.0, "y": 6.0, "ref": "op-pack-1" }
+      ],
+      "bidirectional": true,
+      "tags": ["main_aisle"]
+    },
+    {
+      "id": "route-to-charge",
+      "name": "К зарядке",
+      "points": [
+        { "x": 22.0, "y": 13.0 },
+        { "x": 22.0, "y": 20.5 },
+        { "x": 35.0, "y": 20.5, "ref": "chg-1" }
+      ],
+      "bidirectional": true,
+      "tags": []
+    }
+  ],
+
+  "robots": [
+    {
+      "id": "robot-1",
+      "name": "AMR-01",
+      "catalog_item_id": "cat-amr-500",
+      "start_position": { "x": 35.0, "y": 20.5 },
+      "start_heading_deg": 180.0,
+      "start_point_id": "chg-1",
+      "home_charging_point_id": "chg-1"
+    },
+    {
+      "id": "robot-2",
+      "name": "AMR-02",
+      "catalog_item_id": "cat-amr-500",
+      "start_position": { "x": 22.0, "y": 13.0 },
+      "start_heading_deg": 0.0,
+      "start_point_id": null,
+      "home_charging_point_id": "chg-1"
+    }
+  ]
+}

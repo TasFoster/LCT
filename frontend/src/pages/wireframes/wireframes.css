@@ -1,0 +1,528 @@
+/*
+ * Стили вайрфреймов. Намеренно «серые»: это макет расположения блоков,
+ * а не дизайн. Рамка кадра — ровно 1366 px по ширине, рабочее разрешение
+ * по НФТ — 1366×768.
+ */
+
+.wf-page {
+  padding: 24px;
+  background: #e9ebef;
+  min-height: 100vh;
+}
+
+.wf-page__caption {
+  max-width: 1366px;
+  margin: 0 auto 12px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.wf-page__caption h1 {
+  font-size: 18px;
+  margin: 0 0 4px;
+  color: #1c1f24;
+}
+
+.wf-frame {
+  position: relative;
+  width: 1366px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #9aa1ab;
+  font-size: 12px;
+  color: #1c1f24;
+  overflow: hidden;
+}
+
+.wf-frame--fixed {
+  height: 768px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Отметка границы первого экрана на длинных страницах */
+.wf-fold {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 768px;
+  border-top: 2px dashed #c2410c;
+  pointer-events: none;
+}
+
+.wf-fold span {
+  position: absolute;
+  right: 8px;
+  top: -18px;
+  font-size: 11px;
+  color: #c2410c;
+  background: #fff;
+  padding: 0 4px;
+}
+
+/* --- Полосы шапок --- */
+.wf-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  border-bottom: 1px solid #d6d9de;
+  flex: 0 0 auto;
+}
+
+.wf-bar--app {
+  height: 56px;
+  background: #f7f8fa;
+  font-weight: 600;
+}
+
+.wf-bar--project {
+  height: 48px;
+  background: #fff;
+  color: #4b5563;
+  font-weight: 400;
+}
+
+.wf-bar--actions {
+  height: 48px;
+  background: #fff;
+}
+
+.wf-bar__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wf-chip {
+  border: 1px solid #9aa1ab;
+  border-radius: 10px;
+  padding: 1px 8px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+
+.wf-btn {
+  border: 1px solid #9aa1ab;
+  border-radius: 4px;
+  padding: 5px 12px;
+  background: #f1f2f4;
+  white-space: nowrap;
+}
+
+.wf-btn--primary {
+  background: #d9e2f5;
+  border-color: #6d8ec9;
+  font-weight: 600;
+}
+
+.wf-btn--ghost {
+  background: transparent;
+  border-style: dashed;
+}
+
+.wf-btn--disabled {
+  color: #9aa1ab;
+  background: #f7f8fa;
+}
+
+/* --- Степпер --- */
+.wf-stepper {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 24px;
+  gap: 8px;
+  border-bottom: 1px solid #d6d9de;
+  background: #fbfbfc;
+  flex: 0 0 auto;
+}
+
+.wf-stepper__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #9aa1ab;
+  white-space: nowrap;
+}
+
+.wf-stepper__item + .wf-stepper__item::before {
+  content: '';
+  width: 18px;
+  border-top: 1px solid #d6d9de;
+  margin-right: 6px;
+}
+
+.wf-stepper__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 10px;
+}
+
+.wf-stepper__item.is-done {
+  color: #4b5563;
+}
+
+.wf-stepper__item.is-current {
+  color: #1c1f24;
+  font-weight: 700;
+}
+
+.wf-stepper__item.is-current .wf-stepper__num {
+  background: #d9e2f5;
+}
+
+/* --- Тело шага «Параметры объекта» --- */
+.wf-body {
+  display: grid;
+  grid-template-columns: 240px 1fr 320px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.wf-col {
+  padding: 16px;
+  overflow: hidden;
+}
+
+.wf-col--nav {
+  border-right: 1px solid #d6d9de;
+  background: #fbfbfc;
+}
+
+.wf-col--form {
+  overflow-y: auto;
+}
+
+.wf-col--hints {
+  border-left: 1px solid #d6d9de;
+  background: #fbfbfc;
+}
+
+.wf-label {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9aa1ab;
+  margin: 0 0 8px;
+}
+
+.wf-navlist {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.wf-navlist li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 4px;
+  color: #4b5563;
+}
+
+.wf-navlist li.is-current {
+  background: #eef2fa;
+  color: #1c1f24;
+  font-weight: 600;
+}
+
+.wf-progress {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 6px 0 4px;
+}
+
+.wf-progress span {
+  display: block;
+  height: 100%;
+  background: #6d8ec9;
+}
+
+.wf-note {
+  border: 1px dashed #9aa1ab;
+  border-radius: 4px;
+  padding: 8px;
+  color: #4b5563;
+  line-height: 1.45;
+}
+
+.wf-note--warning {
+  border-color: #c2410c;
+  color: #9a3412;
+}
+
+.wf-note--info {
+  background: #fff;
+}
+
+.wf-section {
+  margin-bottom: 18px;
+}
+
+.wf-section__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.wf-section__title::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid #e5e7eb;
+}
+
+.wf-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.wf-field--wide {
+  grid-column: 1 / -1;
+}
+
+.wf-field__label {
+  display: block;
+  margin-bottom: 4px;
+  color: #4b5563;
+}
+
+.wf-field__req {
+  color: #c2410c;
+}
+
+.wf-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid #9aa1ab;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.wf-input--empty {
+  color: #9aa1ab;
+}
+
+.wf-input--error {
+  border-color: #c2410c;
+  background: #fff7ed;
+}
+
+.wf-input__unit {
+  color: #6b7280;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.wf-field__msg {
+  margin-top: 4px;
+  color: #9a3412;
+  line-height: 1.35;
+}
+
+.wf-field__hint {
+  margin-top: 4px;
+  color: #6b7280;
+}
+
+.wf-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 64px;
+  padding: 0 24px;
+  border-top: 1px solid #d6d9de;
+  background: #f7f8fa;
+  flex: 0 0 auto;
+}
+
+.wf-footer__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* --- Дашборд --- */
+.wf-content {
+  padding: 16px 24px;
+}
+
+.wf-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.wf-kpi {
+  border: 1px solid #d6d9de;
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: #fbfbfc;
+  height: 92px;
+}
+
+.wf-kpi__label {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9aa1ab;
+}
+
+.wf-kpi__value {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 4px 0 2px;
+}
+
+.wf-kpi__sub {
+  color: #6b7280;
+}
+
+.wf-blocktitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.wf-blocktitle .wf-btn {
+  margin-left: auto;
+}
+
+.wf-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.wf-table th,
+.wf-table td {
+  border: 1px solid #d6d9de;
+  padding: 6px 10px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.wf-table th:first-child,
+.wf-table td:first-child {
+  text-align: left;
+  width: 260px;
+}
+
+.wf-table thead th {
+  background: #f1f2f4;
+  vertical-align: top;
+}
+
+.wf-table thead th small {
+  display: block;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.wf-table .wf-row-group td {
+  background: #fbfbfc;
+  font-weight: 700;
+}
+
+.wf-table .wf-row-sub td:first-child {
+  padding-left: 26px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.wf-table .wf-col-base {
+  background: #f7f8fa;
+  color: #6b7280;
+}
+
+.wf-best {
+  color: #166534;
+  font-weight: 700;
+}
+
+.wf-expand {
+  color: #1f5fd0;
+}
+
+.wf-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.wf-chart {
+  border: 1px dashed #9aa1ab;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fbfbfc;
+  min-height: 190px;
+}
+
+.wf-chart__title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.wf-chart__stub {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 130px;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  background: repeating-linear-gradient(135deg, #fff, #fff 8px, #f3f4f6 8px, #f3f4f6 16px);
+  text-align: center;
+  line-height: 1.5;
+  padding: 8px;
+}
+
+.wf-bars {
+  display: grid;
+  gap: 6px;
+}
+
+.wf-bars__row {
+  display: grid;
+  grid-template-columns: 150px 1fr 70px;
+  align-items: center;
+  gap: 8px;
+}
+
+.wf-bars__bar {
+  height: 12px;
+  background: #c7d2e8;
+  border: 1px solid #6d8ec9;
+}
+
+.wf-assumptions {
+  border: 1px solid #d6d9de;
+  border-left: 4px solid #6d8ec9;
+  border-radius: 4px;
+  padding: 10px 12px;
+  background: #fbfbfc;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}

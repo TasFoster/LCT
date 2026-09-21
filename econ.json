@@ -1,0 +1,289 @@
+{
+  "EconInput": {
+    "description": "Входные данные для расчёта экономики. Все денежные значения в рублях (₽).",
+    "fields": {
+      "capex": {
+        "equipment_cost_total": {
+          "type": "float",
+          "required": true,
+          "description": "Стоимость оборудования (роботы, зарядные станции), ₽"
+        },
+        "infrastructure_cost_total": {
+          "type": "float",
+          "required": true,
+          "default": 0.0,
+          "description": "Стоимость инфраструктуры (стеллажи, полы, сеть), ₽"
+        },
+        "software_cost_total": {
+          "type": "float",
+          "required": true,
+          "default": 0.0,
+          "description": "Стоимость ПО (лицензии, WMS, RMS), ₽"
+        },
+        "integration_cost_total": {
+          "type": "float",
+          "required": true,
+          "default": 0.0,
+          "description": "Стоимость интеграции с учётными системами (ERP, WMS), ₽"
+        },
+        "commissioning_cost_total": {
+          "type": "float",
+          "required": true,
+          "default": 0.0,
+          "description": "Пусконаладка, тестирование, запуск, ₽"
+        },
+        "training_cost_total": {
+          "type": "float",
+          "required": true,
+          "default": 0.0,
+          "description": "Обучение персонала, ₽"
+        },
+        "reserve_ratio": {
+          "type": "float",
+          "required": false,
+          "default": 0.1,
+          "description": "Резерв на непредвиденные расходы, доля от суммы CAPEX (0..1)"
+        }
+      },
+      "staff": {
+        "staff_count": {
+          "type": "int",
+          "required": true,
+          "description": "Количество замещаемых сотрудников, чел."
+        },
+        "staff_salary_per_month": {
+          "type": "float",
+          "required": true,
+          "description": "Средняя зарплата одного сотрудника (gross, до НДФЛ), ₽/мес"
+        },
+        "staff_tax_rate": {
+          "type": "float",
+          "required": false,
+          "default": 0.30,
+          "description": "Страховые взносы/налоги на ФОТ (0..1). В РФ стандарт 30%."
+        }
+      },
+      "operations": {
+        "operating_hours_per_year": {
+          "type": "float",
+          "required": true,
+          "description": "Часы работы оборудования в год (например, 3000, а не 8760)"
+        },
+        "load_factor": {
+          "type": "float",
+          "required": true,
+          "description": "Коэффициент загрузки оборудования (0..1)"
+        }
+      },
+      "opex": {
+        "maintenance_cost_per_year": {
+          "type": "float",
+          "required": true,
+          "description": "OPEX: обслуживание и ремонт, ₽/год"
+        },
+        "energy_cost_per_year": {
+          "type": "float",
+          "required": true,
+          "description": "OPEX: электроэнергия, ₽/год"
+        },
+        "connectivity_cost_per_year": {
+          "type": "float",
+          "required": true,
+          "default": 0.0,
+          "description": "OPEX: связь и передача данных, ₽/год"
+        },
+        "consumables_cost_per_year": {
+          "type": "float",
+          "required": true,
+          "default": 0.0,
+          "description": "OPEX: расходные материалы, ₽/год"
+        }
+      },
+      "financing_and_horizon": {
+        "financing_type": {
+          "type": "string",
+          "required": true,
+          "enum": ["own_funds", "credit", "leasing", "raas"],
+          "description": "Тип финансирования. Влияет на расчёт через financing_rate и financing_term_years."
+        },
+        "financing_rate": {
+          "type": "float",
+          "required": false,
+          "default": 0.0,
+          "description": "Ставка по кредиту/лизингу, % годовых (0 для собственных средств)"
+        },
+        "financing_term_years": {
+          "type": "float",
+          "required": false,
+          "default": 0.0,
+          "description": "Срок кредита/лизинга, лет"
+        },
+        "discount_rate": {
+          "type": "float",
+          "required": false,
+          "default": 0.10,
+          "description": "Ставка дисконтирования для NPV, доля"
+        },
+        "horizon_years": {
+          "type": "float",
+          "required": true,
+          "description": "Горизонт расчёта TCO, лет (≥ 5 по ТЗ)"
+        }
+      },
+      "sensitivity": {
+        "sensitivity_params": {
+          "type": "list[string]",
+          "required": false,
+          "default": [
+            "equipment_cost_total",
+            "staff_salary_per_month",
+            "operating_hours_per_year"
+          ],
+          "description": "Параметры для анализа чувствительности (минимум 3 по ТЗ)"
+        },
+        "sensitivity_delta_pct": {
+          "type": "float",
+          "required": false,
+          "default": 0.20,
+          "description": "Шаг изменения параметра (±20%)"
+        }
+      }
+    }
+  },
+
+  "SensitivityPoint": {
+    "description": "Точка анализа чувствительности. Показывает, как изменится экономика при отклонении одного параметра.",
+    "fields": {
+      "parameter": {
+        "type": "string",
+        "required": true,
+        "description": "Название варьируемого параметра (например, equipment_cost_total)"
+      },
+      "delta_pct": {
+        "type": "float",
+        "required": true,
+        "description": "На сколько % изменён параметр (например, +0.20 / -0.20)"
+      },
+      "resulting_payback_years": {
+        "type": "float | null",
+        "required": true,
+        "description": "Получившийся срок окупаемости, лет. null, если эффект ≤ 0."
+      },
+      "resulting_roi_pct": {
+        "type": "float",
+        "required": true,
+        "description": "Получившийся ROI, %"
+      },
+      "resulting_annual_effect": {
+        "type": "float",
+        "required": true,
+        "description": "Получившийся годовой экономический эффект, ₽"
+      }
+    }
+  },
+
+  "EconOutput": {
+    "description": "Результат расчёта экономики. Все денежные значения в рублях (₽).",
+    "fields": {
+      "capex": {
+        "capex_equipment": {
+          "type": "float",
+          "required": true,
+          "description": "CAPEX: оборудование, ₽"
+        },
+        "capex_infrastructure": {
+          "type": "float",
+          "required": true,
+          "description": "CAPEX: инфраструктура, ₽"
+        },
+        "capex_software": {
+          "type": "float",
+          "required": true,
+          "description": "CAPEX: ПО, ₽"
+        },
+        "capex_integration": {
+          "type": "float",
+          "required": true,
+          "description": "CAPEX: интеграция, ₽"
+        },
+        "capex_commissioning": {
+          "type": "float",
+          "required": true,
+          "description": "CAPEX: пусконаладка, ₽"
+        },
+        "capex_training": {
+          "type": "float",
+          "required": true,
+          "description": "CAPEX: обучение, ₽"
+        },
+        "capex_reserve": {
+          "type": "float",
+          "required": true,
+          "description": "CAPEX: резерв, ₽"
+        },
+        "capex_total": {
+          "type": "float",
+          "required": true,
+          "description": "Итоговый CAPEX, ₽"
+        }
+      },
+      "opex": {
+        "opex_annual": {
+          "type": "float",
+          "required": true,
+          "description": "Итоговый годовой OPEX, ₽"
+        },
+        "opex_delta_vs_baseline": {
+          "type": "float",
+          "required": true,
+          "description": "Изменение OPEX относительно базового сценария (без роботов), ₽/год"
+        }
+      },
+      "economics": {
+        "annual_effect": {
+          "type": "float",
+          "required": true,
+          "description": "Чистый годовой экономический эффект = ФОТ - OPEX, ₽"
+        },
+        "payback_years": {
+          "type": "float | null",
+          "required": true,
+          "description": "Простой срок окупаемости, лет. null, если annual_effect ≤ 0."
+        },
+        "roi_pct": {
+          "type": "float",
+          "required": true,
+          "description": "ROI за горизонт, %"
+        },
+        "tco_total": {
+          "type": "float",
+          "required": true,
+          "description": "TCO на горизонте расчёта, ₽"
+        },
+        "npv": {
+          "type": "float",
+          "required": true,
+          "description": "NPV на горизонте с учётом discount_rate, ₽"
+        }
+      },
+      "sensitivity": {
+        "type": "list[SensitivityPoint]",
+        "required": true,
+        "description": "Результаты анализа чувствительности минимум по 3 параметрам"
+      },
+      "transparency": {
+        "assumptions_text": {
+          "type": "string",
+          "required": true,
+          "description": "Текстовое пояснение всех допущений, формул и логики. Без чёрных ящиков."
+        },
+        "warnings": {
+          "type": "list[string]",
+          "required": false,
+          "default": [],
+          "description": "Предупреждения (например, 'эффект отрицательный', 'срок окупаемости > горизонта')"
+        }
+      }
+    }
+  }
+}
