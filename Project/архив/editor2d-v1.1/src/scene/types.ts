@@ -1,7 +1,7 @@
 // Контракт 6 — сцена, которую отдаёт редактор. Описание полей: ../../../scene.md
 
 /** Версия контракта, которую пишет редактор. Старые файлы при открытии приводятся к ней. */
-export const SCHEMA_VERSION = "1.2";
+export const SCHEMA_VERSION = "1.1";
 
 export interface Point {
   x: number;
@@ -60,15 +60,6 @@ export interface Route {
   tags: string[];
 }
 
-/** Стена — препятствие-ломаная: роботы через неё не проходят. */
-export interface Wall {
-  id: string;
-  name: string;
-  points: Point[]; // ≥ 2 вершин, ось стены
-  thickness: number; // толщина, м (> 0)
-  tags: string[];
-}
-
 export interface RobotPlacement {
   id: string;
   name: string;
@@ -89,7 +80,6 @@ export interface Scene {
   units: "m";
   coordinate_system: "y_down";
   site: Site;
-  walls: Wall[];
   zones: Zone[];
   operation_points: OperationPoint[];
   charging_points: ChargingPoint[];
@@ -99,7 +89,6 @@ export interface Scene {
 
 export type SceneObject =
   | { kind: "zone"; data: Zone }
-  | { kind: "wall"; data: Wall }
   | { kind: "operation_point"; data: OperationPoint }
   | { kind: "charging_point"; data: ChargingPoint }
   | { kind: "route"; data: Route }

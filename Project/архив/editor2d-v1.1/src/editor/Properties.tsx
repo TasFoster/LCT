@@ -8,7 +8,6 @@ import type { ImageState } from "./useImage";
 
 const KIND_LABELS: Record<SceneObject["kind"], string> = {
   zone: "Зона",
-  wall: "Стена",
   operation_point: "Точка операции",
   charging_point: "Точка зарядки",
   route: "Маршрут",
@@ -66,7 +65,6 @@ export function Properties({ dict, scene, background, selected, issues, onSelect
         <h3>Состав сцены</h3>
         <ul className="counts">
           <li>Зоны: {scene.zones.length}</li>
-          <li>Стены: {scene.walls.length}</li>
           <li>Маршруты: {scene.routes.length}</li>
           <li>Точки операций: {scene.operation_points.length}</li>
           <li>Точки зарядки: {scene.charging_points.length}</li>
@@ -104,13 +102,6 @@ export function Properties({ dict, scene, background, selected, issues, onSelect
               </option>
             ))}
           </select>
-        </label>
-      )}
-
-      {kind === "wall" && (
-        <label className="field">
-          Толщина, м
-          <NumberField value={data.thickness} min={0.01} onCommit={(thickness) => typing("thickness", { thickness })} />
         </label>
       )}
 

@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  distToPolyline,
   distToSegment,
   insideOrOnPolygon,
   pointInPolygon,
   polygonSelfIntersects,
-  segmentDistance,
   segmentsIntersect,
   segmentTouchesPolygon,
   snapToGrid,
@@ -77,14 +75,6 @@ describe("touchesNeighbour — отрезки нулевой длины", () => 
   ] as const)("%s", (_, pts, p, at, closed, expected) => {
     expect(touchesNeighbour([...pts], p, at, closed)).toBe(expected);
   });
-});
-
-describe("segmentDistance / distToPolyline", () => {
-  it("пересекаются — 0", () => expect(segmentDistance(P(0, 0), P(4, 4), P(0, 4), P(4, 0))).toBe(0));
-  it("параллельные на расстоянии 1", () => expect(segmentDistance(P(0, 0), P(4, 0), P(0, 1), P(4, 1))).toBe(1));
-  it("конец до середины другого", () => expect(segmentDistance(P(2, 3), P(2, 5), P(0, 0), P(4, 0))).toBe(3));
-  it("концы врозь на одной прямой", () => expect(segmentDistance(P(0, 0), P(1, 0), P(4, 0), P(5, 0))).toBe(3));
-  it("до ломаной — до ближайшего звена", () => expect(distToPolyline(P(5, 1), [P(0, 0), P(4, 0), P(4, 4)])).toBe(1));
 });
 
 it("snapToGrid", () => expect(snapToGrid(P(24.2, 3.1), 0.5)).toEqual(P(24, 3)));

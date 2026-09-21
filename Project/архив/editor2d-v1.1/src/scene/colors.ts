@@ -17,7 +17,6 @@ export const ZONE_TYPE_LABELS: Record<ZoneType, string> = {
 };
 
 export const ROUTE_COLOR = "#378ADD";
-export const WALL_COLOR = "#444441";
 export const OP_COLOR = "#D85A30";
 export const CHARGE_COLOR = "#639922";
 export const ROBOT_COLOR = "#185FA5";

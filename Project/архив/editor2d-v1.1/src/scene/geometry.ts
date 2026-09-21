@@ -60,20 +60,6 @@ export function distToSegment(p: Point, a: Point, b: Point): number {
   return dist(p, { x: a.x + t * (b.x - a.x), y: a.y + t * (b.y - a.y) });
 }
 
-/** Расстояние между отрезками ab и cd (0, если пересекаются или касаются). */
-export function segmentDistance(a: Point, b: Point, c: Point, d: Point): number {
-  if (segmentsIntersect(a, b, c, d)) return 0;
-  return Math.min(distToSegment(a, c, d), distToSegment(b, c, d), distToSegment(c, a, b), distToSegment(d, a, b));
-}
-
-/** Расстояние от точки до ломаной. */
-export function distToPolyline(p: Point, line: Point[]): number {
-  if (line.length === 1) return dist(p, line[0]);
-  let best = Infinity;
-  for (let i = 1; i < line.length; i++) best = Math.min(best, distToSegment(p, line[i - 1], line[i]));
-  return best;
-}
-
 const edges = (polygon: Point[]) => polygon.map((a, i) => [a, polygon[(i + 1) % polygon.length]] as const);
 
 /** Внутри полигона или на его границе. */

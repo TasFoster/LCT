@@ -31,15 +31,6 @@ describe("withDefaults — открытие файлов", () => {
     expect(s.robots[0].category).toBe("");
   });
 
-  it("файл v1.1 без стен получает пустой список стен", () => {
-    expect(withDefaults({ schema_version: "1.1", site: { width: 10, height: 10 } }).walls).toEqual([]);
-  });
-
-  it("стена: толщина по умолчанию 0.2 м, имя по id", () => {
-    const [w] = withDefaults({ site: { width: 10, height: 10 }, walls: [{ id: "w1", points: [P(0, 5), P(10, 5)] }] }).walls;
-    expect(w).toMatchObject({ id: "w1", name: "w1", thickness: 0.2, tags: [], points: [P(0, 5), P(10, 5)] });
-  });
-
   it("без контура или с контуром меньше 3 точек — прямоугольник по габаритам", () => {
     expect(withDefaults({ site: { width: 12, height: 7 } }).site.boundary).toEqual(siteRect(12, 7));
     expect(withDefaults({ site: { width: 12, height: 7, boundary: [P(0, 0), P(1, 1)] } }).site.boundary).toEqual(siteRect(12, 7));
@@ -113,7 +104,6 @@ describe("sceneFileName", () => {
   it("запрещённые символы заменяются", () => expect(named('Цех 2/3: "новый"?<x>|*')).toBe("Цех 2_3_ _новый___x___.json"));
   it("пустое название — по id, id тоже чистится", () => expect(named("  ", "proj/12:s")).toBe("proj_12_s.json"));
   it("ничего нет — scene", () => expect(named("", "")).toBe("scene.json"));
-  it("управляющие символы заменяются", () => expect(named("a\u0001b\tc")).toBe("a_b_c.json"));
   it("точки по краям и длина", () => {
     expect(named("..план..")).toBe("план.json");
     expect(named("я".repeat(300))).toBe(`${"я".repeat(100)}.json`);

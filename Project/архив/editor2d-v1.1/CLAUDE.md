@@ -21,11 +21,6 @@ The contract this app produces is documented outside this directory:
 `vite.config.ts` sets `server.fs.allow: [".."]` specifically so the dev server can read `scene.example.json`
 one directory up.
 
-There's also a non-dev quick-start path: `../README.md` + `../Запустить редактор.bat` — a Windows
-launcher for teammates without a dev setup (checks Node.js, `npm install`s if `node_modules` is
-missing, opens the browser). It expects `editor2d/` as its sibling — don't move this directory without
-updating that `.bat`'s `cd /d "%~dp0editor2d"` line.
-
 ## Commands
 
 ```
@@ -52,28 +47,18 @@ Windows/Vite note called out in `PROGRESS.md`: a second fast write to the same f
 Vite's dev server — if a browser check doesn't reflect a just-made edit, touch the file again rather
 than trusting a stale page.
 
-**Gotcha for AI editing tools specifically** (bit this codebase once, see `PROGRESS.md` "Очередь 3"):
-an editing tool rewriting the `sceneFileName` regex in `scene/ops.ts` turned `\uXXXX`-style escape
-*text* into literal control bytes (`\x00`–`\x1f`) inside the source file — git diffed fine but the
-bytes broke `grep`/comparison tools. If a regex needs control-character ranges, write them as explicit
-escape sequences in the string literal, then verify with a byte-level check (e.g. `grep -P '[\x00-\x1f]'`
-or `chr()` round-trip in Python) — don't trust that the editor rendered what you intended.
-
 ## Architecture
 
 ### Layering: `scene/` (data) → `catalog/` (reference data) → `editor/` (UI state + rendering)
 
 - **`src/scene/`** is the pure data layer and has no dependency on `editor/` or React/Konva:
-  - `types.ts` — the `Scene` TypeScript types mirroring `scene.md` (zones, routes, operation/charging
-    points, robots, **walls**), plus `SCHEMA_VERSION`.
+  - `types.ts` — the `Scene` TypeScript types mirroring `scene.md`, plus `SCHEMA_VERSION`.
   - `ops.ts` — pure functions over `Scene` (`addObject`/`updateObject`/`removeObject`/`findObject`,
     id generation, `withDefaults` for upgrading old-schema JSON on open, `normalize` for recomputing
     derived fields, name uniqueness, file naming).
-  - `geometry.ts` — polygon/segment/polyline math (intersection, point-in-polygon, distance, snapping;
-    `segmentDistance`/`distToPolyline` support wall-to-route and point-to-wall checks) used by both
-    `ops.ts` (normalize) and `editor/` (drag/snap interactions).
-  - `validate.ts` — `validateScene(scene, kindOf)` implementing the "Проверки" section of `scene.md`
-    (includes wall rules: too few vertices, non-positive thickness, routes passing through a wall);
+  - `geometry.ts` — polygon/segment math (intersection, point-in-polygon, distance, snapping) used by
+    both `ops.ts` (normalize) and `editor/` (drag/snap interactions).
+  - `validate.ts` — `validateScene(scene, kindOf)` implementing the "Проверки" section of `scene.md`;
     takes the category-kind lookup as a function parameter specifically so `scene/` doesn't import `catalog/`.
   - `colors.ts` — rendering colors by zone/object type (only real UI concern living in `scene/`).
 - **`src/catalog/`** loads and validates `categories.json` (the category dictionary) into a
@@ -82,18 +67,11 @@ or `chr()` round-trip in Python) — don't trust that the editor rendered what y
 - **`src/editor/`** holds all interactive/UI state: `useEditor.ts` is the central hook (tool state,
   undo/redo history, draft-shape drawing, snapping, drag handlers); `SceneView.tsx` is the Konva canvas;
   `Properties.tsx` is the right-side inspector/scene-settings panel; `Toolbar.tsx` is the palette;
-  `tools.ts` defines the `Tool` union and hotkeys (`W` = wall tool); `persistence.ts` is localStorage
-  autosave; `useImage.ts`/`imageFile.ts` handle the background-image (site plan scan) feature.
+  `tools.ts` defines the `Tool` union and hotkeys; `persistence.ts` is localStorage autosave;
+  `useImage.ts`/`imageFile.ts` handle the background-image (site plan scan) feature.
 
 Dependency direction is a deliberate fix from `PROGRESS.md` item 0.2: `scene/` must never import from
 `editor/`. Keep new code on the correct side of that line.
-
-**Walls** (`Scene.walls`, schema v1.2) are the newest object kind: a polyline (`points`, ≥ 2 vertices)
-with a `thickness` in meters, an impassable obstacle for the simulation. They're wired into the same
-generic machinery as zones/routes rather than a bespoke path — editing (`moveVertex`/`insertVertex`/
-`deleteVertex`), naming, and shared-vertex snapping all go through the same `ShapeKind` union
-(`"zone" | "route" | "wall"`) that replaced three separate ad-hoc unions. When adding a new object kind,
-follow this pattern (extend `ShapeKind`/`LISTS`/`PREFIX` centrally) rather than special-casing it.
 
 ### State flow
 
@@ -113,7 +91,7 @@ don't).
 
 - Coordinates are in meters, `y_down` (canvas convention), angles in degrees clockwise from +X — see
   `scene.md` for the full rationale (matches Konva's own conventions, deliberately).
-- Polygons are open (first vertex not repeated), minimum 3 vertices for zones, 2 for routes/walls.
+- Polygons are open (first vertex not repeated), minimum 3 vertices for zones, 2 for routes.
 - `id` is unique across the *entire* scene, not just within its own list, and is referenced by other
   scene objects (`zone_id`, route `ref`, `start_point_id`, `home_charging_point_id`) and by the
   (separate) simulation timeline contract.
@@ -121,7 +99,5 @@ don't).
   reference — `normalize`/drag code must keep shared free vertices' coordinates in exact sync (known
   gap: while *dragging*, only the actively-dragged route follows the cursor; the shared neighbor route
   catches up on drop — see `PROGRESS.md` 1.3).
-- Files without a `walls` field (schema v1.0/v1.1) are read as a scene with no walls — `withDefaults`
-  backfills `walls: []` and a default `thickness`.
 - Any change to `scene/types.ts` must be mirrored in `../scene.md` (the field table) and, if it affects
   the shipped example, `../scene.example.json`.

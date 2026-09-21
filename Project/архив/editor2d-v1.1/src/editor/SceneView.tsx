@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Arrow, Circle, Group, Image as KonvaImage, Layer, Line, Rect, Stage, Text } from "react-konva";
 import Konva from "konva";
-import { CHARGE_COLOR, DRAFT_COLOR, OP_COLOR, ROBOT_COLOR, ROUTE_COLOR, SELECT_COLOR, WALL_COLOR, ZONE_COLORS } from "../scene/colors";
+import { CHARGE_COLOR, DRAFT_COLOR, OP_COLOR, ROBOT_COLOR, ROUTE_COLOR, SELECT_COLOR, ZONE_COLORS } from "../scene/colors";
 import { bbox, dist } from "../scene/geometry";
 import type { ObjectKind } from "../scene/ops";
 import type { Point, Scene, SceneObject } from "../scene/types";
 import { gridLines } from "./grid";
-import type { ShapeKind, Snap, Tool } from "./tools";
+import type { Snap, Tool } from "./tools";
 import type { ImageState } from "./useImage";
 
 const flat = (pts: Point[]) => pts.flatMap((p) => [p.x, p.y]);
@@ -28,9 +28,9 @@ interface Props {
   onDoubleClick: (world: Point, k: number) => void;
   onHover: (world: Point | null, k: number) => void;
   onDrag: (kind: ObjectKind, id: string, world: Point, k: number) => void;
-  onVertexMove: (kind: ShapeKind, id: string, index: number, world: Point, k: number) => void;
-  onVertexInsert: (kind: ShapeKind, id: string, afterIndex: number, world: Point, k: number) => void;
-  onVertexDelete: (kind: ShapeKind, id: string, index: number) => void;
+  onVertexMove: (kind: "zone" | "route", id: string, index: number, world: Point, k: number) => void;
+  onVertexInsert: (kind: "zone" | "route", id: string, afterIndex: number, world: Point, k: number) => void;
+  onVertexDelete: (kind: "zone" | "route", id: string, index: number) => void;
   onZoneMove: (id: string, delta: Point) => void;
 }
 
@@ -257,20 +257,6 @@ export function SceneView(props: Props) {
           );
         })}
 
-        {/* стены — поверх зон, под маршрутами; толщина в метрах, но не тоньше 2 px, иначе при отдалении пропадает */}
-        {scene.walls.map((w) => (
-          <Line
-            key={w.id}
-            points={flat(withVertex(w.points, vertexDrag, w.id))}
-            stroke={sel(w.id) ? SELECT_COLOR : WALL_COLOR}
-            strokeWidth={Math.max(w.thickness, px(2))}
-            hitStrokeWidth={Math.max(w.thickness, px(12))}
-            lineCap="butt"
-            lineJoin="miter"
-            onPointerClick={() => onSelect({ kind: "wall", data: w })}
-          />
-        ))}
-
         {scene.routes.map((r) => {
           const common = {
             points: flat(withVertex(r.points, vertexDrag, r.id)),
@@ -357,13 +343,12 @@ export function SceneView(props: Props) {
         })}
       </Layer>
 
-      {/* ручки вершин выбранной зоны, маршрута или стены */}
+      {/* ручки вершин выбранной зоны или маршрута */}
       <Layer listening={selecting}>
         {selecting &&
           [
             ...scene.zones.filter((z) => sel(z.id) && z.id !== movingZoneId).map((z) => ({ kind: "zone" as const, id: z.id, pts: z.polygon })),
             ...scene.routes.filter((r) => sel(r.id)).map((r) => ({ kind: "route" as const, id: r.id, pts: r.points })),
-            ...scene.walls.filter((w) => sel(w.id)).map((w) => ({ kind: "wall" as const, id: w.id, pts: w.points })),
           ].flatMap(({ kind, id, pts }) => [
             // ручки-середины: потянуть — новая вершина там, где отпустили; клик — в середине отрезка
             ...pts.slice(0, kind === "zone" ? pts.length : pts.length - 1).map((a, i) => {

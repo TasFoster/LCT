@@ -216,7 +216,7 @@ export function App() {
           {ed.draft.length > 0 && (
             <div className="draw-bar">
               <span>
-                {ed.tool.type === "zone" ? "Зона" : ed.tool.type === "wall" ? "Стена" : "Маршрут"}: {ed.draft.length} верш.
+                {ed.tool.type === "zone" ? "Зона" : "Маршрут"}: {ed.draft.length} верш.
                 {ed.draft.length < ed.minVertices
                   ? ` — нужно ещё ${ed.minVertices - ed.draft.length}`
                   : ed.tool.type === "zone"

@@ -14,48 +14,6 @@ it("пример сцены из контракта проходит прове�
   expect(validateScene(normalize(withDefaults(example)), kindOf)).toEqual([]);
 });
 
-describe("стены", () => {
-  const base = normalize(withDefaults({ site: { width: 20, height: 10 } }));
-  const scene: Scene = {
-    ...base,
-    walls: [
-      { id: "w_ok", name: "Перегородка", points: [P(10, 0), P(10, 6)], thickness: 0.2, tags: [] },
-      { id: "w_one", name: "Одна вершина", points: [P(1, 1)], thickness: 0.2, tags: [] },
-      { id: "w_zero", name: "Нулевая", points: [P(1, 8), P(3, 8)], thickness: 0, tags: [] },
-      { id: "w_out", name: "Наружу", points: [P(18, 9), P(22, 9)], thickness: 0.2, tags: [] },
-    ],
-    operation_points: [
-      { id: "p_wall", name: "В стене", position: P(10.05, 3), zone_id: null, categories: [], tags: [] },
-      { id: "p_near", name: "У стены", position: P(10.3, 3), zone_id: null, categories: [], tags: [] },
-    ],
-    routes: [
-      { id: "r_thru", name: "Сквозь", points: [P(5, 3), P(15, 3)], bidirectional: true, tags: [] },
-      { id: "r_door", name: "В проём", points: [P(5, 8), P(15, 8)], bidirectional: true, tags: [] },
-      { id: "r_along", name: "Вдоль", points: [P(10.3, 1), P(10.3, 5)], bidirectional: true, tags: [] },
-    ],
-    robots: [
-      { id: "rb", name: "AMR", category: "amr", catalog_item_id: null, start_position: P(10, 5.9), start_heading_deg: 0, start_point_id: null, home_charging_point_id: null },
-    ],
-  };
-  const issues = validateScene(scene, kindOf).map((i) => `${i.level}: ${i.message}`);
-
-  it("находятся ровно ожидаемые проблемы — проём и проезд вдоль стены не считаются", () => {
-    expect(issues).toEqual([
-      "error: стена «Одна вершина»: меньше 2 вершин",
-      "error: стена «Нулевая»: толщина должна быть больше 0",
-      "warning: стена «Наружу» выходит за границу плана",
-      "warning: точка «В стене» стоит в стене «Перегородка»",
-      "warning: маршрут «Сквозь» проходит сквозь стену «Перегородка»",
-      "warning: робот «AMR» стоит в стене «Перегородка»",
-    ]);
-  });
-
-  it("дубль id стены с другим объектом ловится", () => {
-    const dup = { ...scene, walls: [{ ...scene.walls[0], id: "r_thru" }] };
-    expect(validateScene(dup, kindOf).map((i) => i.message)).toContain("id «r_thru» встречается больше одного раза");
-  });
-});
-
 describe("испорченная сцена: находятся ровно все заложенные проблемы", () => {
   const bad: Scene = {
     schema_version: "1.1",
@@ -66,7 +24,6 @@ describe("испорченная сцена: находятся ровно вс�
     units: "m",
     coordinate_system: "y_down",
     site: { width: 20, height: 10, boundary: siteRect(20, 10) },
-    walls: [],
     zones: [
       { id: "zr", name: "Запретная", zone_type: "restricted", polygon: rect(10, 0, 14, 4), categories: [], tags: [] },
       { id: "z2", name: "Две вершины", zone_type: "storage", polygon: [P(1, 1), P(2, 2)], categories: [], tags: [] },

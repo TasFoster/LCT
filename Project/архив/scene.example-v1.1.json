@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.2",
+  "schema_version": "1.1",
   "id": "scene-7f3c",
   "project_id": "proj-012",
   "name": "Склад А, 1 этаж",
@@ -24,19 +24,6 @@
       "opacity": 0.5
     }
   },
-  "walls": [
-    {
-      "id": "wall-server",
-      "name": "Перегородка серверной",
-      "points": [
-        { "x": 1.0, "y": 17.0 },
-        { "x": 9.0, "y": 17.0 },
-        { "x": 9.0, "y": 24.0 }
-      ],
-      "thickness": 0.2,
-      "tags": []
-    }
-  ],
   "zones": [
     {
       "id": "zone-storage-1",

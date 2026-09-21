@@ -3,15 +3,11 @@ import type { CategoryDictionary } from "../catalog/categories";
 import { dist, snapToGrid, touchesNeighbour } from "../scene/geometry";
 import { addObject, allNames, findObject, keyPointAt, newId, normalize, removeObject, resizeSite, uniqueName, updateObject, type ObjectKind } from "../scene/ops";
 import type { Background, Point, RoutePoint, Scene, SceneObject } from "../scene/types";
-import { HOTKEYS, SELECT_TOOL, type ShapeKind, type Snap, type Tool } from "./tools";
+import { HOTKEYS, SELECT_TOOL, type Snap, type Tool } from "./tools";
 
 const GRID_STEP = 0.5; // м
 const SNAP_PX = 12; // радиус прилипания на экране
 const HISTORY_LIMIT = 100;
-const DEFAULT_WALL_THICKNESS = 0.2; // м, как в контракте по умолчанию
-
-/** Куда прилипает вершина стены: вершины других стен и углы контура плана. */
-const wallSnapTargets = (s: Scene): Point[] => [...s.walls.flatMap((w) => w.points), ...s.site.boundary];
 
 export function useEditor(initial: Scene, dict: CategoryDictionary) {
   // lastKey — ключ склейки последнего изменения (см. setScene)
@@ -71,10 +67,7 @@ export function useEditor(initial: Scene, dict: CategoryDictionary) {
     resetDraft();
   };
 
-  /**
-   * Прилипание: к ключевой точке; для маршрута — к вершинам других маршрутов; для стены — к вершинам
-   * других стен (стык без щели) и углам плана (наружные стены); иначе к сетке.
-   */
+  /** Прилипание: к ключевой точке, для маршрута — к вершинам других маршрутов, иначе к сетке. */
   const snap = (world: Point, k: number): Snap => {
     const tol = SNAP_PX / k;
     if (tool.type === "zone" && draft.length >= 3 && dist(draft[0], world) <= tol) {
@@ -85,10 +78,6 @@ export function useEditor(initial: Scene, dict: CategoryDictionary) {
     if (tool.type === "route") {
       const v = scene.routes.flatMap((r) => r.points).find((v) => dist(v, world) <= tol);
       if (v) return { p: { x: v.x, y: v.y } };
-    }
-    if (tool.type === "wall") {
-      const v = wallSnapTargets(scene).find((v) => dist(v, world) <= tol);
-      if (v) return { p: { ...v } };
     }
     return { p: snapToGrid(world, GRID_STEP) };
   };
@@ -119,12 +108,6 @@ export function useEditor(initial: Scene, dict: CategoryDictionary) {
         },
       });
     }
-    if (tool.type === "wall") {
-      create({
-        kind: "wall",
-        data: { id: newId("wall"), name: nameFor(null, "Стена"), points: draft, thickness: DEFAULT_WALL_THICKNESS, tags: [] },
-      });
-    }
     if (tool.type === "route") {
       create({
         kind: "route",
@@ -151,8 +134,7 @@ export function useEditor(initial: Scene, dict: CategoryDictionary) {
         setSelectedId(null);
         return;
       case "zone":
-      case "route":
-      case "wall": {
+      case "route": {
         const last = draft[draft.length - 1];
         if (last && dist(last, p) < 1e-6) return; // второй клик двойного клика
         setDraft([...draft, p]);
@@ -240,15 +222,8 @@ export function useEditor(initial: Scene, dict: CategoryDictionary) {
     return other ? { x: other.x, y: other.y } : snapToGrid(world, GRID_STEP);
   };
 
-  /** Куда встанет вершина стены: к вершине другой стены или углу плана, иначе к сетке. exclude — её прежнее место. */
-  const snapWallVertex = (world: Point, k: number, exclude?: Point): Point => {
-    const tol = SNAP_PX / k;
-    const v = wallSnapTargets(scene).find((v) => !(exclude && dist(v, exclude) < 1e-6) && dist(v, world) <= tol);
-    return v ? { ...v } : snapToGrid(world, GRID_STEP);
-  };
-
   /** Новая вершина после вершины afterIndex (ручка-середина между вершинами). */
-  const insertVertex = (kind: ShapeKind, id: string, afterIndex: number, world: Point, k: number) => {
+  const insertVertex = (kind: "zone" | "route", id: string, afterIndex: number, world: Point, k: number) => {
     const obj = findObject(scene, id);
     if (!obj) return;
     const insert = <T,>(list: T[], item: T) => [...list.slice(0, afterIndex + 1), item, ...list.slice(afterIndex + 1)];
@@ -264,23 +239,17 @@ export function useEditor(initial: Scene, dict: CategoryDictionary) {
       const points = insert(obj.data.points, p);
       setScene((s) => updateObject(s, { kind: "route", data: { ...obj.data, points } }));
     }
-    if (kind === "wall" && obj.kind === "wall") {
-      const p = snapWallVertex(world, k);
-      if (touchesNeighbour(obj.data.points, p, { insertAfter: afterIndex }, false)) return;
-      setScene((s) => updateObject(s, { kind: "wall", data: { ...obj.data, points: insert(obj.data.points, p) } }));
-    }
   };
 
   /**
-   * Удаление вершины (двойной клик по ручке). Не ниже минимума (зона — 3, маршрут и стена — 2) и не так,
+   * Удаление вершины (двойной клик по ручке). Не ниже минимума (зона — 3, маршрут — 2) и не так,
    * чтобы совпавшие соседи встали подряд (A B A → A A).
    */
-  const deleteVertex = (kind: ShapeKind, id: string, index: number) => {
+  const deleteVertex = (kind: "zone" | "route", id: string, index: number) => {
     const obj = findObject(scene, id);
     if (!obj) return;
     const closed = kind === "zone";
-    const pts: Point[] =
-      obj.kind === "zone" ? obj.data.polygon : obj.kind === "route" || obj.kind === "wall" ? obj.data.points : [];
+    const pts: Point[] = obj.kind === "zone" ? obj.data.polygon : obj.kind === "route" ? obj.data.points : [];
     if (pts.length <= (closed ? 3 : 2)) return;
     const rest = pts.filter((_, i) => i !== index);
     const prev = closed ? (index - 1 + pts.length) % pts.length : index - 1;
@@ -288,23 +257,12 @@ export function useEditor(initial: Scene, dict: CategoryDictionary) {
     if (pts[prev] && pts[next] && dist(pts[prev], pts[next]) < 1e-6) return;
     if (obj.kind === "zone") setScene((s) => updateObject(s, { kind: "zone", data: { ...obj.data, polygon: rest } }));
     if (obj.kind === "route") setScene((s) => updateObject(s, { kind: "route", data: { ...obj.data, points: rest as RoutePoint[] } }));
-    if (obj.kind === "wall") setScene((s) => updateObject(s, { kind: "wall", data: { ...obj.data, points: rest } }));
   };
 
-  /** Перетаскивание вершины выбранной зоны, маршрута или стены (ручка в режиме выбора). */
-  const moveVertex = (kind: ShapeKind, id: string, index: number, world: Point, k: number) => {
+  /** Перетаскивание вершины выбранной зоны или маршрута (ручка в режиме выбора). */
+  const moveVertex = (kind: "zone" | "route", id: string, index: number, world: Point, k: number) => {
     const obj = findObject(scene, id);
     if (!obj) return;
-    if (kind === "wall" && obj.kind === "wall") {
-      const old = obj.data.points[index];
-      const moved = snapWallVertex(world, k, old);
-      if (touchesNeighbour(obj.data.points, moved, { move: index }, false)) return;
-      // стык стен — вершины с одинаковыми координатами: двигаем её у всех стен, иначе стык разойдётся
-      setScene((s) => ({
-        ...s,
-        walls: s.walls.map((w) => ({ ...w, points: w.points.map((v) => (dist(v, old) < 1e-6 ? { ...moved } : v)) })),
-      }));
-    }
     if (kind === "zone" && obj.kind === "zone") {
       const p = snapToGrid(world, GRID_STEP);
       if (touchesNeighbour(obj.data.polygon, p, { move: index }, true)) return;
