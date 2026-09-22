@@ -1,42 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import exampleScene from "../../scene.example.json";
 import { loadCategories } from "./catalog/categories";
 import { Properties } from "./editor/Properties";
 import { Toolbar } from "./editor/Toolbar";
 import { loadSaved, useAutosave } from "./editor/persistence";
 import { useImage } from "./editor/useImage";
+import { useSize } from "./editor/useSize";
 import { hintFor } from "./editor/tools";
 import { useEditor } from "./editor/useEditor";
 import { emptyScene, normalize, sceneFileName, withDefaults } from "./scene/ops";
 import { validateScene } from "./scene/validate";
 import { SceneView } from "./editor/SceneView";
+import { PlaybackView } from "./playback/PlaybackView";
 import type { Scene } from "./scene/types";
-
-function useSize<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const measure = () => {
-      const r = el.getBoundingClientRect();
-      setSize((s) =>
-        s.width === Math.floor(r.width) && s.height === Math.floor(r.height) ? s : { width: Math.floor(r.width), height: Math.floor(r.height) },
-      );
-    };
-    // первый размер берём сразу; дальше — ResizeObserver (панели) и resize окна
-    // (сигналы ResizeObserver привязаны к отрисовке и могут приходить с задержкой)
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    window.addEventListener("resize", measure);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", measure);
-    };
-  }, []);
-  return [ref, size] as const;
-}
 
 export function App() {
   const dict = useMemo(loadCategories, []);
@@ -55,6 +31,7 @@ export function App() {
   const dirty = ed.scene !== clean;
   const saveError = useAutosave(ed.scene, dirty);
   const [canvasRef, size] = useSize<HTMLDivElement>();
+  const [mode, setMode] = useState<"edit" | "playback">("edit");
   const { scene } = ed;
   const background = useImage(scene.site.background?.image_url);
   const issues = useMemo(() => validateScene(scene, (id) => dict.get(id)?.kind), [scene, dict]);
@@ -152,6 +129,13 @@ export function App() {
             />
           </label>
           <button onClick={() => downloadScene()}>Скачать JSON</button>
+          <button
+            className={mode === "playback" ? "active" : undefined}
+            onClick={() => setMode((m) => (m === "edit" ? "playback" : "edit"))}
+            title="Проиграть таймлайн симуляции (контракт 7) на этом плане"
+          >
+            {mode === "edit" ? "▶ Симуляция" : "✏ Редактор"}
+          </button>
         </div>
       </header>
       {error && <div className="error">{error}</div>}
@@ -190,6 +174,10 @@ export function App() {
         </div>
       )}
       <main>
+        {mode === "playback" ? (
+          <PlaybackView scene={scene} />
+        ) : (
+          <>
         <Toolbar dict={dict} tool={ed.tool} onToolChange={ed.setTool} />
         <div className="canvas" ref={canvasRef}>
           {size.width > 0 && (
@@ -246,6 +234,8 @@ export function App() {
           onBackground={ed.setBackground}
           onDelete={ed.deleteSelected}
         />
+          </>
+        )}
       </main>
     </div>
   );
