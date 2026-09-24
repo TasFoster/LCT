@@ -12,10 +12,15 @@ export type CategoryKind =
   | "characteristic" // характеристика оборудования, в редакторе не используется
   | "software"; // ПО, на план не ставится
 
+/** Категории без раздела в таблице Артёма показываем последней группой. */
+export const NO_GROUP = "Без раздела";
+
 export interface Category {
   id: string;
   name: string;
   kind: CategoryKind;
+  /** Раздел таблицы Артёма: «1. Склад и внутрискладская логистика» и т.д. */
+  group: string;
   applies_to: string;
   description: string;
   examples: string[];
@@ -43,6 +48,29 @@ export class CategoryDictionary {
 
   ofKind(...kinds: CategoryKind[]): Category[] {
     return this.all.filter((c) => kinds.includes(c.kind));
+  }
+
+  /**
+   * Категории вида, разложенные по разделам таблицы Артёма и упорядоченные по номеру
+   * раздела («1. Склад…», «2. Производство…»); «Без раздела» — всегда последним.
+   */
+  byGroup(...kinds: CategoryKind[]): { group: string; items: Category[] }[] {
+    const groups = new Map<string, Category[]>();
+    for (const c of this.ofKind(...kinds)) {
+      const list = groups.get(c.group);
+      if (list) list.push(c);
+      else groups.set(c.group, [c]);
+    }
+    const rest = groups.get(NO_GROUP);
+    groups.delete(NO_GROUP);
+    // в справочнике разделы идут вперемешку: у техники из раздела 7 строка может
+    // стоять раньше, чем у техники из раздела 6 — поэтому сортируем по номеру
+    const number = (group: string) => Number(group.match(/^(\d+)\./)?.[1] ?? Number.MAX_SAFE_INTEGER);
+    const out = [...groups]
+      .map(([group, items]) => ({ group, items }))
+      .sort((a, b) => number(a.group) - number(b.group));
+    if (rest) out.push({ group: NO_GROUP, items: rest });
+    return out;
   }
 }
 
@@ -74,6 +102,7 @@ export function validateCategories(raw: unknown[]): { categories: Category[]; wa
       id: item.id,
       name: item.name,
       kind: item.kind as CategoryKind,
+      group: typeof item.group === "string" && item.group.trim() ? item.group : NO_GROUP,
       applies_to: item.applies_to ?? "",
       description: item.description ?? "",
       examples: Array.isArray(item.examples) ? item.examples : [],

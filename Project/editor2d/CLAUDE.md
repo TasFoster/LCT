@@ -15,7 +15,9 @@ The contract this app produces is documented outside this directory:
 - `../scene.example.json` — full example scene, loaded by `App.tsx` as the default/demo scene.
 - `../архив/topology.md` / `../архив/topology.py` — superseded draft contract (pre-dates `scene.md`,
   archived, not pydantic); `scene.md` has a changelog section against it.
-- `../tools/categories_from_xlsx.py` + `../Книга1.xlsx` — generates `src/catalog/categories.json`, the
+- `../tools/categories_from_xlsx.py` + `../Книга1.xlsx` (+ `../../артём-стас.ods` as an optional third
+  argument, the same table split into sections — it fills each category's `group`, which the palette and
+  the robot-kind dropdown use to split the 39 equipment kinds) — generates `src/catalog/categories.json`, the
   equipment/zone/task category dictionary. Regenerate the script's output, don't hand-edit the JSON.
 
 `vite.config.ts` sets `server.fs.allow: [".."]` specifically so the dev server can read `scene.example.json`

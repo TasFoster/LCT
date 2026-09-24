@@ -141,10 +141,15 @@ export function Properties({ dict, scene, background, selected, issues, onSelect
             Вид оборудования
             <select value={data.category} onChange={(e) => patch({ category: e.target.value })}>
               {!dict.get(data.category) && <option value={data.category}>{data.category || "— не задан —"}</option>}
-              {dict.ofKind("equipment").map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
+              {/* те же разделы таблицы Артёма, что и в палитре слева */}
+              {dict.byGroup("equipment").map((g) => (
+                <optgroup key={g.group} label={g.group}>
+                  {g.items.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </label>

@@ -21,6 +21,31 @@ function colorFor(c: Category): string {
   return ROBOT_COLOR;
 }
 
+function PaletteItem({
+  category,
+  active,
+  onToolChange,
+}: {
+  category: Category;
+  active: string;
+  onToolChange: (tool: Tool) => void;
+}) {
+  const tool = toolFor(category);
+  return (
+    <button
+      className={`palette-item ${toolKey(tool) === active ? "active" : ""}`}
+      onClick={() => onToolChange(tool)}
+      title={tooltip(category)}
+    >
+      <span
+        className={category.kind === "place_zone" ? "swatch square" : "swatch"}
+        style={{ background: colorFor(category) }}
+      />
+      {category.name}
+    </button>
+  );
+}
+
 const tooltip = (c: Category) =>
   [c.description, c.examples.length ? `Примеры: ${c.examples.join(", ")}` : ""].filter(Boolean).join("\n");
 
@@ -33,11 +58,21 @@ export function Toolbar({ dict, tool, onToolChange }: Props) {
     const match = (c: Category) =>
       !q || c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q) ||
       c.examples.some((e) => e.toLowerCase().includes(q));
-    return [
-      { title: "Зоны", items: dict.ofKind("place_zone").filter(match) },
-      { title: "Точки", items: dict.ofKind("place_point").filter(match) },
-      { title: "Оборудование", items: dict.ofKind("equipment").filter(match) },
-    ];
+    // Оборудование разложено по разделам таблицы Артёма (поле group в справочнике),
+    // иначе это плоский список из 39 видов техники.
+    const equipment = dict
+      .byGroup("equipment")
+      .map((g) => ({ ...g, items: g.items.filter(match) }))
+      .filter((g) => g.items.length > 0);
+    return {
+      flat: [
+        { title: "Зоны", items: dict.ofKind("place_zone").filter(match) },
+        { title: "Точки", items: dict.ofKind("place_point").filter(match) },
+      ],
+      equipment,
+      equipmentCount: equipment.reduce((n, g) => n + g.items.length, 0),
+      searching: q.length > 0,
+    };
   }, [dict, query]);
 
   return (
@@ -65,28 +100,35 @@ export function Toolbar({ dict, tool, onToolChange }: Props) {
         onChange={(e) => setQuery(e.target.value)}
       />
 
-      {sections.map((s) => (
+      {sections.flat.map((s) => (
         <details key={s.title} open>
           <summary>
             {s.title} <span className="muted">{s.items.length}</span>
           </summary>
           {s.items.length === 0 && <p className="muted small">Ничего не найдено</p>}
-          {s.items.map((c) => {
-            const t = toolFor(c);
-            return (
-              <button
-                key={c.id}
-                className={`palette-item ${toolKey(t) === active ? "active" : ""}`}
-                onClick={() => onToolChange(t)}
-                title={tooltip(c)}
-              >
-                <span className={c.kind === "place_zone" ? "swatch square" : "swatch"} style={{ background: colorFor(c) }} />
-                {c.name}
-              </button>
-            );
-          })}
+          {s.items.map((c) => (
+            <PaletteItem key={c.id} category={c} active={active} onToolChange={onToolChange} />
+          ))}
         </details>
       ))}
+
+      <details open>
+        <summary>
+          Оборудование <span className="muted">{sections.equipmentCount}</span>
+        </summary>
+        {sections.equipment.length === 0 && <p className="muted small">Ничего не найдено</p>}
+        {sections.equipment.map((g, i) => (
+          // при поиске разделы раскрыты; key с признаком поиска — чтобы состояние пересоздалось
+          <details key={`${g.group}${sections.searching ? "-q" : ""}`} className="group" open={sections.searching || i === 0}>
+            <summary>
+              {g.group} <span className="muted">{g.items.length}</span>
+            </summary>
+            {g.items.map((c) => (
+              <PaletteItem key={c.id} category={c} active={active} onToolChange={onToolChange} />
+            ))}
+          </details>
+        ))}
+      </details>
 
       <p className="muted small">
         Задачи и условия среды (холод, взрывоопасность…) назначаются зоне или точке в панели свойств.
