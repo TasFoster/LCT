@@ -40,6 +40,7 @@ src/
   widgets/        AppHeader
   features/       auth/session.ts (zustand, пока заглушка)
   shared/
+    api/endpoints/  классы-эндпоинты (URL+метод+форма запроса/ответа) по api-routes.md
     config/       routes.ts — все маршруты и список шагов визарда
     types/        contracts.ts — типы по contracts/*.md
     ui/           Placeholder
@@ -55,6 +56,9 @@ src/
   шагов можно менять без ломки ссылок.
 - Типы в `shared/types/contracts.ts` повторяют `contracts/*.md`. Контракты
   черновые: при их изменении правим этот файл, а не подстраиваем компоненты.
+- URL бэкенда не пишем строками в компонентах — только через классы в
+  `shared/api/endpoints/*` (список URL зафиксирован, см. `api-routes.md`).
+  Реального HTTP-клиента поверх них пока нет — появится вместе с react-query.
 - Интерфейс на русском; рабочее разрешение — от 1366×768.
 
 ## Зависимости
