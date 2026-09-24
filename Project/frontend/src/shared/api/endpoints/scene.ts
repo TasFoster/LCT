@@ -1,6 +1,6 @@
 import { ApiEndpoint } from './base';
 import type { Scene, SimulationTimeline } from '../../types/contracts';
-import type { SimulationRunRequest, SimulationJob } from './dto';
+import type { SimulationRunRequest, SimulationJob, SceneBackgroundUploadResponse } from './dto';
 
 /**
  * PUT /api/projects/{id}/scene — шаг 7 визарда. Вызывает Владимиров из
@@ -23,6 +23,20 @@ export class SceneReadEndpoint extends ApiEndpoint<void, Scene | null> {
   }
 }
 export const sceneReadEndpoint = new SceneReadEndpoint();
+
+/**
+ * POST /api/projects/{id}/scene/background — multipart-загрузка файла подложки,
+ * отдельно от PUT /scene (скан весит мегабайты, гонять его вместе с остальной
+ * сценой не нужно). Ответ кладут в Scene.site.background.image_url вместо
+ * data: URL, который отдаёт редактор (см. scene.md, раздел Background).
+ */
+export class SceneBackgroundUploadEndpoint extends ApiEndpoint<FormData, SceneBackgroundUploadResponse> {
+  readonly method = 'POST' as const;
+  url(projectId: string) {
+    return `/api/projects/${projectId}/scene/background`;
+  }
+}
+export const sceneBackgroundUploadEndpoint = new SceneBackgroundUploadEndpoint();
 
 /** POST /api/projects/{id}/simulation — запуск async job, статус опрашивается отдельно (НФТ 4.3.3: до 60с) */
 export class SimulationRunEndpoint extends ApiEndpoint<SimulationRunRequest, SimulationJob> {

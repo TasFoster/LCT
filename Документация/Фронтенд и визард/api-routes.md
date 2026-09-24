@@ -73,6 +73,7 @@
 |---|---|
 | `PUT /api/projects/{id}/scene` | Scene (6) — вызывает Владимиров, Алексей отдаёт только TS-объект |
 | `GET /api/projects/{id}/scene` | Scene |
+| `POST /api/projects/{id}/scene/background` *(добавлено 2026-09-24)* | multipart-загрузка файла подложки (`Site.background`) → `{ image_url }`. Отдельно от `PUT /scene`, потому что сам скан может весить мегабайты — гонять его вместе с остальной сценой не нужно. Перед сохранением `Scene` API-слой обязан подменить `data:` URL из редактора на `image_url`, полученный отсюда — в сохранённых проектах `Scene.site.background.image_url` всегда обычная ссылка, не `data:` (см. `scene.md`, раздел Background) |
 | `POST /api/projects/{id}/simulation` | запуск расчёта → `{job_id}` (асинхронно, до 60с по НФТ 4.3.3) |
 | `GET /api/projects/{id}/simulation/{job_id}` | статус job (`pending/running/done/error`) |
 | `GET /api/projects/{id}/simulation/{job_id}/timeline` | готовый SimulationTimeline (7) для playback |

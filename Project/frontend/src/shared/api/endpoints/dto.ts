@@ -118,6 +118,13 @@ export interface ScenarioPatchRequest {
   assumptions_overrides?: Record<string, number>;
 }
 
+// --- шаг 7: подложка сцены ---
+
+/** Ответ POST /api/projects/{id}/scene/background — ссылку кладут в Scene.site.background.image_url */
+export interface SceneBackgroundUploadResponse {
+  image_url: string;
+}
+
 // --- шаг 7: симуляция ---
 
 export interface SimulationRunRequest {

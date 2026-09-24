@@ -20,7 +20,14 @@ class Point(BaseModel):
 
 
 class Background(BaseModel):
-    image_url: str = Field(..., description="Обычный адрес или data: URL")
+    image_url: str = Field(
+        ...,
+        description=(
+            "Ссылка на подложку. Для сцен, сохранённых через API — постоянный URL, "
+            "полученный из POST /api/projects/{id}/scene/background (не data:, "
+            "см. scene.md, раздел Background)"
+        ),
+    )
     x: float
     y: float
     width: float
