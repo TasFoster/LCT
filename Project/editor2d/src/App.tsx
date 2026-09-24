@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import exampleScene from "../../scene.example.json";
+import { canonicalizeScene } from "./catalog/canonicalize";
 import { loadCategories } from "./catalog/categories";
 import { Properties } from "./editor/Properties";
 import { ServerPanel } from "./editor/ServerPanel";
@@ -62,7 +63,8 @@ export function App() {
 
   const openFile = async (file: File) => {
     try {
-      const loaded = normalize(withDefaults(JSON.parse(await file.text())));
+      // сцена могла прийти из визарда — приводим названия категорий к справочнику Артёма
+      const loaded = canonicalizeScene(normalize(withDefaults(JSON.parse(await file.text()))), dict);
       ed.loadScene(loaded);
       setClean(loaded);
       setError(null);
@@ -72,8 +74,9 @@ export function App() {
   };
 
   /** Сцена пришла с сервера — заменяем текущую с тем же вопросом, что и при открытии файла. */
-  const sceneFromServer = (loaded: Scene) =>
+  const sceneFromServer = (fromServer: Scene) =>
     replaceScene("сцену с сервера", () => {
+      const loaded = canonicalizeScene(fromServer, dict);
       ed.loadScene(loaded);
       setClean(loaded);
       setError(null);

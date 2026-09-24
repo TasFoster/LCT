@@ -1,0 +1,548 @@
+{
+  "$comment": "Собран скриптом tools/categories_from_xlsx.py из таблицы Артёма — руками не править. id — главное название категории, aliases — как её же называют в другом справочнике; и то и другое означает одну категорию. group — раздел таблицы Артёма.",
+  "version": 3,
+  "source": "Книга1.xlsx + артём-стас.ods",
+  "equipment_categories": [
+    {
+      "id": "mobilnyy_robot",
+      "label": "Мобильный робот",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "amr",
+      "label": "AMR",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "fmr_avtonomnyy_pogruzchik",
+      "label": "FMR / автономный погрузчик",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "stacker",
+      "label": "Робот-штабелер",
+      "aliases": [
+        "robot_shtabeler"
+      ],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "tug",
+      "label": "Робот-тягач",
+      "aliases": [
+        "robot_tyagach"
+      ],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "cleaner",
+      "label": "Робот-уборщик",
+      "aliases": [
+        "robot_uborschik"
+      ],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "forklift",
+      "label": "Беспилотный погрузчик",
+      "aliases": [
+        "bespilotnyy_pogruzchik"
+      ],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "asrs",
+      "label": "Стационарная система умного хранения",
+      "aliases": [
+        "statsionarnaya_sistema_umnogo_hraneniya"
+      ],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "robot_manipulyator",
+      "label": "Робот-манипулятор",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "robot_ukladchik",
+      "label": "Робот-укладчик",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "delta_robot",
+      "label": "Дельта-робот",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "kollaborativnyy_robot_kobot",
+      "label": "Коллаборативный робот (кобот)",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "sorter",
+      "label": "Робот-сортировщик",
+      "aliases": [
+        "robot_sortirovschik"
+      ],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "robot_inventarizator",
+      "label": "Робот-инвентаризатор",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "robot_rover",
+      "label": "Робот-ровер",
+      "aliases": [],
+      "group": "3. Транспорт, логистика и доставка"
+    },
+    {
+      "id": "delivery",
+      "label": "Робот-курьер",
+      "aliases": [
+        "robot_kurer"
+      ],
+      "group": "3. Транспорт, логистика и доставка"
+    },
+    {
+      "id": "antropomorfnyy_robot",
+      "label": "Антропоморфный робот",
+      "aliases": [],
+      "group": "5. Торговля, услуги и общественные пространства"
+    },
+    {
+      "id": "robo_kafe",
+      "label": "Робо-кафе",
+      "aliases": [],
+      "group": "5. Торговля, услуги и общественные пространства"
+    },
+    {
+      "id": "mobilnyy_manipulyator",
+      "label": "Мобильный манипулятор",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "robotizirovannaya_ustanovka",
+      "label": "Роботизированная установка",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "robotizirovannaya_pristanochnaya_yacheyka",
+      "label": "Роботизированная пристаночная ячейка",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "robotizirovannyy_svarochnyy_kompleks",
+      "label": "Роботизированный сварочный комплекс",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "robotizirovannye_pogruzochnye_krany",
+      "label": "Роботизированные погрузочные краны",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "vnutritrubnaya_robotizirovannaya_sistema",
+      "label": "Внутритрубная роботизированная система",
+      "aliases": [],
+      "group": "7. Инфраструктура, ЖКХ и подземные коммуникации"
+    },
+    {
+      "id": "robot_laborant",
+      "label": "Робот-лаборант",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "robot_ekolog_obhodchik",
+      "label": "Робот-эколог / обходчик",
+      "aliases": [],
+      "group": "6. Безопасность, патрулирование и ЧС"
+    },
+    {
+      "id": "ohrannyy_robot",
+      "label": "Охранный робот",
+      "aliases": [],
+      "group": "6. Безопасность, патрулирование и ЧС"
+    },
+    {
+      "id": "robotizirovannyy_lafetnyy_stvol",
+      "label": "Роботизированный лафетный ствол",
+      "aliases": [],
+      "group": "6. Безопасность, патрулирование и ЧС"
+    },
+    {
+      "id": "robotizirovannaya_telezhka",
+      "label": "Роботизированная тележка",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "universalnaya_avtonomnaya_robotizirovannaya_platforma",
+      "label": "Универсальная автономная роботизированная платформа",
+      "aliases": [],
+      "group": null
+    },
+    {
+      "id": "bas",
+      "label": "БАС",
+      "aliases": [],
+      "group": "8. Авиационные системы (БАС / дроны)"
+    },
+    {
+      "id": "bas_multirotornogo_tipa",
+      "label": "БАС мультироторного типа",
+      "aliases": [],
+      "group": "8. Авиационные системы (БАС / дроны)"
+    },
+    {
+      "id": "bas_samoletnogo_tipa",
+      "label": "БАС самолетного типа",
+      "aliases": [],
+      "group": "8. Авиационные системы (БАС / дроны)"
+    },
+    {
+      "id": "vtol",
+      "label": "VTOL",
+      "aliases": [],
+      "group": "8. Авиационные системы (БАС / дроны)"
+    },
+    {
+      "id": "bas_dlya_aerofotosemki",
+      "label": "БАС для аэрофотосъемки",
+      "aliases": [],
+      "group": "8. Авиационные системы (БАС / дроны)"
+    },
+    {
+      "id": "bas_dlya_monitoringa",
+      "label": "БАС для мониторинга",
+      "aliases": [],
+      "group": "8. Авиационные системы (БАС / дроны)"
+    },
+    {
+      "id": "bas_dlya_dostavki_gruzov",
+      "label": "БАС для доставки грузов",
+      "aliases": [],
+      "group": "3. Транспорт, логистика и доставка"
+    },
+    {
+      "id": "bas_dlya_moyki_fasadov",
+      "label": "БАС для мойки фасадов",
+      "aliases": [],
+      "group": "8. Авиационные системы (БАС / дроны)"
+    },
+    {
+      "id": "bas_dlya_poiska_propavshih",
+      "label": "БАС для поиска пропавших",
+      "aliases": [],
+      "group": "8. Авиационные системы (БАС / дроны)"
+    }
+  ],
+  "working_zones": [
+    {
+      "id": "zona_sterilnosti",
+      "label": "Зона стерильности",
+      "aliases": [],
+      "group": "4. Медицина, лаборатории и стерильные зоны",
+      "zone_type": "restricted"
+    },
+    {
+      "id": "storage",
+      "label": "Зона хранения",
+      "aliases": [
+        "zona_hraneniya"
+      ],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "storage"
+    },
+    {
+      "id": "picking",
+      "label": "Зона комплектации",
+      "aliases": [
+        "zona_komplektatsii"
+      ],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "operation"
+    },
+    {
+      "id": "zona_sortirovki",
+      "label": "Зона сортировки",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "operation"
+    },
+    {
+      "id": "shipping",
+      "label": "Зона отгрузки",
+      "aliases": [
+        "zona_otgruzki"
+      ],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "operation"
+    },
+    {
+      "id": "receiving",
+      "label": "Зона приемки",
+      "aliases": [
+        "zona_priemki"
+      ],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "operation"
+    },
+    {
+      "id": "zona_uborki",
+      "label": "Зона уборки",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "operation"
+    },
+    {
+      "id": "zona_moyki",
+      "label": "Зона мойки",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "operation"
+    },
+    {
+      "id": "zona_to",
+      "label": "Зона ТО",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "operation"
+    },
+    {
+      "id": "zona_stoyanki",
+      "label": "Зона стоянки",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "transit"
+    },
+    {
+      "id": "zona_ozhidaniya",
+      "label": "Зона ожидания",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "transit"
+    },
+    {
+      "id": "zona_manevrirovaniya",
+      "label": "Зона маневрирования",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика",
+      "zone_type": "transit"
+    }
+  ],
+  "point_kinds": [
+    {
+      "id": "tochka_priemki",
+      "label": "Точка приёмки",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика",
+      "point_kind": "operation"
+    },
+    {
+      "id": "charging",
+      "label": "Точка зарядки",
+      "aliases": [
+        "tochka_zaryadki"
+      ],
+      "group": "1. Склад и внутрискладская логистика",
+      "point_kind": "charging"
+    },
+    {
+      "id": "packing",
+      "label": "Пост упаковки",
+      "aliases": [
+        "post_upakovki"
+      ],
+      "group": "1. Склад и внутрискладская логистика",
+      "point_kind": "operation"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "vnutriskladskaya_logistika",
+      "label": "Внутрискладская логистика",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "vnutriproizvodstvennaya_logistika",
+      "label": "Внутрипроизводственная логистика",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "sortirovka_gruzov",
+      "label": "Сортировка грузов",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "uborka_pomescheniy",
+      "label": "Уборка помещений",
+      "aliases": [],
+      "group": null
+    },
+    {
+      "id": "inventarizatsiya_sklada",
+      "label": "Инвентаризация склада",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "dostavka_posledney_mili",
+      "label": "Доставка последней мили",
+      "aliases": [],
+      "group": "3. Транспорт, логистика и доставка"
+    },
+    {
+      "id": "prigotovlenie_napitkov",
+      "label": "Приготовление напитков",
+      "aliases": [],
+      "group": "5. Торговля, услуги и общественные пространства"
+    },
+    {
+      "id": "proizvodstvo_izdeliy",
+      "label": "Производство изделий",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "sborka_tovarov",
+      "label": "Сборка товаров",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "ukladka_zagotovok",
+      "label": "Укладка заготовок",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "monitoring_sostoyaniya_infrastruktury",
+      "label": "Мониторинг состояния инфраструктуры",
+      "aliases": [],
+      "group": "7. Инфраструктура, ЖКХ и подземные коммуникации"
+    },
+    {
+      "id": "sortirovka_gruzov_na_proizvodstve",
+      "label": "Сортировка грузов на производстве",
+      "aliases": [],
+      "group": "2. Производство и цех"
+    },
+    {
+      "id": "avtomatizirovannyy_laboratornyy_analiz",
+      "label": "Автоматизированный лабораторный анализ",
+      "aliases": [],
+      "group": "4. Медицина, лаборатории и стерильные зоны"
+    },
+    {
+      "id": "monitoring",
+      "label": "Мониторинг",
+      "aliases": [],
+      "group": "7. Инфраструктура, ЖКХ и подземные коммуникации"
+    },
+    {
+      "id": "patrulirovanie_ploschadnyh_obektov",
+      "label": "Патрулирование площадных объектов",
+      "aliases": [],
+      "group": "6. Безопасность, патрулирование и ЧС"
+    },
+    {
+      "id": "dostavka_biomaterialov",
+      "label": "Доставка биоматериалов",
+      "aliases": [],
+      "group": "4. Медицина, лаборатории и стерильные зоны"
+    },
+    {
+      "id": "okazanie_meditsinskoy_pomoschi",
+      "label": "Оказание медицинской помощи",
+      "aliases": [],
+      "group": "4. Медицина, лаборатории и стерильные зоны"
+    },
+    {
+      "id": "tushenie_pozharov",
+      "label": "Тушение пожаров",
+      "aliases": [],
+      "group": "6. Безопасность, патрулирование и ЧС"
+    },
+    {
+      "id": "evakuatsiya_postradavshih_s_mesta_chs",
+      "label": "Эвакуация пострадавших с места ЧС",
+      "aliases": [],
+      "group": "6. Безопасность, патрулирование и ЧС"
+    },
+    {
+      "id": "obsledovanie_podzemnoy_infrastruktury",
+      "label": "Обследование подземной инфраструктуры",
+      "aliases": [],
+      "group": "7. Инфраструктура, ЖКХ и подземные коммуникации"
+    },
+    {
+      "id": "monitoring_transportnoy_infrastruktury",
+      "label": "Мониторинг транспортной инфраструктуры",
+      "aliases": [],
+      "group": "3. Транспорт, логистика и доставка"
+    },
+    {
+      "id": "gorodskaya_dostavka_v_postamaty",
+      "label": "Городская доставка в постаматы",
+      "aliases": [],
+      "group": "3. Транспорт, логистика и доставка"
+    }
+  ],
+  "environments": [
+    {
+      "id": "otkrytaya_zona",
+      "label": "Открытая зона",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "zakrytaya_zona",
+      "label": "Закрытая зона",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "holod",
+      "label": "Холод",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "povyshennaya_vlazhnost",
+      "label": "Повышенная влажность",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    },
+    {
+      "id": "sterilnost",
+      "label": "Стерильность",
+      "aliases": [],
+      "group": "4. Медицина, лаборатории и стерильные зоны"
+    },
+    {
+      "id": "vzryvoopasnaya_zona",
+      "label": "Взрывоопасная зона",
+      "aliases": [],
+      "group": "1. Склад и внутрискладская логистика"
+    }
+  ]
+}

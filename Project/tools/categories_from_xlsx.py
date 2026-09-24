@@ -7,6 +7,10 @@
 В таблице нет id, поэтому id получается транслитерацией названия. Когда у Артёма
 появятся свои id, их нужно брать из таблицы, а эту функцию убрать.
 
+С `--dictionary=путь.json` тот же справочник дополнительно выгружается в форме,
+принятой в визарде Владимирова (разделами: equipment_categories, working_zones,
+point_kinds, tasks, environments) — чтобы форма и редактор читали один список.
+
 Третий аргумент необязательный — та же таблица Артёма в .ods, где категории
 разложены по разделам («1. Склад и внутрискладская логистика», «8. Авиационные
 системы» и т.д.). Из неё берётся поле group: по нему редактор разбивает
@@ -26,6 +30,30 @@ TRANSLIT = dict(zip(
     ["a", "b", "v", "g", "d", "e", "e", "zh", "z", "i", "y", "k", "l", "m", "n", "o", "p",
      "r", "s", "t", "u", "f", "h", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya"],
 ))
+
+# Как та же категория называется в справочнике визарда (Владимиров,
+# contracts/dictionaries/categories.json): id категории Артёма -> его id.
+# Нужно, чтобы форма и редактор понимали друг друга: в данных может прийти
+# любое из названий, а означают они одно и то же. Список сверяется при
+# генерации: несуществующий id категории или повтор чужого id — ошибка.
+EXTERNAL_IDS = {
+    # оборудование
+    "amr": ["amr"],
+    "robot_shtabeler": ["stacker"],
+    "robot_tyagach": ["tug"],
+    "bespilotnyy_pogruzchik": ["forklift"],
+    "robot_uborschik": ["cleaner"],
+    "statsionarnaya_sistema_umnogo_hraneniya": ["asrs"],
+    "robot_sortirovschik": ["sorter"],
+    "robot_kurer": ["delivery"],
+    # зоны и точки: у визарда это «рабочие зоны» формы
+    "zona_priemki": ["receiving"],
+    "zona_hraneniya": ["storage"],
+    "zona_komplektatsii": ["picking"],
+    "zona_otgruzki": ["shipping"],
+    "post_upakovki": ["packing"],
+    "tochka_zaryadki": ["charging"],
+}
 
 # «Зона …» из группы «точка на плане» -> тип зоны по контракту сцены (по умолчанию operation)
 ZONE_TYPES = {
@@ -77,7 +105,55 @@ def read_groups(path: str) -> dict[str, str]:
     return groups
 
 
-def main(src: str, dst: str, groups_src: str | None = None) -> None:
+#: Разделы справочника визарда: как он называет то, что у Артёма отличается видом (kind)
+DICTIONARY_SECTIONS = [
+    ("equipment_categories", "equipment"),
+    ("working_zones", "place_zone"),
+    ("point_kinds", "place_point"),
+    ("tasks", "task"),
+    ("environments", "environment"),
+]
+
+
+def write_dictionary(categories: list[dict], dst: str) -> None:
+    """Тот же справочник в форме, принятой в визарде (contracts/dictionaries/categories.json):
+    разделами, с главным id и списком других названий той же категории.
+
+    Главный id — английский, если он уже заведён у Владимирова (тогда наш транслит уходит
+    в aliases); у остальных категорий главным остаётся транслит из таблицы Артёма, потому
+    что английского названия для них никто не утверждал — придумывать его скрипту нельзя.
+    """
+    out: dict = {
+        "$comment": (
+            "Собран скриптом tools/categories_from_xlsx.py из таблицы Артёма — руками не править. "
+            "id — главное название категории, aliases — как её же называют в другом справочнике; "
+            "и то и другое означает одну категорию. group — раздел таблицы Артёма."
+        ),
+        "version": 3,
+        "source": "Книга1.xlsx + артём-стас.ods",
+    }
+    for section, kind in DICTIONARY_SECTIONS:
+        items = []
+        for c in categories:
+            if c["kind"] != kind:
+                continue
+            external = c["aliases"]
+            main_id = external[0] if external else c["id"]
+            other = [a for a in ([c["id"]] + external[1:] if external else []) if a != main_id]
+            item = {"id": main_id, "label": c["name"], "aliases": other, "group": c["group"]}
+            if kind == "place_zone":
+                item["zone_type"] = c["zone_type"]
+            if kind == "place_point":
+                item["point_kind"] = c["point_kind"]
+            items.append(item)
+        out[section] = items
+    with open(dst, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    print(f"справочник для визарда -> {dst}: " + ", ".join(f"{s} {len(out[s])}" for s, _ in DICTIONARY_SECTIONS))
+
+
+def main(src: str, dst: str, groups_src: str | None = None, dictionary_dst: str | None = None) -> None:
     groups = read_groups(groups_src) if groups_src else {}
     ws = openpyxl.load_workbook(src, data_only=True).active
     rows = [r for r in ws.iter_rows(min_row=2, values_only=True) if r and r[0]]
@@ -97,6 +173,7 @@ def main(src: str, dst: str, groups_src: str | None = None) -> None:
             "name": name,
             "kind": kind,
             "group": groups.get(name),  # раздел таблицы Артёма; null — в .ods такой строки нет
+            "aliases": EXTERNAL_IDS.get(cid, []),  # те же категории в справочнике визарда
             "applies_to": applies_to,
             "description": description,
             "examples": [e.strip() for e in str(examples or "").split(",") if e.strip()],
@@ -106,6 +183,17 @@ def main(src: str, dst: str, groups_src: str | None = None) -> None:
         if kind == "place_point":
             item["point_kind"] = "charging" if name == "Точка зарядки" else "operation"
         categories.append(item)
+
+    # сверяем таблицу соответствий: опечатка в ней тихо разорвала бы связь формы и редактора
+    unknown = [cid for cid in EXTERNAL_IDS if cid not in seen]
+    if unknown:
+        sys.exit(f"в EXTERNAL_IDS есть id, которых нет в таблице: {unknown}")
+    used: dict[str, str] = {}
+    for cid, external in EXTERNAL_IDS.items():
+        for e in external:
+            if e in used:
+                sys.exit(f"чужой id {e!r} указан сразу у {used[e]!r} и {cid!r}")
+            used[e] = cid
 
     out = {
         "source": src.replace("\\", "/").split("/")[-1],
@@ -120,12 +208,16 @@ def main(src: str, dst: str, groups_src: str | None = None) -> None:
     for c in categories:
         counts[c["kind"]] = counts.get(c["kind"], 0) + 1
     print(f"{len(categories)} категорий -> {dst}: {counts}")
+    if dictionary_dst:
+        write_dictionary(categories, dictionary_dst)
     if groups:
         no_group = [c["name"] for c in categories if not c["group"]]
         print(f"разделов: {len(set(groups.values()))}; без раздела: {no_group or 'нет'}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) not in (3, 4):
+    args = [a for a in sys.argv[1:] if not a.startswith("--dictionary")]
+    flag = next((a for a in sys.argv[1:] if a.startswith("--dictionary=")), None)
+    if len(args) not in (2, 3):
         sys.exit(__doc__)
-    main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) == 4 else None)
+    main(args[0], args[1], args[2] if len(args) == 3 else None, flag.split("=", 1)[1] if flag else None)

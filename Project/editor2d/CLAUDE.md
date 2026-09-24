@@ -78,6 +78,10 @@ or `chr()` round-trip in Python) — don't trust that the editor rendered what y
     (includes wall rules: too few vertices, non-positive thickness, routes passing through a wall);
     takes the category-kind lookup as a function parameter specifically so `scene/` doesn't import `catalog/`.
   - `colors.ts` — rendering colors by zone/object type (only real UI concern living in `scene/`).
+- **`src/catalog/`** also resolves *foreign* category ids: each category carries `aliases` (what the
+  wizard's dictionary calls the same thing — `storage` for `zona_hraneniya`), `CategoryDictionary.get`
+  falls back to them, and `canonicalize.ts` rewrites a whole incoming `Scene` to our ids. `App.tsx`
+  runs it on every scene that comes from outside (opened file, scene loaded from the server).
 - **`src/catalog/`** loads and validates `categories.json` (the category dictionary) into a
   `CategoryDictionary`; malformed rows are dropped with a `console.warn`, not a crash — the dictionary
   is regenerated from an external spreadsheet and must tolerate drift.

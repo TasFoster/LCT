@@ -21,6 +21,8 @@ export interface Category {
   kind: CategoryKind;
   /** Раздел таблицы Артёма: «1. Склад и внутрискладская логистика» и т.д. */
   group: string;
+  /** Как та же категория называется в справочнике визарда: «storage» для «zona_hraneniya». */
+  aliases: string[];
   applies_to: string;
   description: string;
   examples: string[];
@@ -31,14 +33,26 @@ export interface Category {
 export class CategoryDictionary {
   readonly all: Category[];
   private byId: Map<string, Category>;
+  private byAlias: Map<string, Category>;
 
   constructor(categories: Category[]) {
     this.all = categories;
     this.byId = new Map(categories.map((c) => [c.id, c]));
+    // чужие названия той же категории (справочник визарда): id редактора имеет приоритет
+    this.byAlias = new Map();
+    for (const c of categories) {
+      for (const a of c.aliases) if (!this.byId.has(a) && !this.byAlias.has(a)) this.byAlias.set(a, c);
+    }
   }
 
+  /** Категория по нашему id или по чужому названию из справочника визарда. */
   get(id: string): Category | undefined {
-    return this.byId.get(id);
+    return this.byId.get(id) ?? this.byAlias.get(id);
+  }
+
+  /** Наш id для категории: «storage» -> «zona_hraneniya». Незнакомое название возвращаем как есть. */
+  canonical(id: string): string {
+    return this.get(id)?.id ?? id;
   }
 
   /** Название для показа; неизвестный id показываем как есть, чтобы не терять данные. */
@@ -103,6 +117,7 @@ export function validateCategories(raw: unknown[]): { categories: Category[]; wa
       name: item.name,
       kind: item.kind as CategoryKind,
       group: typeof item.group === "string" && item.group.trim() ? item.group : NO_GROUP,
+      aliases: Array.isArray(item.aliases) ? item.aliases.filter((a) => typeof a === "string") : [],
       applies_to: item.applies_to ?? "",
       description: item.description ?? "",
       examples: Array.isArray(item.examples) ? item.examples : [],

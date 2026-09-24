@@ -11,6 +11,21 @@ it("настоящий справочник читается целиком и �
   expect(byKind).toEqual({ characteristic: 49, environment: 6, equipment: 39, place_point: 3, place_zone: 12, software: 3, task: 22 });
 });
 
+it("чужие названия категорий не пересекаются между собой и с нашими id", () => {
+  const dict = loadCategories();
+  const seen = new Map<string, string>();
+  for (const c of dict.all) {
+    for (const a of c.aliases) {
+      const owner = seen.get(a);
+      expect(owner, `чужое название «${a}» указано и у «${owner}», и у «${c.id}»`).toBeUndefined();
+      seen.set(a, c.id);
+      const own = dict.all.find((x) => x.id === a);
+      expect(own === undefined || own.id === c.id, `«${a}» — и чужое название, и наш id`).toBe(true);
+    }
+  }
+  expect(seen.size).toBeGreaterThan(10);
+});
+
 it("оборудование разложено по разделам таблицы Артёма", () => {
   const groups = loadCategories().byGroup("equipment");
   expect(groups.reduce((n, g) => n + g.items.length, 0)).toBe(39);

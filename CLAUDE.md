@@ -55,8 +55,11 @@ npx vitest run src/scene/ops.test.ts   # один файл тестов
 
 ```bash
 cd Project
-python tools/categories_from_xlsx.py Книга1.xlsx editor2d/src/catalog/categories.json ../артём-стас.ods
+python tools/categories_from_xlsx.py Книга1.xlsx editor2d/src/catalog/categories.json ../артём-стас.ods \
+  --dictionary=backend/contracts/dictionaries/categories.json
 ```
+
+`--dictionary` выгружает тот же справочник в форме, принятой в визарде (разделами: `equipment_categories`, `working_zones`, `point_kinds`, `tasks`, `environments`) — это общий файл для формы, редактора и бэкенда, тоже только из скрипта. У категории два поля названий: `id` (главное) и `aliases` (как ту же категорию называют в другом справочнике); таблица соответствий лежит в `EXTERNAL_IDS` внутри скрипта и сверяется при генерации, чтобы опечатка не разорвала связь формы и плана.
 
 ## Архитектура: контракты между модулями (`Project/backend/contracts/`)
 
