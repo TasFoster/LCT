@@ -78,3 +78,7 @@ header button.active { background: #faeeda; border-color: #ef9f27; }
 .playback-kpi { display: flex; align-items: center; gap: 20px; padding: 8px 16px; background: #fff; border-top: 1px solid #d3d1c7; font-size: 13px; flex-wrap: wrap; }
 .playback-kpi .bottlenecks { flex-basis: 100%; display: flex; flex-direction: column; gap: 4px; }
 .hint-static { padding: 40px 16px; text-align: center; color: #6b6a64; }
+.field-row button { flex: 1; }
+.server-status { margin: 0; font-size: 12px; }
+.server-status.ok { color: #27500a; background: none; padding: 0; }
+.server-status.error { background: none; padding: 0; }

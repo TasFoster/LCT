@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import exampleScene from "../../scene.example.json";
 import { loadCategories } from "./catalog/categories";
 import { Properties } from "./editor/Properties";
+import { ServerPanel } from "./editor/ServerPanel";
 import { Toolbar } from "./editor/Toolbar";
 import { loadSaved, useAutosave } from "./editor/persistence";
 import { useImage } from "./editor/useImage";
@@ -13,6 +14,9 @@ import { validateScene } from "./scene/validate";
 import { SceneView } from "./editor/SceneView";
 import { PlaybackView } from "./playback/PlaybackView";
 import type { Scene } from "./scene/types";
+
+/** ?embed=1 — редактор открыт внутри визарда: на сервер ходит визард, а не он. */
+const embedded = new URLSearchParams(window.location.search).has("embed");
 
 export function App() {
   const dict = useMemo(loadCategories, []);
@@ -66,6 +70,14 @@ export function App() {
       setError(`Не удалось открыть ${file.name}: ${(e as Error).message}`);
     }
   };
+
+  /** Сцена пришла с сервера — заменяем текущую с тем же вопросом, что и при открытии файла. */
+  const sceneFromServer = (loaded: Scene) =>
+    replaceScene("сцену с сервера", () => {
+      ed.loadScene(loaded);
+      setClean(loaded);
+      setError(null);
+    });
 
   const downloadScene = (force = false) => {
     // сцена с ошибками нарушает контракт — сначала спросить
@@ -233,6 +245,9 @@ export function App() {
           onResize={ed.resizePlan}
           onBackground={ed.setBackground}
           onDelete={ed.deleteSelected}
+          server={
+            embedded ? null : <ServerPanel scene={scene} errorCount={errorCount} onLoaded={sceneFromServer} />
+          }
         />
           </>
         )}

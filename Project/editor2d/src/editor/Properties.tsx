@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { CategoryDictionary, CategoryKind } from "../catalog/categories";
 import { ZONE_TYPE_LABELS } from "../scene/colors";
 import type { Background, Scene, SceneObject, ZoneType } from "../scene/types";
@@ -34,9 +34,11 @@ interface Props {
   onResize: (width: number, height: number, mergeKey?: string) => void;
   onBackground: (bg: Background | null, mergeKey?: string) => void;
   onDelete: () => void;
+  /** Блок обмена с сервером платформы; null — редактор встроен в визард, на сервер ходит он. */
+  server?: ReactNode;
 }
 
-export function Properties({ dict, scene, background, selected, issues, onSelectId, onChange, onSceneInfo, onResize, onBackground, onDelete }: Props) {
+export function Properties({ dict, scene, background, selected, issues, onSelectId, onChange, onSceneInfo, onResize, onBackground, onDelete, server }: Props) {
   if (!selected) {
     return (
       <aside className="properties">
@@ -63,6 +65,7 @@ export function Properties({ dict, scene, background, selected, issues, onSelect
           </label>
         </div>
         <BackgroundFields scene={scene} state={background} onChange={onBackground} />
+        {server}
         <h3>Состав сцены</h3>
         <ul className="counts">
           <li>Зоны: {scene.zones.length}</li>
