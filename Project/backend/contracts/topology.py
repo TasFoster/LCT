@@ -1,8 +1,8 @@
-"""Контракт 6: Scene. Граница Алексей (editor2d, Project/frontend/editor2d/) -> Артём/Стас (matching), Стас (simulation),
+"""Контракт 6: Scene. Граница Алексей (редактор плана, Project/frontend/src/features/planEditor/) -> Артём/Стас (matching), Стас (simulation),
 Владимиров (хранение проекта, contracts/records.py).
 
-Зеркалит поле-в-поле ../scene.md (источник истины — Алексей ведёт его вручную рядом
-с editor2d/src/scene/types.ts). При изменении scene.md синхронизируй оба файла: этот
+Зеркалит поле-в-поле ../scene.md (источник истины — Алексей ведёт его вручную; TS-зеркало —
+frontend/src/shared/types/contracts.ts). При изменении scene.md синхронизируй оба файла: этот
 и topology.md."""
 
 from typing import Literal, Optional

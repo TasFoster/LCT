@@ -1,6 +1,7 @@
 """Демо-скрипт: прогоняет run_simulation на scene.example.json и сохраняет
-SimulationTimeline в JSON — способ получить файл для playback в editor2d
-(кнопка «Открыть таймлайн симуляции») без реального API-слоя, которого пока нет.
+SimulationTimeline в JSON — способ получить файл для проигрывания в
+frontend/src/features/planEditor/playback (кнопка «Открыть таймлайн симуляции»)
+без реального API-слоя, которого пока нет.
 
 Запуск из Project/backend/:
     python -m simulation.demo путь_к_файлу.json

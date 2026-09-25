@@ -7,7 +7,7 @@
 3. EconInput / EconOutput   Александра -> Стас (econWrapper), см. econ_io.py
 4. ProjectInput             Владимиров -> Стас
 5. MatchResult              Стас -> фронт, econWrapper, simulation
-6. Scene                    Алексей (editor2d) -> Артём/Стас (matching), Стас (simulation), Владимиров (хранение), см. topology.py
+6. Scene                    Алексей (редактор плана) -> Артём/Стас (matching), Стас (simulation), Владимиров (хранение), см. topology.py
 7. SimulationTimeline       Стас -> Алексей
 8. ScenarioInput/EconomicsResult   Стас (econWrapper) -> Владимиров
 9. ProjectRecord            Владимиров (backend-glue) <-> БД, -> фронт

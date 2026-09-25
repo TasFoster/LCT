@@ -8,7 +8,7 @@
 ## 0. Входные данные — важное уточнение по сцене
 
 `backend/contracts/topology.py` (контракт 6) — устаревший черновик. Реальный контракт
-сцены теперь — **`scene.md` / `scene.example.json` / `frontend/editor2d/src/scene/types.ts`**
+сцены теперь — **`scene.md` / `scene.example.json` / `frontend/src/shared/types/contracts.ts`**
 (Алексей, готово). Симуляция должна читать именно эту структуру:
 `Scene{site, zones, operation_points, charging_points, routes, robots}`, координаты —
 метры, `y_down`. `backend/contracts/topology.py` нужно будет переписать под неё до
@@ -178,7 +178,7 @@ enum — это не меняет набор состояний ниже, тол
    количеству роботов на сцене — `MatchResult.selected_equipment.quantity` или
    фактический список `Scene.robots`? Сейчас это может разойтись (пользователь
    вручную расставил в редакторе не столько роботов, сколько посчитал matching).
-   Решить до интеграции matching → editor2d → simulation.
+   Решить до интеграции matching → редактор плана → simulation.
 
 ## 9. Явные допущения (пойдут в `assumptions_note`, когда контракт получит это поле)
 

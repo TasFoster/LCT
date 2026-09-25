@@ -1,7 +1,14 @@
-"""Справочник категорий Артёма (xlsx) -> categories.json для редактора.
+"""Справочник категорий Артёма (xlsx) -> общий справочник платформы.
 
 Запуск из папки Project:
-    python tools/categories_from_xlsx.py Книга1.xlsx frontend/editor2d/src/catalog/categories.json книга2.xlsx
+    python tools/categories_from_xlsx.py Книга1.xlsx - книга2.xlsx \
+        --dictionary=backend/contracts/dictionaries/categories.json \
+        --characteristics=backend/contracts/dictionaries/characteristics.json
+
+Второй аргумент — куда писать плоский список категорий (прежний формат редактора);
+«-» — не писать. С 2026-09-25 редактор плана — модуль визарда
+(frontend/src/features/planEditor) и читает только общий справочник из --dictionary,
+своего categories.json у него нет.
 
 Колонки xlsx: Название категории | К чему относится | Короткое описание | Пример.
 В таблице нет id, поэтому id получается транслитерацией названия. Когда у Артёма
@@ -450,14 +457,15 @@ def main(src: str, dst: str, groups_src: str | None = None, dictionary_dst: str 
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "categories": categories,
     }
-    with open(dst, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=2)
-        f.write("\n")
+    if dst != "-":
+        with open(dst, "w", encoding="utf-8") as f:
+            json.dump(out, f, ensure_ascii=False, indent=2)
+            f.write("\n")
 
     counts: dict[str, int] = {}
     for c in categories:
         counts[c["kind"]] = counts.get(c["kind"], 0) + 1
-    print(f"{len(categories)} категорий -> {dst}: {counts}")
+    print(f"{len(categories)} категорий{'' if dst == '-' else f' -> {dst}'}: {counts}")
     if dictionary_dst:
         write_dictionary(categories, dictionary_dst)
     if characteristics_dst:

@@ -5,18 +5,16 @@
 
 - [`../../Project/scene.md`](../../Project/scene.md) — контракт `Scene` (актуальная версия, v1.2:
   добавлены стены — `Scene.walls`, полилиния-препятствие с толщиной): зоны, маршруты, точки
-  операций/зарядки, роботы, стены. Читать перед правкой `Project/frontend/editor2d/src/scene/types.ts`.
+  операций/зарядки, роботы, стены. Читать перед правкой `Project/frontend/src/shared/types/contracts.ts` (TS-зеркало).
 - [`../../Project/scene.example.json`](../../Project/scene.example.json) — пример сцены, грузится редактором по умолчанию.
-- [`../../Project/frontend/editor2d`](../../Project/frontend/editor2d) — 2D-редактор сцены (React + Konva),
-  с 2026-09-25 живёт внутри `Project/frontend/` (перенесён из `Project/editor2d/`) как независимое
-  Vite-приложение; у него
-  свой `CLAUDE.md` с архитектурой слоёв и `PROGRESS.md` с журналом работы.
-- [`../../Project/README.md`](../../Project/README.md) + `Project/Запустить редактор.bat` — дистрибутив
-  редактора для запуска в один клик на Windows (без npm/установки зависимостей вручную).
+- [`../../Project/frontend/src/features/planEditor`](../../Project/frontend/src/features/planEditor) — 2D-редактор
+  плана (React + Konva), с 2026-09-25 — модуль визарда, шаг 7 (раньше — отдельное приложение `editor2d`);
+  у него свой `CLAUDE.md` с архитектурой слоёв и `PROGRESS.md` с журналом работы.
+- [`../../Project/README.md`](../../Project/README.md) + `Project/Запустить редактор.bat` — запуск визарда
+  с редактором в один клик на Windows (зависимости лаунчер ставит сам).
 
-Новая версия редактора обычно появляется в корне репозитория как незакоммиченная папка `ЛЦТ/`
-(Windows-дистрибутив Алексея) — см. раздел «Паттерн: Алексей роняет новые версии editor2d» в
-корневом [`CLAUDE.md`](../../CLAUDE.md) с инструкцией, как её объединить.
+Редактор меняется через ветку `frontend` и PR в репозитории — дропов папкой `ЛЦТ/` больше нет
+(см. раздел «Редактор плана: откуда он взялся» в корневом [`CLAUDE.md`](../../CLAUDE.md)).
 
 `../../Project/backend/contracts/topology.py` — с 2026-09-22 pydantic-зеркало `scene.md` (класс
 `Scene`, включая `walls`); используется в `records.py` (`ProjectVersion.scene`) и как вход для

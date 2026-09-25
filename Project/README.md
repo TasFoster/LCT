@@ -1,18 +1,18 @@
-# ЛЦТ — 2D-редактор сцены
+# ЛЦТ — платформа подбора роботов: визард и редактор плана
 
 ## Запуск
 
-**Windows:** двойной щелчок по `Запустить редактор.bat` — редактор откроется в браузере
+**Windows:** двойной щелчок по `Запустить редактор.bat` — запустится визард платформы, и в
+браузере откроется шаг 7 «Визуализация» демо-проекта с редактором плана
 (адрес http://127.0.0.1:5173). Чтобы остановить, закройте чёрное окно.
 
-Нужен только [Node.js](https://nodejs.org) версии 20 или новее. Зависимости (`frontend/editor2d/node_modules`)
-уже лежат в архиве и собраны под **Windows x64** — ставить ничего не нужно.
+Нужен только [Node.js](https://nodejs.org) версии 20 или новее. При первом запуске лаунчер сам
+поставит зависимости (`frontend/node_modules`), это около минуты.
 
-**macOS / Linux:** в папке архива `node_modules` не подойдут (в нём есть части, собранные под Windows).
-Удалите `frontend/editor2d/node_modules` и выполните:
+**macOS / Linux:**
 
 ```bash
-cd frontend/editor2d
+cd frontend
 npm install
 npm run dev
 ```
@@ -21,9 +21,10 @@ npm run dev
 
 | Путь | Что это |
 |---|---|
-| `frontend/editor2d/` | редактор (React + react-konva + Vite); журнал работ — `frontend/editor2d/PROGRESS.md` |
+| `frontend/` | визард и все экраны платформы (React + Vite) |
+| `frontend/src/features/planEditor/` | редактор плана (react-konva) — шаг 7 визарда; журнал работ — `PROGRESS.md` там же |
 | `scene.md`, `scene.example.json` | контракт сцены (что отдаёт редактор) и пример |
-| `topology.md`, `topology.py` | исходный черновик контракта |
-| `tools/categories_from_xlsx.py`, `Книга1.xlsx` | справочник категорий: таблица → `frontend/editor2d/src/catalog/categories.json` |
+| `backend/contracts/` | контракты данных между частями платформы |
+| `tools/categories_from_xlsx.py`, `Книга1.xlsx`, `книга2.xlsx` | справочник категорий: таблицы Артёма → `backend/contracts/dictionaries/categories.json` |
 
-Проверки: `npm test` (автотесты), `npm run build` (сборка) — в папке `frontend/editor2d`.
+Проверки — в папке `frontend`: `npm test` (автотесты), `npm run build` (сборка), `npm run lint` (линтер).
