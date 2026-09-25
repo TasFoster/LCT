@@ -1554,7 +1554,8 @@
 
 .editor-step {
   height: calc(100vh - var(--header-h) - var(--projectbar-h) - var(--stepper-h) - var(--wizardfooter-h));
-  min-height: 400px;
+  /* 400 px — самому редактору, 44 px — строке шага над ним; ниже страница прокручивается */
+  min-height: 444px;
   display: flex;
   flex-direction: column;
 }
@@ -1668,6 +1669,262 @@
   border-left: 1px solid var(--line);
   background: var(--surface);
   overflow-y: auto;
+}
+
+/* --- Редактор плана (features/planEditor): элементы поверх холста и панель ---
+   Только токены: холст Konva берёт те же токены через usePalette. */
+
+.plan-editor__rail-sep {
+  width: 24px;
+  height: 1px;
+  margin: 4px 0;
+  background: var(--line);
+}
+
+.plan-editor__fit {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+}
+
+.plan-editor__fit:hover {
+  background: var(--surface-3);
+}
+
+.plan-editor__drawbar {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 140px);
+  padding: 6px 8px 6px 12px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.plan-editor__drawbar span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plan-editor__hint {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  pointer-events: none;
+  text-shadow: 0 0 4px var(--surface-2);
+}
+
+.plan-panel__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.plan-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.plan-panel__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.plan-panel__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.plan-panel__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.plan-panel__hint {
+  margin: 0;
+  font-size: 12px;
+}
+
+.plan-panel__counts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.plan-palette {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plan-palette__search {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+}
+
+.plan-palette__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.plan-palette__group-title {
+  padding: 4px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.plan-palette__item {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plan-palette__item:hover {
+  background: var(--surface-3);
+}
+
+.plan-palette__item.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+.plan-warnings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-warnings__item {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.plan-warnings__item:disabled {
+  cursor: default;
+}
+
+.plan-warnings__item--error {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+.plan-warnings__item--warning {
+  background: var(--warn-soft);
+  border-color: var(--warn);
+}
+
+.plan-warnings__item--info {
+  background: var(--info-soft);
+  border-color: var(--info);
+}
+
+.plan-playback {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface);
+}
+
+.plan-playback__bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.plan-playback__scrub {
+  flex: 1;
+  min-width: 120px;
+}
+
+.plan-playback__hint {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.plan-playback__canvas {
+  flex: 1;
+  min-height: 0;
+  background: var(--surface-2);
+}
+
+.plan-playback__kpi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
 }
 
 .api-drawer {

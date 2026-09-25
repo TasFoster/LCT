@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { saveScene, uploadBackground, useApiLog, useProjectState } from '../../../features/projectApi';
 import { autoLayout, estimateSize } from '../../../features/planEditor/autoLayout';
-import { PlanEditorStub } from '../../../features/planEditor/PlanEditorStub';
+import { PlanEditor } from '../../../features/planEditor';
 import type { PlanEditorContext } from '../../../features/planEditor/types';
 import { CATEGORIES } from '../../../shared/dictionaries';
 import { catalogById } from '../../../shared/mock/catalog';
@@ -195,7 +195,7 @@ export function StepTopology() {
 
         <div className="editor-step__body" ref={box.ref}>
           {view === '2d' ? (
-            <PlanEditorStub
+            <PlanEditor
               value={plan}
               onChange={edit}
               context={context}

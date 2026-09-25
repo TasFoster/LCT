@@ -1,0 +1,277 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Arrow, Circle, Group, Layer, Line, Rect, Stage, Text } from "react-konva";
+import { withAlpha, type Palette } from "../scene/colors";
+import { usePalette } from "../editor/usePalette";
+import { useSize } from "../editor/useSize";
+import type { Point, Scene, ZoneType } from "../scene/types";
+import { isSimulationTimeline, type RobotState, type SimulationTimeline, type TimelineFrame } from "./timeline";
+
+const flat = (pts: Point[]) => pts.flatMap((p) => [p.x, p.y]);
+const FIT_PAD = 32;
+const SPEEDS = [1, 2, 5, 10, 30];
+
+// состояние робота — семантические токены дизайн-системы
+const robotStateColor = (c: Palette, s: RobotState): string =>
+  ({ idle: c.muted, moving: c.info, loading: c.charging, unloading: c.warning, charging: c.charging, blocked: c.error })[s];
+
+const ROBOT_STATE_LABELS: Record<RobotState, string> = {
+  idle: "простой",
+  moving: "движение",
+  loading: "загрузка",
+  unloading: "разгрузка",
+  charging: "зарядка",
+  blocked: "заблокирован",
+};
+
+interface RobotFrames {
+  robotId: string;
+  name: string;
+  frames: TimelineFrame[]; // отсортированы по t
+  fallback: Point; // start_position — пока нет ни одного кадра для этого робота
+}
+
+/** Позиция линейно интерполируется между соседними кадрами; состояние — ступенькой
+ * (держится от кадра a до кадра b, не смешивается). До первого кадра и после
+ * последнего — крайнее известное положение (робот ещё/уже не в таймлайне). */
+function interpolate(rf: RobotFrames, t: number): { x: number; y: number; state: RobotState } {
+  const fs = rf.frames;
+  if (fs.length === 0) return { x: rf.fallback.x, y: rf.fallback.y, state: "idle" };
+  if (t <= fs[0].t) return { x: fs[0].x, y: fs[0].y, state: fs[0].state };
+  const last = fs[fs.length - 1];
+  if (t >= last.t) return { x: last.x, y: last.y, state: last.state };
+  let i = 0;
+  while (i + 1 < fs.length && fs[i + 1].t <= t) i++;
+  const a = fs[i];
+  const b = fs[i + 1] ?? a;
+  const span = b.t - a.t;
+  const ratio = span > 0 ? (t - a.t) / span : 0;
+  return { x: a.x + (b.x - a.x) * ratio, y: a.y + (b.y - a.y) * ratio, state: a.state };
+}
+
+interface Props {
+  scene: Scene;
+  /** цвет типа зоны — из справочника (form_options.json → zone_types) */
+  zoneColors: Record<ZoneType, string>;
+}
+
+/**
+ * Проигрывание таймлайна симуляции (контракт 7) на плане. Пока не подключено к визарду:
+ * на шаге 7 место под него — вкладка «3D» (заглушка).
+ */
+export function PlaybackView({ scene, zoneColors }: Props) {
+  const c = usePalette();
+  const [timeline, setTimeline] = useState<SimulationTimeline | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [t, setT] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(5);
+  const rafRef = useRef<number | null>(null);
+  const lastWallClock = useRef<number | null>(null);
+  const [canvasRef, { width, height }] = useSize<HTMLDivElement>();
+
+  const { width: siteW, height: siteH } = scene.site;
+  const k = width > 0 ? Math.min((width - 2 * FIT_PAD) / siteW, (height - 2 * FIT_PAD) / siteH) || 1 : 1;
+  const offsetX = (width - siteW * k) / 2;
+  const offsetY = (height - siteH * k) / 2;
+  const px = (v: number) => v / k;
+
+  const robotFrames: RobotFrames[] = useMemo(() => {
+    const byId = new Map<string, TimelineFrame[]>();
+    for (const f of timeline?.frames ?? []) {
+      const arr = byId.get(f.robot_id);
+      if (arr) arr.push(f);
+      else byId.set(f.robot_id, [f]);
+    }
+    return scene.robots.map((r) => ({
+      robotId: r.id,
+      name: r.name,
+      frames: (byId.get(r.id) ?? []).slice().sort((a, b) => a.t - b.t),
+      fallback: r.start_position,
+    }));
+  }, [timeline, scene.robots]);
+
+  // воспроизведение: requestAnimationFrame, шаг — реальное прошедшее время * множитель скорости
+  useEffect(() => {
+    if (!playing) {
+      lastWallClock.current = null;
+      return;
+    }
+    const step = (now: number) => {
+      if (lastWallClock.current !== null) {
+        const deltaWall = (now - lastWallClock.current) / 1000;
+        setT((prev) => {
+          const duration = timeline?.duration_s ?? 0;
+          const next = prev + deltaWall * speed;
+          if (next >= duration) {
+            setPlaying(false);
+            return duration;
+          }
+          return next;
+        });
+      }
+      lastWallClock.current = now;
+      rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [playing, speed, timeline?.duration_s]);
+
+  const openTimeline = async (file: File) => {
+    try {
+      const parsed: unknown = JSON.parse(await file.text());
+      if (!isSimulationTimeline(parsed)) throw new Error("файл не похож на SimulationTimeline (контракт 7)");
+      setTimeline(parsed);
+      setT(0);
+      setPlaying(false);
+      setError(null);
+    } catch (e) {
+      setError(`Не удалось открыть ${file.name}: ${(e as Error).message}`);
+    }
+  };
+
+  return (
+    <div className="plan-playback">
+      <div className="plan-playback__bar">
+        <label className="btn btn--sm">
+          Открыть таймлайн симуляции
+          <input
+            type="file"
+            accept=".json,application/json"
+            hidden
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) openTimeline(file);
+              e.target.value = "";
+            }}
+          />
+        </label>
+        {timeline && (
+          <>
+            <button type="button" className="btn btn--sm" onClick={() => setPlaying((p) => !p)}>{playing ? "⏸ Пауза" : "▶ Запуск"}</button>
+            <button
+              type="button"
+              className="btn btn--sm btn--ghost"
+              onClick={() => {
+                setPlaying(false);
+                setT(0);
+              }}
+            >
+              ⏮ Сброс
+            </button>
+            <label className="faint">
+              Скорость{" "}
+              <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))}>
+                {SPEEDS.map((s) => (
+                  <option key={s} value={s}>
+                    ×{s}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <input
+              type="range"
+              min={0}
+              max={timeline.duration_s}
+              step={0.1}
+              value={t}
+              onChange={(e) => {
+                setPlaying(false);
+                setT(Number(e.target.value));
+              }}
+              className="plan-playback__scrub"
+            />
+            <span className="faint">
+              {t.toFixed(0)} / {timeline.duration_s.toFixed(0)} с
+            </span>
+          </>
+        )}
+      </div>
+      {error && <div className="field__error">{error}</div>}
+      {!timeline && <div className="faint plan-playback__hint">Загрузите файл SimulationTimeline (JSON) — результат `run_simulation` из backend/simulation/service.py — чтобы увидеть проигрывание на текущем плане.</div>}
+
+      <div className="plan-playback__canvas" ref={canvasRef}>
+        {width > 0 && (
+        <Stage width={width} height={height} x={offsetX} y={offsetY} scaleX={k} scaleY={k} listening={false}>
+          <Layer listening={false}>
+            <Line points={flat(scene.site.boundary)} closed fill={c.site} stroke={c.siteLine} strokeWidth={px(2)} />
+            {scene.zones.map((z) => {
+              const zc = zoneColors[z.zone_type] ?? zoneColors.transit;
+              return <Line key={z.id} points={flat(z.polygon)} closed fill={withAlpha(zc, 0.18)} stroke={zc} strokeWidth={px(1.5)} />;
+            })}
+            {scene.walls.map((w) => (
+              <Line key={w.id} points={flat(w.points)} stroke={c.wall} strokeWidth={Math.max(w.thickness, px(2))} lineCap="butt" lineJoin="miter" />
+            ))}
+            {scene.routes.map((r) =>
+              r.bidirectional ? (
+                <Line key={r.id} points={flat(r.points)} stroke={c.route} strokeWidth={px(3)} lineJoin="round" lineCap="round" />
+              ) : (
+                <Arrow
+                  key={r.id}
+                  points={flat(r.points)}
+                  stroke={c.route}
+                  fill={c.route}
+                  strokeWidth={px(3)}
+                  pointerLength={px(10)}
+                  pointerWidth={px(10)}
+                  lineJoin="round"
+                  lineCap="round"
+                />
+              ),
+            )}
+            {scene.operation_points.map((p) => (
+              <Group key={p.id} x={p.position.x} y={p.position.y}>
+                <Circle radius={px(8)} fill={c.point} stroke={c.handle} strokeWidth={px(2)} />
+                <Text x={px(12)} y={px(-20)} text={p.name} fontSize={px(12)} fontFamily={c.font} fill={c.ink} />
+              </Group>
+            ))}
+            {scene.charging_points.map((p) => (
+              <Group key={p.id} x={p.position.x} y={p.position.y}>
+                <Rect x={px(-11)} y={px(-11)} width={px(22)} height={px(22)} cornerRadius={px(4)} fill={c.charging} stroke={c.handle} strokeWidth={px(2)} />
+                <Text x={px(14)} y={px(-20)} text={`${p.name} ×${p.slots}`} fontSize={px(12)} fontFamily={c.font} fill={c.ink} />
+              </Group>
+            ))}
+          </Layer>
+          <Layer listening={false}>
+            {robotFrames.map((rf) => {
+              const { x, y, state } = interpolate(rf, t);
+              const color = robotStateColor(c, state);
+              return (
+                <Group key={rf.robotId} x={x} y={y}>
+                  <Circle radius={px(10)} fill={color} stroke={c.handle} strokeWidth={px(2)} />
+                  <Text x={px(-35)} y={px(14)} width={px(70)} align="center" text={rf.name} fontSize={px(11)} fontFamily={c.font} fill={c.ink} />
+                  <Text x={px(-35)} y={px(27)} width={px(70)} align="center" text={ROBOT_STATE_LABELS[state]} fontSize={px(10)} fontFamily={c.font} fill={color} />
+                </Group>
+              );
+            })}
+          </Layer>
+        </Stage>
+        )}
+      </div>
+
+      {timeline && (
+        <div className="plan-playback__kpi">
+          <span>
+            <strong>Загрузка:</strong> {timeline.kpi.utilization_pct}%
+          </span>
+          <span>
+            <strong>Простой:</strong> {timeline.kpi.idle_time_pct}%
+          </span>
+          <span>
+            <strong>Производительность:</strong> {timeline.kpi.throughput_per_hour} опер./ч
+          </span>
+          {timeline.kpi.bottlenecks.length > 0 && (
+            <div className="plan-warnings">
+              {timeline.kpi.bottlenecks.map((b, i) => (
+                <div key={i} className={`plan-warnings__item plan-warnings__item--${b.severity === "high" ? "error" : "warning"}`}>
+                  <strong>{b.location}</strong>: {b.description}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

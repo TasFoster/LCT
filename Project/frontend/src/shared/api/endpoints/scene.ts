@@ -4,7 +4,7 @@ import type { SimulationRunRequest, SimulationJob, SceneBackgroundUploadResponse
 
 /**
  * PUT /api/projects/{id}/scene — шаг 7 визарда. Вызывает Владимиров из
- * своего API-слоя; Алексей (editor2d) сам этот URL не дёргает — отдаёт
+ * своего API-слоя; редактор плана (features/planEditor) сам этот URL не дёргает — отдаёт
  * готовый TS-объект Scene, который Владимиров прокидывает сюда.
  */
 export class SceneWriteEndpoint extends ApiEndpoint<Scene, Scene> {

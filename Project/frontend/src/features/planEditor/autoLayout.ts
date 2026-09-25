@@ -7,7 +7,7 @@
  * (`Project/scene.md`), без собственных полей визарда.
  */
 
-import { CATEGORIES, resolveId, workingZone } from '../../shared/dictionaries';
+import { resolveId, workingZone } from '../../shared/dictionaries';
 import type { ChargingPoint, OperationPoint, Scene, Zone } from '../../shared/types/contracts';
 import type { PlanEditorContext } from './types';
 
@@ -153,5 +153,3 @@ export function autoLayout(projectId: string, ctx: PlanEditorContext): Scene {
     })),
   };
 }
-
-export const ZONE_COLOR = Object.fromEntries(CATEGORIES.zone_types.map((z) => [z.id, z.color]));
