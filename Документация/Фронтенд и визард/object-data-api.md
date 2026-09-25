@@ -33,7 +33,7 @@ Discriminated union по `object_type`, три готовых класса па�
 Коротко: `site` (габариты/контур/подложка), `walls` (стены-препятствия), `zones`,
 `operation_points`, `charging_points`, `routes`, `robots` — все с `id`, координаты в метрах,
 `y_down`. Зоны и точки несут `categories` — id из справочника Артёма
-(`Книга1.xlsx` → `editor2d/src/catalog/categories.json`), по ним matching подбирает
+(`Книга1.xlsx` → `frontend/editor2d/src/catalog/categories.json`), по ним matching подбирает
 оборудование.
 
 Это данные шага 7 визарда «Визуализация» — собираются позже, чем шаг 2, отдельным
@@ -106,7 +106,7 @@ class ProjectVersion(BaseModel):
 2. **`operating_mode` (строка, ProjectInput) vs `operating_hours_per_year` (число,
    ScenarioInput)** — на шаге 5 нужно предзаполнять число из строки шага 2 (напр. "24/7" →
    8760). Логика соответствия строка→число — на вашей стороне (фронт), не бэкенда.
-3. **Справочник категорий** — Scene использует `categories` из `editor2d/src/catalog/
+3. **Справочник категорий** — Scene использует `categories` из `frontend/editor2d/src/catalog/
    categories.json` (сгенерирован из `Книга1.xlsx`). Если форма шага 2 (Владимиров) тоже
    где-то ссылается на типы/категории — сверьте, что это один и тот же справочник, а не
    два независимых списка с похожими названиями.

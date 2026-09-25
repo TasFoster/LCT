@@ -1,12 +1,12 @@
 {
   "source": "Книга1.xlsx",
-  "generated_at": "2026-09-24T12:38:12Z",
+  "generated_at": "2026-09-24T21:05:19Z",
   "categories": [
     {
       "id": "mobilnyy_robot",
       "name": "Мобильный робот",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Мобильные роботы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Общий класс: автономные/полуавтономные роботы, которые перемещаются по объекту",
@@ -19,7 +19,7 @@
       "id": "amr",
       "name": "AMR",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Мобильные роботы",
       "aliases": [
         "amr"
       ],
@@ -34,7 +34,7 @@
       "id": "fmr_avtonomnyy_pogruzchik",
       "name": "FMR / автономный погрузчик",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Мобильные роботы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Автономный вилочный погрузчик/штабелер, работающий с паллетами",
@@ -47,7 +47,7 @@
       "id": "robot_shtabeler",
       "name": "Робот-штабелер",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Мобильные роботы",
       "aliases": [
         "stacker"
       ],
@@ -62,7 +62,7 @@
       "id": "robot_tyagach",
       "name": "Робот-тягач",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Мобильные роботы",
       "aliases": [
         "tug"
       ],
@@ -77,7 +77,7 @@
       "id": "robot_uborschik",
       "name": "Робот-уборщик",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Мобильные роботы",
       "aliases": [
         "cleaner"
       ],
@@ -92,7 +92,7 @@
       "id": "bespilotnyy_pogruzchik",
       "name": "Беспилотный погрузчик",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Мобильные роботы",
       "aliases": [
         "forklift"
       ],
@@ -106,7 +106,7 @@
       "id": "statsionarnaya_sistema_umnogo_hraneniya",
       "name": "Стационарная система умного хранения",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [
         "asrs"
       ],
@@ -121,7 +121,7 @@
       "id": "robot_manipulyator",
       "name": "Робот-манипулятор",
       "kind": "equipment",
-      "group": "2. Производство и цех",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Промышленный/коллаборативный манипулятор для операций",
@@ -134,7 +134,7 @@
       "id": "robot_ukladchik",
       "name": "Робот-укладчик",
       "kind": "equipment",
-      "group": "2. Производство и цех",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Робот для укладки/перекладки заготовок и продукции",
@@ -147,7 +147,7 @@
       "id": "delta_robot",
       "name": "Дельта-робот",
       "kind": "equipment",
-      "group": "2. Производство и цех",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Высокоскоростной робот для сортировки/упаковки",
@@ -159,7 +159,7 @@
       "id": "kollaborativnyy_robot_kobot",
       "name": "Коллаборативный робот (кобот)",
       "kind": "equipment",
-      "group": "2. Производство и цех",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Робот, работающий в одном пространстве с человеком",
@@ -172,7 +172,7 @@
       "id": "robot_sortirovschik",
       "name": "Робот-сортировщик",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Мобильные роботы",
       "aliases": [
         "sorter"
       ],
@@ -187,7 +187,7 @@
       "id": "robot_inventarizator",
       "name": "Робот-инвентаризатор",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Мобильные роботы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Автоматический учет и сверка остатков",
@@ -200,7 +200,7 @@
       "id": "robot_rover",
       "name": "Робот-ровер",
       "kind": "equipment",
-      "group": "3. Транспорт, логистика и доставка",
+      "group": "Мобильные роботы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Колесный автономный ровер для доставки/патрулирования",
@@ -213,7 +213,7 @@
       "id": "robot_kurer",
       "name": "Робот-курьер",
       "kind": "equipment",
-      "group": "3. Транспорт, логистика и доставка",
+      "group": "Мобильные роботы",
       "aliases": [
         "delivery"
       ],
@@ -228,7 +228,7 @@
       "id": "antropomorfnyy_robot",
       "name": "Антропоморфный робот",
       "kind": "equipment",
-      "group": "5. Торговля, услуги и общественные пространства",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Человекоподобный сервисный/административный робот",
@@ -241,7 +241,7 @@
       "id": "robo_kafe",
       "name": "Робо-кафе",
       "kind": "equipment",
-      "group": "5. Торговля, услуги и общественные пространства",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Автоматизированная точка приготовления напитков/еды",
@@ -254,7 +254,7 @@
       "id": "mobilnyy_manipulyator",
       "name": "Мобильный манипулятор",
       "kind": "equipment",
-      "group": "2. Производство и цех",
+      "group": "Мобильные роботы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Манипулятор на мобильной платформе",
@@ -267,7 +267,7 @@
       "id": "robotizirovannaya_ustanovka",
       "name": "Роботизированная установка",
       "kind": "equipment",
-      "group": "2. Производство и цех",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Стационарный роботизированный комплекс под задачу",
@@ -279,7 +279,7 @@
       "id": "robotizirovannaya_pristanochnaya_yacheyka",
       "name": "Роботизированная пристаночная ячейка",
       "kind": "equipment",
-      "group": "2. Производство и цех",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Ячейка для загрузки/разгрузки станков",
@@ -291,7 +291,7 @@
       "id": "robotizirovannyy_svarochnyy_kompleks",
       "name": "Роботизированный сварочный комплекс",
       "kind": "equipment",
-      "group": "2. Производство и цех",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Комплекс для сварки",
@@ -303,7 +303,7 @@
       "id": "robotizirovannye_pogruzochnye_krany",
       "name": "Роботизированные погрузочные краны",
       "kind": "equipment",
-      "group": "2. Производство и цех",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Автоматизированные краны",
@@ -316,7 +316,7 @@
       "id": "vnutritrubnaya_robotizirovannaya_sistema",
       "name": "Внутритрубная роботизированная система",
       "kind": "equipment",
-      "group": "7. Инфраструктура, ЖКХ и подземные коммуникации",
+      "group": "Мобильные роботы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Робот для диагностики/очистки труб изнутри",
@@ -329,7 +329,7 @@
       "id": "robot_laborant",
       "name": "Робот-лаборант",
       "kind": "equipment",
-      "group": "2. Производство и цех",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Автоматизированный лабораторный анализ",
@@ -341,7 +341,7 @@
       "id": "robot_ekolog_obhodchik",
       "name": "Робот-эколог / обходчик",
       "kind": "equipment",
-      "group": "6. Безопасность, патрулирование и ЧС",
+      "group": "Мобильные роботы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Мониторинг воздуха/патрулирование",
@@ -353,7 +353,7 @@
       "id": "ohrannyy_robot",
       "name": "Охранный робот",
       "kind": "equipment",
-      "group": "6. Безопасность, патрулирование и ЧС",
+      "group": "Мобильные роботы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Патрулирование территории",
@@ -366,7 +366,7 @@
       "id": "robotizirovannyy_lafetnyy_stvol",
       "name": "Роботизированный лафетный ствол",
       "kind": "equipment",
-      "group": "6. Безопасность, патрулирование и ЧС",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Тушение пожаров",
@@ -378,7 +378,7 @@
       "id": "robotizirovannaya_telezhka",
       "name": "Роботизированная тележка",
       "kind": "equipment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Мобильные роботы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Транспортировка деталей/инструментов",
@@ -390,7 +390,7 @@
       "id": "universalnaya_avtonomnaya_robotizirovannaya_platforma",
       "name": "Универсальная автономная роботизированная платформа",
       "kind": "equipment",
-      "group": null,
+      "group": "Мобильные роботы",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Многоцелевая платформа",
@@ -402,7 +402,7 @@
       "id": "bas",
       "name": "БАС",
       "kind": "equipment",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Беспилотная авиационная система (общий класс)",
@@ -415,7 +415,7 @@
       "id": "bas_multirotornogo_tipa",
       "name": "БАС мультироторного типа",
       "kind": "equipment",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Мультикоптер",
@@ -428,7 +428,7 @@
       "id": "bas_samoletnogo_tipa",
       "name": "БАС самолетного типа",
       "kind": "equipment",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Самолет/летающее крыло",
@@ -440,7 +440,7 @@
       "id": "vtol",
       "name": "VTOL",
       "kind": "equipment",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Вертикальный взлет/посадка",
@@ -453,7 +453,7 @@
       "id": "bas_dlya_aerofotosemki",
       "name": "БАС для аэрофотосъемки",
       "kind": "equipment",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Картографирование/геодезия",
@@ -466,7 +466,7 @@
       "id": "bas_dlya_monitoringa",
       "name": "БАС для мониторинга",
       "kind": "equipment",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Наблюдение/контроль",
@@ -479,7 +479,7 @@
       "id": "bas_dlya_dostavki_gruzov",
       "name": "БАС для доставки грузов",
       "kind": "equipment",
-      "group": "3. Транспорт, логистика и доставка",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Аэрологистика",
@@ -492,7 +492,7 @@
       "id": "bas_dlya_moyki_fasadov",
       "name": "БАС для мойки фасадов",
       "kind": "equipment",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Мойка высотных зданий",
@@ -505,7 +505,7 @@
       "id": "bas_dlya_poiska_propavshih",
       "name": "БАС для поиска пропавших",
       "kind": "equipment",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Поисково-спасательные задачи",
@@ -518,7 +518,7 @@
       "id": "po",
       "name": "ПО",
       "kind": "software",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "ПО и системы управления",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Программное обеспечение",
@@ -531,7 +531,7 @@
       "id": "po_dlya_sortirovki_tovarov",
       "name": "ПО для сортировки товаров",
       "kind": "software",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "ПО и системы управления",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "Голосовой/световой отбор",
@@ -543,7 +543,7 @@
       "id": "po_brs",
       "name": "ПО БРС",
       "kind": "software",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "ПО и системы управления",
       "aliases": [],
       "applies_to": "оборудование",
       "description": "ПО для роботизированных систем",
@@ -556,7 +556,7 @@
       "id": "vnutriskladskaya_logistika",
       "name": "Внутрискладская логистика",
       "kind": "task",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Задача/зона перемещения грузов внутри склада",
@@ -569,7 +569,7 @@
       "id": "vnutriproizvodstvennaya_logistika",
       "name": "Внутрипроизводственная логистика",
       "kind": "task",
-      "group": "2. Производство и цех",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Перемещение грузов внутри цеха/завода",
@@ -581,7 +581,7 @@
       "id": "sortirovka_gruzov",
       "name": "Сортировка грузов",
       "kind": "task",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача сортировки",
@@ -593,7 +593,7 @@
       "id": "uborka_pomescheniy",
       "name": "Уборка помещений",
       "kind": "task",
-      "group": null,
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача внутренней уборки",
@@ -605,7 +605,7 @@
       "id": "inventarizatsiya_sklada",
       "name": "Инвентаризация склада",
       "kind": "task",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача учета",
@@ -617,7 +617,7 @@
       "id": "dostavka_posledney_mili",
       "name": "Доставка последней мили",
       "kind": "task",
-      "group": "3. Транспорт, логистика и доставка",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача доставки до двери",
@@ -630,7 +630,7 @@
       "id": "prigotovlenie_napitkov",
       "name": "Приготовление напитков",
       "kind": "task",
-      "group": "5. Торговля, услуги и общественные пространства",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача приготовления",
@@ -642,7 +642,7 @@
       "id": "proizvodstvo_izdeliy",
       "name": "Производство изделий",
       "kind": "task",
-      "group": "2. Производство и цех",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача производства",
@@ -654,7 +654,7 @@
       "id": "sborka_tovarov",
       "name": "Сборка товаров",
       "kind": "task",
-      "group": "2. Производство и цех",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача сборки",
@@ -666,7 +666,7 @@
       "id": "ukladka_zagotovok",
       "name": "Укладка заготовок",
       "kind": "task",
-      "group": "2. Производство и цех",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача укладки",
@@ -678,7 +678,7 @@
       "id": "monitoring_sostoyaniya_infrastruktury",
       "name": "Мониторинг состояния инфраструктуры",
       "kind": "task",
-      "group": "7. Инфраструктура, ЖКХ и подземные коммуникации",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача мониторинга",
@@ -691,7 +691,7 @@
       "id": "sortirovka_gruzov_na_proizvodstve",
       "name": "Сортировка грузов на производстве",
       "kind": "task",
-      "group": "2. Производство и цех",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача производственной сортировки",
@@ -703,7 +703,7 @@
       "id": "avtomatizirovannyy_laboratornyy_analiz",
       "name": "Автоматизированный лабораторный анализ",
       "kind": "task",
-      "group": "4. Медицина, лаборатории и стерильные зоны",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача анализа",
@@ -715,7 +715,7 @@
       "id": "monitoring",
       "name": "Мониторинг",
       "kind": "task",
-      "group": "7. Инфраструктура, ЖКХ и подземные коммуникации",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Общая задача мониторинга",
@@ -727,7 +727,7 @@
       "id": "patrulirovanie_ploschadnyh_obektov",
       "name": "Патрулирование площадных объектов",
       "kind": "task",
-      "group": "6. Безопасность, патрулирование и ЧС",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача",
@@ -739,7 +739,7 @@
       "id": "dostavka_biomaterialov",
       "name": "Доставка биоматериалов",
       "kind": "task",
-      "group": "4. Медицина, лаборатории и стерильные зоны",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача",
@@ -751,7 +751,7 @@
       "id": "okazanie_meditsinskoy_pomoschi",
       "name": "Оказание медицинской помощи",
       "kind": "task",
-      "group": "4. Медицина, лаборатории и стерильные зоны",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача",
@@ -763,7 +763,7 @@
       "id": "tushenie_pozharov",
       "name": "Тушение пожаров",
       "kind": "task",
-      "group": "6. Безопасность, патрулирование и ЧС",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача",
@@ -775,7 +775,7 @@
       "id": "evakuatsiya_postradavshih_s_mesta_chs",
       "name": "Эвакуация пострадавших с места ЧС",
       "kind": "task",
-      "group": "6. Безопасность, патрулирование и ЧС",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача",
@@ -787,7 +787,7 @@
       "id": "obsledovanie_podzemnoy_infrastruktury",
       "name": "Обследование подземной инфраструктуры",
       "kind": "task",
-      "group": "7. Инфраструктура, ЖКХ и подземные коммуникации",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача",
@@ -799,7 +799,7 @@
       "id": "monitoring_transportnoy_infrastruktury",
       "name": "Мониторинг транспортной инфраструктуры",
       "kind": "task",
-      "group": "3. Транспорт, логистика и доставка",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача",
@@ -811,7 +811,7 @@
       "id": "gorodskaya_dostavka_v_postamaty",
       "name": "Городская доставка в постаматы",
       "kind": "task",
-      "group": "3. Транспорт, логистика и доставка",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Зона/задача",
@@ -823,7 +823,7 @@
       "id": "tochka_priemki",
       "name": "Точка приёмки",
       "kind": "place_point",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане",
       "description": "Место приемки грузов",
@@ -836,7 +836,7 @@
       "id": "tochka_zaryadki",
       "name": "Точка зарядки",
       "kind": "place_point",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [
         "charging"
       ],
@@ -851,7 +851,7 @@
       "id": "post_upakovki",
       "name": "Пост упаковки",
       "kind": "place_point",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [
         "packing"
       ],
@@ -866,7 +866,7 @@
       "id": "zona_sterilnosti",
       "name": "Зона стерильности",
       "kind": "place_zone",
-      "group": "4. Медицина, лаборатории и стерильные зоны",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане",
       "description": "Стерильная зона",
@@ -879,7 +879,7 @@
       "id": "zona_hraneniya",
       "name": "Зона хранения",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [
         "storage"
       ],
@@ -894,7 +894,7 @@
       "id": "zona_komplektatsii",
       "name": "Зона комплектации",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [
         "picking"
       ],
@@ -909,7 +909,7 @@
       "id": "zona_sortirovki",
       "name": "Зона сортировки",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане",
       "description": "Место сортировки",
@@ -922,7 +922,7 @@
       "id": "zona_otgruzki",
       "name": "Зона отгрузки",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [
         "shipping"
       ],
@@ -937,7 +937,7 @@
       "id": "zona_priemki",
       "name": "Зона приемки",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [
         "receiving"
       ],
@@ -952,7 +952,7 @@
       "id": "zona_uborki",
       "name": "Зона уборки",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане",
       "description": "Место уборки",
@@ -965,7 +965,7 @@
       "id": "zona_moyki",
       "name": "Зона мойки",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане",
       "description": "Место мойки",
@@ -978,7 +978,7 @@
       "id": "zona_to",
       "name": "Зона ТО",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане",
       "description": "Место техобслуживания",
@@ -991,7 +991,7 @@
       "id": "zona_stoyanki",
       "name": "Зона стоянки",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане",
       "description": "Место стоянки",
@@ -1004,7 +1004,7 @@
       "id": "zona_ozhidaniya",
       "name": "Зона ожидания",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане",
       "description": "Место ожидания",
@@ -1017,7 +1017,7 @@
       "id": "zona_manevrirovaniya",
       "name": "Зона маневрирования",
       "kind": "place_zone",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане",
       "description": "Место маневрирования",
@@ -1030,7 +1030,7 @@
       "id": "otkrytaya_zona",
       "name": "Открытая зона",
       "kind": "environment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Работа на улице",
@@ -1042,7 +1042,7 @@
       "id": "zakrytaya_zona",
       "name": "Закрытая зона",
       "kind": "environment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Работа в помещении",
@@ -1054,7 +1054,7 @@
       "id": "holod",
       "name": "Холод",
       "kind": "environment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Работа при низких температурах",
@@ -1066,7 +1066,7 @@
       "id": "povyshennaya_vlazhnost",
       "name": "Повышенная влажность",
       "kind": "environment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Работа во влажной среде",
@@ -1078,7 +1078,7 @@
       "id": "sterilnost",
       "name": "Стерильность",
       "kind": "environment",
-      "group": "4. Медицина, лаборатории и стерильные зоны",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Работа в стерильной среде",
@@ -1090,7 +1090,7 @@
       "id": "vzryvoopasnaya_zona",
       "name": "Взрывоопасная зона",
       "kind": "environment",
-      "group": "1. Склад и внутрискладская логистика",
+      "group": "Задачи и зоны применения",
       "aliases": [],
       "applies_to": "точка на плане / и то и другое",
       "description": "Работа во взрывоопасной среде",
@@ -1099,592 +1099,329 @@
       ]
     },
     {
-      "id": "rovnyy_pol",
-      "name": "Ровный пол",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "fmr",
+      "name": "FMR",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Требование к покрытию",
+      "applies_to": "оборудование",
+      "description": "Мобильный вилочный робот (класс FMR) — автономное напольное ТС для паллетных грузов",
       "examples": [
-        "Склад"
-      ]
+        "AK-2000-2"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "razmetka_mayaki",
-      "name": "Разметка/маяки",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "bespilotnoe_metro",
+      "name": "Беспилотное метро",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Требуется разметка/маяки",
+      "applies_to": "оборудование",
+      "description": "Автономный рельсовый транспорт метрополитена",
       "examples": [
-        "Стеллажи"
-      ]
+        "Беспилотный поезд «2024»"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "bez_razmetki",
-      "name": "Без разметки",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "bespilotnoe_taksi",
+      "name": "Беспилотное такси",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работает без разметки",
+      "applies_to": "оборудование",
+      "description": "Автономный легковой автомобиль для перевозки пассажиров",
       "examples": [
-        "AMR"
-      ]
+        "Беспилотное такси Яндекс"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "gnss",
-      "name": "GNSS",
-      "kind": "characteristic",
-      "group": "3. Транспорт, логистика и доставка",
+      "id": "bespilotnyy_gruzovik",
+      "name": "Беспилотный грузовик",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Требуется/используется спутниковая навигация",
+      "applies_to": "оборудование",
+      "description": "Автономный электрический грузовик вне объекта",
       "examples": [
-        "Улица"
-      ]
+        "EVOCARGO N1"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "dinamicheskaya_sreda",
-      "name": "Динамическая среда",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "bespilotnyy_tramvay",
+      "name": "Беспилотный трамвай",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работа среди людей/техники",
+      "applies_to": "оборудование",
+      "description": "Автономный рельсовый городской транспорт",
       "examples": [
-        "Склад"
-      ]
+        "Беспилотный «Львёнок-Москва»"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "vysokie_stellazhi",
-      "name": "Высокие стеллажи",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "bespilotnyy_tyagach",
+      "name": "Беспилотный тягач",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работа на высоте",
+      "applies_to": "оборудование",
+      "description": "Автономный тягач для буксировки тележек/составов вне здания",
       "examples": [
-        "Склад"
-      ]
+        "Робот-тягач RoboCV"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "tyazhelye_gruzy",
-      "name": "Тяжелые грузы",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "intellektualnyy_avtobus_vendingovyy_apparat",
+      "name": "Интеллектуальный автобус — вендинговый аппарат",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Грузоподъемность > 1 т",
+      "applies_to": "оборудование",
+      "description": "Автономный мобильный вендинговый автомат на колёсной платформе",
       "examples": [
-        "Паллеты"
-      ]
+        "IQ-BUS V"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "legkie_gruzy",
-      "name": "Легкие грузы",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "vnutritrubnye_robotizirovannye_sistemy",
+      "name": "Внутритрубные роботизированные системы",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Грузоподъемность < 100 кг",
+      "applies_to": "оборудование",
+      "description": "Роботы для диагностики/очистки труднопроходимых (unpiggable) трубопроводов",
       "examples": [
-        "Посылки"
-      ]
+        "Тьюбот"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "melkie_gruzy",
-      "name": "Мелкие грузы",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "mobilnyy_robot_komplektovschik",
+      "name": "Мобильный робот-комплектовщик",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Штучные товары",
+      "applies_to": "оборудование",
+      "description": "Мобильный робот для комплектации заказов на складе",
       "examples": [
-        "Комплектация"
-      ]
+        "Робот-комплектовщик"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "krupnogabaritnye_gruzy",
-      "name": "Крупногабаритные грузы",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "robot_rastsepschik",
+      "name": "Робот-расцепщик",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Негабарит",
+      "applies_to": "оборудование",
+      "description": "Робототехнический комплекс расцепки вагонов на сортировочных горках",
       "examples": [
-        "Производство"
-      ]
+        "Робот-расцепщик"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "pallety",
-      "name": "Паллеты",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "robot",
+      "name": "Робот",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работа с паллетами",
+      "applies_to": "оборудование",
+      "description": "Без уточнения подкласса в каталоге; пример — комплекс отпуска тормозов вагонов",
       "examples": [
-        "Склад"
-      ]
+        "Робот-растормаживатель"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "telezhki",
-      "name": "Тележки",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "rover",
+      "name": "Ровер",
+      "kind": "equipment",
+      "group": "Мобильные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работа с тележками",
+      "applies_to": "оборудование",
+      "description": "Колёсный ровер; в каталоге — для работы с грузовыми вагонами",
       "examples": [
-        "Склад"
-      ]
+        "Ровер для работы с грузовыми вагонами"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "konveyernye_moduli",
-      "name": "Конвейерные модули",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "kollaborativnyy_robot_manipulyator",
+      "name": "Коллаборативный робот-манипулятор",
+      "kind": "equipment",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работа с конвейером",
+      "applies_to": "оборудование",
+      "description": "Манипулятор, работающий совместно с человеком без ограждения",
       "examples": [
-        "Производство"
-      ]
+        "RC5-16"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "roll_keydzhi",
-      "name": "Ролл-кейджи",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "manipulyator",
+      "name": "Манипулятор",
+      "kind": "equipment",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работа с ролл-кейджами",
+      "applies_to": "оборудование",
+      "description": "Промышленный манипулятор без уточнения подкласса",
       "examples": [
-        "Склад"
-      ]
+        "Роборука"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "klt_yaschiki",
-      "name": "KLT ящики",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "kran_shtabeler",
+      "name": "Кран-штабелёр",
+      "kind": "equipment",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работа с KLT",
+      "applies_to": "оборудование",
+      "description": "Автоматический кран для стеллажного хранения паллет",
       "examples": [
-        "Производство"
-      ]
+        "AS-RS P"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "stellazhi",
-      "name": "Стеллажи",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "robotizirovannyy_3d_printer",
+      "name": "Роботизированный 3D принтер",
+      "kind": "equipment",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работа со стеллажами",
+      "applies_to": "оборудование",
+      "description": "Промышленный робот для 3D-печати строительных элементов",
       "examples": [
-        "Склад"
-      ]
+        "АМТ S300"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "polki",
-      "name": "Полки",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "umnaya_sistema_hraneniya",
+      "name": "Умная система хранения",
+      "kind": "equipment",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работа с полками",
+      "applies_to": "оборудование",
+      "description": "Роботизированная система кубического хранения (AutoStore-подобная)",
       "examples": [
-        "Магазин"
-      ]
+        "SmartCube"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "gofrotara",
-      "name": "Гофротара",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
+      "id": "shattl",
+      "name": "Шаттл",
+      "kind": "equipment",
+      "group": "Стационарные роботы и комплексы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Работа с гофротарой",
+      "applies_to": "оборудование",
+      "description": "Шаттл для стеллажной системы высокой плотности хранения",
       "examples": [
-        "Производство"
-      ]
+        "Pallet Shuttle"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "biomaterialy",
-      "name": "Биоматериалы",
-      "kind": "characteristic",
-      "group": "4. Медицина, лаборатории и стерильные зоны",
+      "id": "bezekipazhnyy_kater",
+      "name": "Безэкипажный катер",
+      "kind": "equipment",
+      "group": "Морские и подводные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Перевозка биоматериалов",
+      "applies_to": "оборудование",
+      "description": "Автономное надводное судно",
       "examples": [
-        "Медицина"
-      ]
+        "Сарган"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "medikamenty",
-      "name": "Медикаменты",
-      "kind": "characteristic",
-      "group": "4. Медицина, лаборатории и стерильные зоны",
+      "id": "bespilotnyy_katamaran",
+      "name": "Беспилотный катамаран",
+      "kind": "equipment",
+      "group": "Морские и подводные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Перевозка медикаментов",
+      "applies_to": "оборудование",
+      "description": "Автономное надводное судно катамаранного типа",
       "examples": [
-        "Медицина"
-      ]
+        "ОМДЖЕТ-ГМ01"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "gruzy_do_6_kg",
-      "name": "Грузы до 6 кг",
-      "kind": "characteristic",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "id": "mnogofunktsionalnyy_bezekipazhnyy_kater",
+      "name": "Многофункциональный бэзэкипажный катер",
+      "kind": "equipment",
+      "group": "Морские и подводные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Легкие грузы",
+      "applies_to": "оборудование",
+      "description": "Многофункциональное автономное надводное судно",
       "examples": [
-        "Дрон"
-      ]
+        "БЭК-Р"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "gruzy_do_20_kg",
-      "name": "Грузы до 20 кг",
-      "kind": "characteristic",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "id": "modulnaya_navodnaya_mnogofunktsionalnaya_platforma",
+      "name": "Модульная наводная многофункциональная платформа",
+      "kind": "equipment",
+      "group": "Морские и подводные роботы",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Средние грузы",
+      "applies_to": "оборудование",
+      "description": "Модульная автономная надводная платформа",
       "examples": [
-        "Дрон"
-      ]
+        "Барабулька"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "gruzy_do_40_kg",
-      "name": "Грузы до 40 кг",
-      "kind": "characteristic",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "id": "multirotor",
+      "name": "Мультиротор",
+      "kind": "equipment",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Тяжелые грузы",
+      "applies_to": "оборудование",
+      "description": "БАС мультироторного типа без уточнения назначения",
       "examples": [
-        "Дрон"
-      ]
+        "А-50"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "gruzy_do_70_kg",
-      "name": "Грузы до 70 кг",
-      "kind": "characteristic",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "id": "privyaznoy_robot_na_baze_oktokoptera",
+      "name": "Привязной робот на базе октокоптера",
+      "kind": "equipment",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Тяжелые грузы",
+      "applies_to": "оборудование",
+      "description": "Привязной БАС для мойки фасадов высотных зданий",
       "examples": [
-        "Дрон"
-      ]
+        "Astramis AeroUnit"
+      ],
+      "source": "catalog_export_v4.csv"
     },
     {
-      "id": "gruzy_do_100_kg",
-      "name": "Грузы до 100 кг",
-      "kind": "characteristic",
-      "group": "8. Авиационные системы (БАС / дроны)",
+      "id": "samolet",
+      "name": "Самолет",
+      "kind": "equipment",
+      "group": "Воздушные роботы (БАС)",
       "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Тяжелые грузы",
+      "applies_to": "оборудование",
+      "description": "БАС самолётного типа без уточнения назначения",
       "examples": [
-        "Дрон"
-      ]
-    },
-    {
-      "id": "gruzy_do_300_kg",
-      "name": "Грузы до 300 кг",
-      "kind": "characteristic",
-      "group": "3. Транспорт, логистика и доставка",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Тяжелые грузы",
-      "examples": [
-        "Ровер"
-      ]
-    },
-    {
-      "id": "gruzy_do_1500_kg",
-      "name": "Грузы до 1500 кг",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Тяжелые грузы",
-      "examples": [
-        "AMR"
-      ]
-    },
-    {
-      "id": "gruzy_do_2000_kg",
-      "name": "Грузы до 2000 кг",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Тяжелые грузы",
-      "examples": [
-        "AMR"
-      ]
-    },
-    {
-      "id": "gruzy_do_6000_kg",
-      "name": "Грузы до 6000 кг",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Тяжелые грузы",
-      "examples": [
-        "AMR"
-      ]
-    },
-    {
-      "id": "gruzy_do_35000_kg",
-      "name": "Грузы до 35000 кг",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Тяжелые грузы",
-      "examples": [
-        "AMR"
-      ]
-    },
-    {
-      "id": "rabota_v_pomeschenii",
-      "name": "Работа в помещении",
-      "kind": "characteristic",
-      "group": "9. Универсальное / межзональное",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Внутри здания",
-      "examples": [
-        "Склад"
-      ]
-    },
-    {
-      "id": "rabota_na_ulitse",
-      "name": "Работа на улице",
-      "kind": "characteristic",
-      "group": "9. Универсальное / межзональное",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Снаружи",
-      "examples": [
-        "Парк"
-      ]
-    },
-    {
-      "id": "rabota_na_vysote",
-      "name": "Работа на высоте",
-      "kind": "characteristic",
-      "group": "7. Инфраструктура, ЖКХ и подземные коммуникации",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Высотные работы",
-      "examples": [
-        "Фасад"
-      ]
-    },
-    {
-      "id": "rabota_v_trube",
-      "name": "Работа в трубе",
-      "kind": "characteristic",
-      "group": "7. Инфраструктура, ЖКХ и подземные коммуникации",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Внутритрубные работы",
-      "examples": [
-        "Коллектор"
-      ]
-    },
-    {
-      "id": "rabota_na_zhd",
-      "name": "Работа на ЖД",
-      "kind": "characteristic",
-      "group": "3. Транспорт, логистика и доставка",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Железнодорожные работы",
-      "examples": [
-        "Станция"
-      ]
-    },
-    {
-      "id": "rabota_v_portu",
-      "name": "Работа в порту",
-      "kind": "characteristic",
-      "group": "3. Транспорт, логистика и доставка",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Портовые работы",
-      "examples": [
-        "Порт"
-      ]
-    },
-    {
-      "id": "rabota_v_aeroportu",
-      "name": "Работа в аэропорту",
-      "kind": "characteristic",
-      "group": "3. Транспорт, логистика и доставка",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Аэропортовые работы",
-      "examples": [
-        "Аэропорт"
-      ]
-    },
-    {
-      "id": "rabota_na_sklade",
-      "name": "Работа на складе",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Складские работы",
-      "examples": [
-        "РЦ"
-      ]
-    },
-    {
-      "id": "rabota_v_tsehe",
-      "name": "Работа в цехе",
-      "kind": "characteristic",
-      "group": "2. Производство и цех",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Производственные работы",
-      "examples": [
-        "Цех"
-      ]
-    },
-    {
-      "id": "rabota_v_magazine",
-      "name": "Работа в магазине",
-      "kind": "characteristic",
-      "group": "5. Торговля, услуги и общественные пространства",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Торговые работы",
-      "examples": [
-        "Магазин"
-      ]
-    },
-    {
-      "id": "rabota_v_bts",
-      "name": "Работа в БЦ",
-      "kind": "characteristic",
-      "group": "5. Торговля, услуги и общественные пространства",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Офисные работы",
-      "examples": [
-        "БЦ"
-      ]
-    },
-    {
-      "id": "rabota_v_zhk",
-      "name": "Работа в ЖК",
-      "kind": "characteristic",
-      "group": "5. Торговля, услуги и общественные пространства",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Жилые комплексы",
-      "examples": [
-        "Двор"
-      ]
-    },
-    {
-      "id": "rabota_v_universitete",
-      "name": "Работа в университете",
-      "kind": "characteristic",
-      "group": "5. Торговля, услуги и общественные пространства",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Образовательные работы",
-      "examples": [
-        "Вуз"
-      ]
-    },
-    {
-      "id": "rabota_v_bolnitse",
-      "name": "Работа в больнице",
-      "kind": "characteristic",
-      "group": "4. Медицина, лаборатории и стерильные зоны",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Медицинские работы",
-      "examples": [
-        "Больница"
-      ]
-    },
-    {
-      "id": "rabota_v_laboratorii",
-      "name": "Работа в лаборатории",
-      "kind": "characteristic",
-      "group": "4. Медицина, лаборатории и стерильные зоны",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Лабораторные работы",
-      "examples": [
-        "Лаборатория"
-      ]
-    },
-    {
-      "id": "rabota_na_obekte_transporta_i_logistiki",
-      "name": "Работа на объекте транспорта и логистики",
-      "kind": "characteristic",
-      "group": "1. Склад и внутрискладская логистика",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Транспорт",
-      "examples": [
-        "Склад"
-      ]
-    },
-    {
-      "id": "rabota_na_obekte_bezopasnosti",
-      "name": "Работа на объекте безопасности",
-      "kind": "characteristic",
-      "group": "6. Безопасность, патрулирование и ЧС",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Безопасность",
-      "examples": [
-        "Патруль"
-      ]
-    },
-    {
-      "id": "rabota_na_obekte_torgovli_i_uslug",
-      "name": "Работа на объекте торговли и услуг",
-      "kind": "characteristic",
-      "group": "5. Торговля, услуги и общественные пространства",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Торговля",
-      "examples": [
-        "Магазин"
-      ]
-    },
-    {
-      "id": "rabota_na_obekte_promyshlennosti",
-      "name": "Работа на объекте промышленности",
-      "kind": "characteristic",
-      "group": "2. Производство и цех",
-      "aliases": [],
-      "applies_to": "характеристика",
-      "description": "Промышленность",
-      "examples": [
-        "Завод"
-      ]
+        "Геоскан 201"
+      ],
+      "source": "catalog_export_v4.csv"
     }
   ]
 }

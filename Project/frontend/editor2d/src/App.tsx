@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import exampleScene from "../../scene.example.json";
+import exampleScene from "../../../scene.example.json";
 import { canonicalizeScene } from "./catalog/canonicalize";
 import { loadCategories } from "./catalog/categories";
 import { Properties } from "./editor/Properties";

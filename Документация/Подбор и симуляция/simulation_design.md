@@ -8,7 +8,7 @@
 ## 0. Входные данные — важное уточнение по сцене
 
 `backend/contracts/topology.py` (контракт 6) — устаревший черновик. Реальный контракт
-сцены теперь — **`scene.md` / `scene.example.json` / `editor2d/src/scene/types.ts`**
+сцены теперь — **`scene.md` / `scene.example.json` / `frontend/editor2d/src/scene/types.ts`**
 (Алексей, готово). Симуляция должна читать именно эту структуру:
 `Scene{site, zones, operation_points, charging_points, routes, robots}`, координаты —
 метры, `y_down`. `backend/contracts/topology.py` нужно будет переписать под неё до

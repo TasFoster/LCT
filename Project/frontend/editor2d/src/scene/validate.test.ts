@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import example from "../../../scene.example.json";
+import example from "../../../../scene.example.json";
 import { loadCategories } from "../catalog/categories";
 import { normalize, siteRect, withDefaults } from "./ops";
 import type { Scene } from "./types";

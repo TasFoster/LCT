@@ -5,28 +5,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 `editor2d` is the 2D scene editor (React + Konva) for the larger LCT hackathon platform (see
-`../../CLAUDE.md` two levels up, at the repo root, for the full platform brief — this module lives at
-`Project/editor2d/`). It is **contract 6** in that platform: Алексей's module, producing the `Scene`
-JSON that `matching` and `simulation` consume. This directory is a standalone Vite app; the repo root
-is a git repository, this directory is not its own repo.
+`../../../CLAUDE.md` three levels up, at the repo root, for the full platform brief — this module lives
+at `Project/frontend/editor2d/`, moved there from `Project/editor2d/` on 2026-09-25 to keep both React
+apps under one `frontend/` folder; it stays a fully independent Vite app — own `package.json`, own dev
+port, no shared code with `../` (Владимиров's wizard app) yet). It is **contract 6** in that platform:
+Алексей's module, producing the `Scene` JSON that `matching` and `simulation` consume. This directory is
+a standalone Vite app; the repo root is a git repository, this directory is not its own repo.
 
 The contract this app produces is documented outside this directory:
-- `../scene.md` — field-by-field spec of the `Scene` JSON (source of truth; read before changing `src/scene/types.ts`).
-- `../scene.example.json` — full example scene, loaded by `App.tsx` as the default/demo scene.
-- `../архив/topology.md` / `../архив/topology.py` — superseded draft contract (pre-dates `scene.md`,
+- `../../scene.md` — field-by-field spec of the `Scene` JSON (source of truth; read before changing `src/scene/types.ts`).
+- `../../scene.example.json` — full example scene, loaded by `App.tsx` as the default/demo scene.
+- `../../архив/topology.md` / `../../архив/topology.py` — superseded draft contract (pre-dates `scene.md`,
   archived, not pydantic); `scene.md` has a changelog section against it.
-- `../tools/categories_from_xlsx.py` + `../Книга1.xlsx` (+ `../../артём-стас.ods` as an optional third
-  argument, the same table split into sections — it fills each category's `group`, which the palette and
-  the robot-kind dropdown use to split the 39 equipment kinds) — generates `src/catalog/categories.json`, the
-  equipment/zone/task category dictionary. Regenerate the script's output, don't hand-edit the JSON.
+- `../../tools/categories_from_xlsx.py` + `../../Книга1.xlsx` (+ `../../книга2.xlsx` as an optional third argument,
+  same table from Артём grouped into broader categories — replaced `артём-стас.ods` on 2026-09-25, archived
+  in `../../архив/` — it fills each category's `group`, which the palette and the robot-kind dropdown use to
+  split equipment kinds, now into groups Мобильные роботы / Стационарные роботы и комплексы /
+  Воздушные роботы (БАС) / Морские и подводные роботы instead of the old 7 industry-section groups) —
+  generates `src/catalog/categories.json`, the equipment/zone/task category dictionary. Regenerate the
+  script's output, don't hand-edit the JSON. categories.json no longer has an ungrouped bucket and no
+  longer carries `kind: "characteristic"` — as of 2026-09-25 those 49 rows moved to
+  `../../backend/contracts/dictionaries/characteristics.json` (equipment attributes: weight class, cargo
+  type, navigation, place type — catalog/matching territory, not this editor).
 
-`vite.config.ts` sets `server.fs.allow: [".."]` specifically so the dev server can read `scene.example.json`
-one directory up.
+`vite.config.ts` sets `server.fs.allow: ["../.."]` specifically so the dev server can read
+`scene.example.json`, which lives two directories up (`Project/scene.example.json`).
 
-There's also a non-dev quick-start path: `../README.md` + `../Запустить редактор.bat` — a Windows
+There's also a non-dev quick-start path: `../../README.md` + `../../Запустить редактор.bat` — a Windows
 launcher for teammates without a dev setup (checks Node.js, `npm install`s if `node_modules` is
-missing, opens the browser). It expects `editor2d/` as its sibling — don't move this directory without
-updating that `.bat`'s `cd /d "%~dp0editor2d"` line.
+missing, opens the browser). It expects `frontend/editor2d/` at that relative path — don't move this
+directory again without updating that `.bat`'s `cd /d "%~dp0frontend\editor2d"` line.
 
 ## Commands
 
@@ -129,5 +137,5 @@ don't).
   catches up on drop — see `PROGRESS.md` 1.3).
 - Files without a `walls` field (schema v1.0/v1.1) are read as a scene with no walls — `withDefaults`
   backfills `walls: []` and a default `thickness`.
-- Any change to `scene/types.ts` must be mirrored in `../scene.md` (the field table) and, if it affects
-  the shipped example, `../scene.example.json`.
+- Any change to `scene/types.ts` must be mirrored in `../../scene.md` (the field table) and, if it affects
+  the shipped example, `../../scene.example.json`.

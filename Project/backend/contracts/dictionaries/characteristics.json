@@ -1,0 +1,827 @@
+{
+  "$comment": "Собран скриптом tools/categories_from_xlsx.py из таблицы Артёма (applies_to = «характеристика») — руками не править. characteristics — каталог, axis — ось группировки (weight_class/cargo_type/navigation/place_type). equipment_characteristics — id категории оборудования (см. categories.json) -> её характеристики; подобрано вручную (EQUIPMENT_CHARACTERISTICS в скрипте), не из таблицы.",
+  "version": 1,
+  "source": "Книга1.xlsx",
+  "characteristics": [
+    {
+      "id": "rovnyy_pol",
+      "name": "Ровный пол",
+      "axis": "navigation",
+      "description": "Требование к покрытию",
+      "examples": [
+        "Склад"
+      ]
+    },
+    {
+      "id": "razmetka_mayaki",
+      "name": "Разметка/маяки",
+      "axis": "navigation",
+      "description": "Требуется разметка/маяки",
+      "examples": [
+        "Стеллажи"
+      ]
+    },
+    {
+      "id": "bez_razmetki",
+      "name": "Без разметки",
+      "axis": "navigation",
+      "description": "Работает без разметки",
+      "examples": [
+        "AMR"
+      ]
+    },
+    {
+      "id": "gnss",
+      "name": "GNSS",
+      "axis": "navigation",
+      "description": "Требуется/используется спутниковая навигация",
+      "examples": [
+        "Улица"
+      ]
+    },
+    {
+      "id": "dinamicheskaya_sreda",
+      "name": "Динамическая среда",
+      "axis": "navigation",
+      "description": "Работа среди людей/техники",
+      "examples": [
+        "Склад"
+      ]
+    },
+    {
+      "id": "vysokie_stellazhi",
+      "name": "Высокие стеллажи",
+      "axis": "navigation",
+      "description": "Работа на высоте",
+      "examples": [
+        "Склад"
+      ]
+    },
+    {
+      "id": "tyazhelye_gruzy",
+      "name": "Тяжелые грузы",
+      "axis": "weight_class",
+      "description": "Грузоподъемность > 1 т",
+      "examples": [
+        "Паллеты"
+      ]
+    },
+    {
+      "id": "legkie_gruzy",
+      "name": "Легкие грузы",
+      "axis": "weight_class",
+      "description": "Грузоподъемность < 100 кг",
+      "examples": [
+        "Посылки"
+      ]
+    },
+    {
+      "id": "melkie_gruzy",
+      "name": "Мелкие грузы",
+      "axis": "weight_class",
+      "description": "Штучные товары",
+      "examples": [
+        "Комплектация"
+      ]
+    },
+    {
+      "id": "krupnogabaritnye_gruzy",
+      "name": "Крупногабаритные грузы",
+      "axis": "weight_class",
+      "description": "Негабарит",
+      "examples": [
+        "Производство"
+      ]
+    },
+    {
+      "id": "pallety",
+      "name": "Паллеты",
+      "axis": "cargo_type",
+      "description": "Работа с паллетами",
+      "examples": [
+        "Склад"
+      ]
+    },
+    {
+      "id": "telezhki",
+      "name": "Тележки",
+      "axis": "cargo_type",
+      "description": "Работа с тележками",
+      "examples": [
+        "Склад"
+      ]
+    },
+    {
+      "id": "konveyernye_moduli",
+      "name": "Конвейерные модули",
+      "axis": "cargo_type",
+      "description": "Работа с конвейером",
+      "examples": [
+        "Производство"
+      ]
+    },
+    {
+      "id": "roll_keydzhi",
+      "name": "Ролл-кейджи",
+      "axis": "cargo_type",
+      "description": "Работа с ролл-кейджами",
+      "examples": [
+        "Склад"
+      ]
+    },
+    {
+      "id": "klt_yaschiki",
+      "name": "KLT ящики",
+      "axis": "cargo_type",
+      "description": "Работа с KLT",
+      "examples": [
+        "Производство"
+      ]
+    },
+    {
+      "id": "stellazhi",
+      "name": "Стеллажи",
+      "axis": "cargo_type",
+      "description": "Работа со стеллажами",
+      "examples": [
+        "Склад"
+      ]
+    },
+    {
+      "id": "polki",
+      "name": "Полки",
+      "axis": "cargo_type",
+      "description": "Работа с полками",
+      "examples": [
+        "Магазин"
+      ]
+    },
+    {
+      "id": "gofrotara",
+      "name": "Гофротара",
+      "axis": "cargo_type",
+      "description": "Работа с гофротарой",
+      "examples": [
+        "Производство"
+      ]
+    },
+    {
+      "id": "biomaterialy",
+      "name": "Биоматериалы",
+      "axis": "cargo_type",
+      "description": "Перевозка биоматериалов",
+      "examples": [
+        "Медицина"
+      ]
+    },
+    {
+      "id": "medikamenty",
+      "name": "Медикаменты",
+      "axis": "cargo_type",
+      "description": "Перевозка медикаментов",
+      "examples": [
+        "Медицина"
+      ]
+    },
+    {
+      "id": "gruzy_do_6_kg",
+      "name": "Грузы до 6 кг",
+      "axis": "weight_class",
+      "description": "Легкие грузы",
+      "examples": [
+        "Дрон"
+      ]
+    },
+    {
+      "id": "gruzy_do_20_kg",
+      "name": "Грузы до 20 кг",
+      "axis": "weight_class",
+      "description": "Средние грузы",
+      "examples": [
+        "Дрон"
+      ]
+    },
+    {
+      "id": "gruzy_do_40_kg",
+      "name": "Грузы до 40 кг",
+      "axis": "weight_class",
+      "description": "Тяжелые грузы",
+      "examples": [
+        "Дрон"
+      ]
+    },
+    {
+      "id": "gruzy_do_70_kg",
+      "name": "Грузы до 70 кг",
+      "axis": "weight_class",
+      "description": "Тяжелые грузы",
+      "examples": [
+        "Дрон"
+      ]
+    },
+    {
+      "id": "gruzy_do_100_kg",
+      "name": "Грузы до 100 кг",
+      "axis": "weight_class",
+      "description": "Тяжелые грузы",
+      "examples": [
+        "Дрон"
+      ]
+    },
+    {
+      "id": "gruzy_do_300_kg",
+      "name": "Грузы до 300 кг",
+      "axis": "weight_class",
+      "description": "Тяжелые грузы",
+      "examples": [
+        "Ровер"
+      ]
+    },
+    {
+      "id": "gruzy_do_1500_kg",
+      "name": "Грузы до 1500 кг",
+      "axis": "weight_class",
+      "description": "Тяжелые грузы",
+      "examples": [
+        "AMR"
+      ]
+    },
+    {
+      "id": "gruzy_do_2000_kg",
+      "name": "Грузы до 2000 кг",
+      "axis": "weight_class",
+      "description": "Тяжелые грузы",
+      "examples": [
+        "AMR"
+      ]
+    },
+    {
+      "id": "gruzy_do_6000_kg",
+      "name": "Грузы до 6000 кг",
+      "axis": "weight_class",
+      "description": "Тяжелые грузы",
+      "examples": [
+        "AMR"
+      ]
+    },
+    {
+      "id": "gruzy_do_35000_kg",
+      "name": "Грузы до 35000 кг",
+      "axis": "weight_class",
+      "description": "Тяжелые грузы",
+      "examples": [
+        "AMR"
+      ]
+    },
+    {
+      "id": "rabota_v_pomeschenii",
+      "name": "Работа в помещении",
+      "axis": "place_type",
+      "description": "Внутри здания",
+      "examples": [
+        "Склад"
+      ]
+    },
+    {
+      "id": "rabota_na_ulitse",
+      "name": "Работа на улице",
+      "axis": "place_type",
+      "description": "Снаружи",
+      "examples": [
+        "Парк"
+      ]
+    },
+    {
+      "id": "rabota_na_vysote",
+      "name": "Работа на высоте",
+      "axis": "place_type",
+      "description": "Высотные работы",
+      "examples": [
+        "Фасад"
+      ]
+    },
+    {
+      "id": "rabota_v_trube",
+      "name": "Работа в трубе",
+      "axis": "place_type",
+      "description": "Внутритрубные работы",
+      "examples": [
+        "Коллектор"
+      ]
+    },
+    {
+      "id": "rabota_na_zhd",
+      "name": "Работа на ЖД",
+      "axis": "place_type",
+      "description": "Железнодорожные работы",
+      "examples": [
+        "Станция"
+      ]
+    },
+    {
+      "id": "rabota_v_portu",
+      "name": "Работа в порту",
+      "axis": "place_type",
+      "description": "Портовые работы",
+      "examples": [
+        "Порт"
+      ]
+    },
+    {
+      "id": "rabota_v_aeroportu",
+      "name": "Работа в аэропорту",
+      "axis": "place_type",
+      "description": "Аэропортовые работы",
+      "examples": [
+        "Аэропорт"
+      ]
+    },
+    {
+      "id": "rabota_na_sklade",
+      "name": "Работа на складе",
+      "axis": "place_type",
+      "description": "Складские работы",
+      "examples": [
+        "РЦ"
+      ]
+    },
+    {
+      "id": "rabota_v_tsehe",
+      "name": "Работа в цехе",
+      "axis": "place_type",
+      "description": "Производственные работы",
+      "examples": [
+        "Цех"
+      ]
+    },
+    {
+      "id": "rabota_v_magazine",
+      "name": "Работа в магазине",
+      "axis": "place_type",
+      "description": "Торговые работы",
+      "examples": [
+        "Магазин"
+      ]
+    },
+    {
+      "id": "rabota_v_bts",
+      "name": "Работа в БЦ",
+      "axis": "place_type",
+      "description": "Офисные работы",
+      "examples": [
+        "БЦ"
+      ]
+    },
+    {
+      "id": "rabota_v_zhk",
+      "name": "Работа в ЖК",
+      "axis": "place_type",
+      "description": "Жилые комплексы",
+      "examples": [
+        "Двор"
+      ]
+    },
+    {
+      "id": "rabota_v_universitete",
+      "name": "Работа в университете",
+      "axis": "place_type",
+      "description": "Образовательные работы",
+      "examples": [
+        "Вуз"
+      ]
+    },
+    {
+      "id": "rabota_v_bolnitse",
+      "name": "Работа в больнице",
+      "axis": "place_type",
+      "description": "Медицинские работы",
+      "examples": [
+        "Больница"
+      ]
+    },
+    {
+      "id": "rabota_v_laboratorii",
+      "name": "Работа в лаборатории",
+      "axis": "place_type",
+      "description": "Лабораторные работы",
+      "examples": [
+        "Лаборатория"
+      ]
+    },
+    {
+      "id": "rabota_na_obekte_transporta_i_logistiki",
+      "name": "Работа на объекте транспорта и логистики",
+      "axis": "place_type",
+      "description": "Транспорт",
+      "examples": [
+        "Склад"
+      ]
+    },
+    {
+      "id": "rabota_na_obekte_bezopasnosti",
+      "name": "Работа на объекте безопасности",
+      "axis": "place_type",
+      "description": "Безопасность",
+      "examples": [
+        "Патруль"
+      ]
+    },
+    {
+      "id": "rabota_na_obekte_torgovli_i_uslug",
+      "name": "Работа на объекте торговли и услуг",
+      "axis": "place_type",
+      "description": "Торговля",
+      "examples": [
+        "Магазин"
+      ]
+    },
+    {
+      "id": "rabota_na_obekte_promyshlennosti",
+      "name": "Работа на объекте промышленности",
+      "axis": "place_type",
+      "description": "Промышленность",
+      "examples": [
+        "Завод"
+      ]
+    }
+  ],
+  "equipment_characteristics": {
+    "mobilnyy_robot": [
+      "legkie_gruzy",
+      "pallety",
+      "telezhki",
+      "rovnyy_pol",
+      "rabota_na_sklade"
+    ],
+    "amr": [
+      "legkie_gruzy",
+      "telezhki",
+      "roll_keydzhi",
+      "bez_razmetki",
+      "rovnyy_pol",
+      "rabota_na_sklade",
+      "rabota_v_tsehe",
+      "rabota_v_magazine"
+    ],
+    "fmr_avtonomnyy_pogruzchik": [
+      "tyazhelye_gruzy",
+      "gruzy_do_2000_kg",
+      "pallety",
+      "stellazhi",
+      "razmetka_mayaki",
+      "rovnyy_pol",
+      "rabota_na_sklade",
+      "rabota_v_tsehe"
+    ],
+    "robot_shtabeler": [
+      "tyazhelye_gruzy",
+      "pallety",
+      "stellazhi",
+      "vysokie_stellazhi",
+      "razmetka_mayaki",
+      "rovnyy_pol",
+      "rabota_na_sklade"
+    ],
+    "robot_tyagach": [
+      "tyazhelye_gruzy",
+      "gruzy_do_2000_kg",
+      "telezhki",
+      "roll_keydzhi",
+      "razmetka_mayaki",
+      "rovnyy_pol",
+      "rabota_na_sklade",
+      "rabota_v_tsehe"
+    ],
+    "robot_uborschik": [
+      "rovnyy_pol",
+      "dinamicheskaya_sreda",
+      "rabota_v_pomeschenii",
+      "rabota_na_ulitse",
+      "rabota_na_sklade",
+      "rabota_v_magazine",
+      "rabota_v_bts"
+    ],
+    "bespilotnyy_pogruzchik": [
+      "tyazhelye_gruzy",
+      "gruzy_do_2000_kg",
+      "pallety",
+      "razmetka_mayaki",
+      "rovnyy_pol",
+      "rabota_na_sklade",
+      "rabota_v_portu"
+    ],
+    "statsionarnaya_sistema_umnogo_hraneniya": [
+      "melkie_gruzy",
+      "klt_yaschiki",
+      "stellazhi",
+      "rabota_na_sklade"
+    ],
+    "robot_manipulyator": [
+      "tyazhelye_gruzy",
+      "dinamicheskaya_sreda",
+      "rabota_v_tsehe",
+      "rabota_na_obekte_promyshlennosti"
+    ],
+    "robot_ukladchik": [
+      "tyazhelye_gruzy",
+      "gofrotara",
+      "stellazhi",
+      "rabota_v_tsehe"
+    ],
+    "delta_robot": [
+      "melkie_gruzy",
+      "konveyernye_moduli",
+      "rabota_v_tsehe",
+      "rabota_na_obekte_promyshlennosti"
+    ],
+    "kollaborativnyy_robot_kobot": [
+      "legkie_gruzy",
+      "dinamicheskaya_sreda",
+      "rabota_v_tsehe",
+      "rabota_na_obekte_promyshlennosti"
+    ],
+    "robot_sortirovschik": [
+      "legkie_gruzy",
+      "melkie_gruzy",
+      "roll_keydzhi",
+      "konveyernye_moduli",
+      "razmetka_mayaki",
+      "rovnyy_pol",
+      "rabota_na_sklade",
+      "rabota_na_obekte_transporta_i_logistiki"
+    ],
+    "robot_inventarizator": [
+      "bez_razmetki",
+      "vysokie_stellazhi",
+      "rabota_na_sklade",
+      "rabota_v_magazine"
+    ],
+    "robot_rover": [
+      "legkie_gruzy",
+      "gnss",
+      "rabota_na_ulitse",
+      "rabota_v_zhk",
+      "rabota_v_universitete"
+    ],
+    "robot_kurer": [
+      "legkie_gruzy",
+      "gnss",
+      "rabota_na_ulitse",
+      "rabota_v_zhk"
+    ],
+    "antropomorfnyy_robot": [
+      "legkie_gruzy",
+      "dinamicheskaya_sreda",
+      "rabota_v_bts",
+      "rabota_v_magazine",
+      "rabota_v_universitete"
+    ],
+    "robo_kafe": [
+      "melkie_gruzy",
+      "rabota_v_bts",
+      "rabota_v_magazine",
+      "rabota_na_obekte_torgovli_i_uslug"
+    ],
+    "mobilnyy_manipulyator": [
+      "legkie_gruzy",
+      "tyazhelye_gruzy",
+      "dinamicheskaya_sreda",
+      "rovnyy_pol",
+      "rabota_v_tsehe",
+      "rabota_na_sklade"
+    ],
+    "robotizirovannaya_ustanovka": [
+      "tyazhelye_gruzy",
+      "rabota_na_obekte_promyshlennosti"
+    ],
+    "robotizirovannaya_pristanochnaya_yacheyka": [
+      "tyazhelye_gruzy",
+      "rabota_v_tsehe"
+    ],
+    "robotizirovannyy_svarochnyy_kompleks": [
+      "tyazhelye_gruzy",
+      "rabota_v_tsehe",
+      "rabota_na_obekte_promyshlennosti"
+    ],
+    "robotizirovannye_pogruzochnye_krany": [
+      "tyazhelye_gruzy",
+      "gruzy_do_35000_kg",
+      "rabota_v_portu",
+      "rabota_na_obekte_promyshlennosti"
+    ],
+    "vnutritrubnaya_robotizirovannaya_sistema": [
+      "bez_razmetki",
+      "rabota_v_trube"
+    ],
+    "robot_laborant": [
+      "melkie_gruzy",
+      "biomaterialy",
+      "medikamenty",
+      "rabota_v_laboratorii",
+      "rabota_v_bolnitse"
+    ],
+    "robot_ekolog_obhodchik": [
+      "legkie_gruzy",
+      "gnss",
+      "bez_razmetki",
+      "rabota_na_ulitse",
+      "rabota_na_obekte_bezopasnosti"
+    ],
+    "ohrannyy_robot": [
+      "legkie_gruzy",
+      "gnss",
+      "bez_razmetki",
+      "dinamicheskaya_sreda",
+      "rabota_na_obekte_bezopasnosti",
+      "rabota_na_ulitse",
+      "rabota_na_sklade"
+    ],
+    "robotizirovannyy_lafetnyy_stvol": [
+      "rabota_na_obekte_bezopasnosti",
+      "rabota_na_obekte_promyshlennosti"
+    ],
+    "robotizirovannaya_telezhka": [
+      "legkie_gruzy",
+      "telezhki",
+      "razmetka_mayaki",
+      "rovnyy_pol",
+      "rabota_v_tsehe",
+      "rabota_na_sklade"
+    ],
+    "universalnaya_avtonomnaya_robotizirovannaya_platforma": [
+      "legkie_gruzy",
+      "tyazhelye_gruzy",
+      "bez_razmetki",
+      "gnss",
+      "rabota_v_pomeschenii",
+      "rabota_na_ulitse"
+    ],
+    "bas": [
+      "legkie_gruzy",
+      "gruzy_do_20_kg",
+      "gnss",
+      "rabota_na_ulitse"
+    ],
+    "bas_multirotornogo_tipa": [
+      "gruzy_do_6_kg",
+      "gruzy_do_20_kg",
+      "gnss",
+      "rabota_na_ulitse"
+    ],
+    "bas_samoletnogo_tipa": [
+      "gruzy_do_6_kg",
+      "gnss",
+      "rabota_na_ulitse"
+    ],
+    "vtol": [
+      "gruzy_do_20_kg",
+      "gruzy_do_40_kg",
+      "gnss",
+      "rabota_na_ulitse"
+    ],
+    "bas_dlya_aerofotosemki": [
+      "gruzy_do_6_kg",
+      "gnss",
+      "rabota_na_ulitse",
+      "rabota_na_obekte_promyshlennosti"
+    ],
+    "bas_dlya_monitoringa": [
+      "gruzy_do_6_kg",
+      "gnss",
+      "rabota_na_ulitse",
+      "rabota_na_obekte_bezopasnosti"
+    ],
+    "bas_dlya_dostavki_gruzov": [
+      "gruzy_do_20_kg",
+      "gruzy_do_40_kg",
+      "gnss",
+      "rabota_na_ulitse"
+    ],
+    "bas_dlya_moyki_fasadov": [
+      "gruzy_do_20_kg",
+      "gnss",
+      "rabota_na_vysote",
+      "rabota_na_ulitse"
+    ],
+    "bas_dlya_poiska_propavshih": [
+      "gruzy_do_6_kg",
+      "gnss",
+      "rabota_na_ulitse",
+      "rabota_na_obekte_bezopasnosti"
+    ],
+    "fmr": [
+      "tyazhelye_gruzy",
+      "pallety",
+      "rovnyy_pol",
+      "razmetka_mayaki",
+      "rabota_na_sklade"
+    ],
+    "bespilotnoe_metro": [
+      "rabota_na_zhd",
+      "gnss"
+    ],
+    "bespilotnoe_taksi": [
+      "gnss",
+      "rabota_na_ulitse"
+    ],
+    "bespilotnyy_gruzovik": [
+      "tyazhelye_gruzy",
+      "gruzy_do_2000_kg",
+      "gnss",
+      "rabota_na_ulitse",
+      "rabota_na_obekte_transporta_i_logistiki"
+    ],
+    "bespilotnyy_tramvay": [
+      "rabota_na_zhd",
+      "gnss"
+    ],
+    "bespilotnyy_tyagach": [
+      "tyazhelye_gruzy",
+      "telezhki",
+      "gnss",
+      "rabota_na_ulitse"
+    ],
+    "intellektualnyy_avtobus_vendingovyy_apparat": [
+      "gnss",
+      "rabota_na_ulitse",
+      "rabota_na_obekte_torgovli_i_uslug"
+    ],
+    "vnutritrubnye_robotizirovannye_sistemy": [
+      "bez_razmetki",
+      "rabota_v_trube"
+    ],
+    "mobilnyy_robot_komplektovschik": [
+      "legkie_gruzy",
+      "roll_keydzhi",
+      "rovnyy_pol",
+      "rabota_na_sklade"
+    ],
+    "robot_rastsepschik": [
+      "rabota_na_zhd"
+    ],
+    "robot": [
+      "rabota_na_zhd"
+    ],
+    "rover": [
+      "rabota_na_zhd"
+    ],
+    "kollaborativnyy_robot_manipulyator": [
+      "legkie_gruzy",
+      "dinamicheskaya_sreda",
+      "rabota_v_tsehe"
+    ],
+    "manipulyator": [
+      "tyazhelye_gruzy",
+      "rabota_v_tsehe"
+    ],
+    "kran_shtabeler": [
+      "tyazhelye_gruzy",
+      "pallety",
+      "stellazhi",
+      "rabota_na_sklade"
+    ],
+    "robotizirovannyy_3d_printer": [
+      "rabota_na_obekte_promyshlennosti"
+    ],
+    "umnaya_sistema_hraneniya": [
+      "melkie_gruzy",
+      "klt_yaschiki",
+      "stellazhi",
+      "rabota_na_sklade"
+    ],
+    "shattl": [
+      "tyazhelye_gruzy",
+      "pallety",
+      "stellazhi",
+      "rabota_na_sklade"
+    ],
+    "bezekipazhnyy_kater": [
+      "rabota_na_ulitse"
+    ],
+    "bespilotnyy_katamaran": [
+      "rabota_na_ulitse"
+    ],
+    "mnogofunktsionalnyy_bezekipazhnyy_kater": [
+      "rabota_na_ulitse"
+    ],
+    "modulnaya_navodnaya_mnogofunktsionalnaya_platforma": [
+      "rabota_na_ulitse"
+    ],
+    "multirotor": [
+      "gruzy_do_6_kg",
+      "gruzy_do_20_kg",
+      "gnss",
+      "rabota_na_ulitse"
+    ],
+    "privyaznoy_robot_na_baze_oktokoptera": [
+      "gnss",
+      "rabota_na_vysote",
+      "rabota_na_ulitse"
+    ],
+    "samolet": [
+      "gruzy_do_6_kg",
+      "gnss",
+      "rabota_na_ulitse"
+    ]
+  }
+}

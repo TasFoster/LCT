@@ -5,10 +5,14 @@ import { CategoryDictionary, NO_GROUP, loadCategories, validateCategories } from
 it("настоящий справочник читается целиком и без предупреждений", () => {
   const { categories, warnings } = validateCategories(data.categories);
   expect(warnings).toEqual([]);
-  expect(categories).toHaveLength(134);
+  // 49 категорий applies_to="характеристика" больше не в этом списке — они переехали в
+  // backend/contracts/dictionaries/characteristics.json как атрибуты оборудования, не категории.
+  // equipment: 39 из Книга1.xlsx + 25 EXTRA_EQUIPMENT_CATEGORIES из catalog_export_v4.csv = 64
+  expect(categories).toHaveLength(110);
   const byKind: Record<string, number> = {};
   for (const c of categories) byKind[c.kind] = (byKind[c.kind] ?? 0) + 1;
-  expect(byKind).toEqual({ characteristic: 49, environment: 6, equipment: 39, place_point: 3, place_zone: 12, software: 3, task: 22 });
+  expect(byKind).toEqual({ environment: 6, equipment: 64, place_point: 3, place_zone: 12, software: 3, task: 22 });
+  expect(categories.every((c) => c.group)).toBe(true); // «Без раздела» больше не бывает
 });
 
 it("чужие названия категорий не пересекаются между собой и с нашими id", () => {
@@ -26,19 +30,16 @@ it("чужие названия категорий не пересекаются
   expect(seen.size).toBeGreaterThan(10);
 });
 
-it("оборудование разложено по разделам таблицы Артёма", () => {
+it("оборудование разложено по укрупнённым категориям книга2.xlsx", () => {
   const groups = loadCategories().byGroup("equipment");
-  expect(groups.reduce((n, g) => n + g.items.length, 0)).toBe(39);
-  // разделы идут в порядке таблицы, «Без раздела» — последним
+  // 39 из Книга1.xlsx + 25 EXTRA_EQUIPMENT_CATEGORIES (catalog_export_v4.csv) = 64,
+  // все нашли группу — «Без раздела» не нужен
+  expect(groups.reduce((n, g) => n + g.items.length, 0)).toBe(64);
   expect(groups.map((g) => g.group)).toEqual([
-    "1. Склад и внутрискладская логистика",
-    "2. Производство и цех",
-    "3. Транспорт, логистика и доставка",
-    "5. Торговля, услуги и общественные пространства",
-    "6. Безопасность, патрулирование и ЧС",
-    "7. Инфраструктура, ЖКХ и подземные коммуникации",
-    "8. Авиационные системы (БАС / дроны)",
-    NO_GROUP,
+    "Мобильные роботы",
+    "Стационарные роботы и комплексы",
+    "Воздушные роботы (БАС)",
+    "Морские и подводные роботы",
   ]);
   expect(groups[0].items.map((c) => c.id)).toContain("amr");
 });

@@ -3,7 +3,7 @@ chcp 65001 >nul
 setlocal
 rem Запуск 2D-редактора сцены. Двойной щелчок — сервер запускается и редактор открывается в браузере.
 rem LCT_NO_BROWSER=1 — не открывать браузер (для проверки).
-cd /d "%~dp0editor2d"
+cd /d "%~dp0frontend\editor2d"
 title Редактор сцены ЛЦТ
 
 where node >nul 2>nul

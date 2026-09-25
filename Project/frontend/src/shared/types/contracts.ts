@@ -108,52 +108,200 @@ export interface CompatibilityRule {
 
 export interface WarehouseParams {
   object_type: 'warehouse';
+  // Общие параметры объекта
   area_sqm: number;
   working_zones: string[];
+  available_area_sqm: number | null;
+  layout_constraints: string[];
+  ceiling_height_m: number;
+  mezzanine_floors_count: number;
+  main_aisle_width_m: number;
+  rack_aisle_width_m: number;
+  floor_surface_type: string;
+  floor_flatness_mm_per_2m: number;
+  // Режим работы
   operating_mode: string;
+  shifts_per_day: number;
+  working_days_per_year: number;
+  shift_duration_hours: number;
+  peak_load_factor: number;
+  // Операции: объём и производительность
   inbound_ops_per_day: number;
   internal_ops_per_day: number;
   outbound_ops_per_day: number;
-  storage_type: string;
+  inbound_pallets_per_day: number;
+  outbound_pallets_per_day: number;
+  picking_lines_per_day: number;
+  picking_units_per_day: number;
+  piece_pick_share_pct: number;
   sku_count: number;
+  fast_moving_sku_share_pct: number;
+  // Персонал
+  staff_count: number;
+  pickers_count: number;
+  forklift_operators_count: number;
+  packing_operators_count: number;
+  staff_cost_per_month: number;
+  picker_salary_per_month: number;
+  forklift_operator_salary_per_month: number;
+  payroll_tax_rate: number;
+  picker_throughput_lines_per_hour: number;
+  labor_loss_factor_pct: number;
+  // Маршруты и планировка
+  route_length_m: number;
+  picker_route_length_per_line_m: number;
+  conveyor_length_m: number;
+  // Хранение и характеристики грузов
+  storage_type: string;
+  rack_system_type: string;
+  pallet_positions_count: number;
   unit_load_weight_kg: number;
   unit_load_dimensions_mm: string;
-  staff_count: number;
-  staff_cost_per_month: number;
+  pallet_weight_kg: number;
+  sku_unit_weight_kg: number;
+  pallet_dimensions_mm: string;
+  sku_unit_dimensions_mm: string;
+  oversized_cargo_share_pct: number;
   current_throughput_per_hour: number;
-  route_length_m: number;
-  available_area_sqm: number | null;
-  layout_constraints: string[];
+  // Инфраструктура и ограничения
+  available_power_kw: number;
+  has_wms: boolean;
+  erp_system: string | null;
+  planned_capex_mln_rub: number;
+  payback_horizon_years: number;
 }
 
 export interface AirportParams {
   object_type: 'airport';
+  // Общие параметры объекта
   operation_zone: string;
-  operating_mode: string;
+  terminal_area_sqm: number;
+  apron_area_sqm: number;
+  terminals_count: number;
+  gates_count: number;
+  runways_count: number;
+  // Пассажирский поток
   passenger_flow_per_day: number | null;
-  cargo_flow_tons_per_day: number | null;
+  passenger_flow_per_year_mln: number;
+  peak_passengers_per_hour: number;
+  transfer_passengers_share_pct: number;
+  check_in_desks_count: number;
+  // Наземное обслуживание (RAMP)
   ops_count_per_day: number;
+  daily_flights_count: number;
+  peak_flights_per_hour: number;
+  aircraft_turnaround_time_min: number;
+  ground_ops_per_flight: number;
+  baggage_units_per_day: number;
+  baggage_unit_weight_kg: number;
+  baggage_carousels_count: number;
+  catering_portions_per_day: number;
+  refueling_flights_per_day: number;
+  // Внутрипортовая логистика и уборка
+  internal_cart_trips_per_day: number;
+  cleaning_machines_count: number;
+  cleaning_area_sqm: number;
+  waste_containers_per_day: number;
+  // Персонал
+  staff_count: number;
+  ramp_staff_count: number;
+  terminal_staff_count: number;
+  staff_cost_per_month: number;
+  ramp_staff_salary_per_month: number;
+  terminal_cleaner_salary_per_month: number;
+  payroll_tax_rate: number;
+  annual_staff_turnover_pct: number;
+  // Безопасность и ограничения
+  safety_requirements: string[];
+  security_zones_count: number;
+  has_access_control: boolean;
+  airside_certification_requirements: string;
+  noise_limit_dba: number;
+  unheated_zone_min_temp_c: number;
+  // Инфраструктура
+  has_fids_aodb: boolean;
+  has_bms: boolean;
+  available_charging_power_kw: number;
+  planned_capex_mln_rub: number;
+  payback_horizon_years: number;
+  // Прочее
+  cargo_flow_tons_per_day: number | null;
   peak_load_per_hour: number;
   route_length_m: number;
   unit_weight_kg: number;
   unit_dimensions_mm: string;
-  staff_count: number;
-  staff_cost_per_month: number;
-  safety_requirements: string[];
   zone_access: 'closed' | 'open';
 }
 
 export interface MedicalParams {
   object_type: 'medical';
+  // Общие параметры объекта
   facility_type: string;
   area_sqm: number;
   floors_count: number;
+  elevators_count: number;
+  beds_count: number;
+  bed_occupancy_pct: number;
+  operating_rooms_count: number;
+  outpatient_visits_per_day: number;
+  // Режим работы
   operating_mode: string;
+  outpatient_operating_mode: string;
+  medical_staff_shifts_per_day: number;
+  peak_logistics_hours: string;
+  // Внутрибольничная логистика
   cargo_volume_per_day: Record<string, number>;
+  meals_per_day_count: number;
+  kitchen_to_ward_distance_m: number;
+  meal_delivery_points_count: number;
+  meal_cart_weight_kg: number;
+  meal_delivery_time_norm_min: number;
+  dirty_linen_kg_per_day: number;
+  clean_linen_kg_per_day: number;
+  linen_points_count: number;
+  linen_change_frequency_per_day: number;
+  linen_container_weight_kg: number;
+  medication_sku_count: number;
+  medication_requests_per_day: number;
+  pharmacy_points_count: number;
+  delivery_points_count: number;
+  pharmacy_fulfillment_time_min: number;
+  stat_delivery_share_pct: number;
+  consumables_trips_per_day: number;
+  biosample_count_per_day: number;
+  labs_count: number;
+  sample_delivery_time_norm_min: number;
+  lab_results_trips_per_day: number;
+  waste_class_a_kg_per_day: number;
+  waste_class_b_kg_per_day: number;
+  waste_points_count: number;
+  waste_collection_frequency_per_day: number;
   routes_and_elevators: string[];
-  sanitary_requirements: string[];
+  // Персонал (немедицинский, задействованный в логистике)
   staff_count: number;
+  orderlies_count: number;
+  kitchen_staff_count: number;
+  laundry_staff_count: number;
   staff_cost_per_month: number;
+  orderly_salary_per_month: number;
+  kitchen_staff_salary_per_month: number;
+  payroll_tax_rate: number;
+  annual_staff_turnover_pct: number;
+  // Требования безопасности и санитарные нормы
+  sanitary_requirements: string[];
+  robot_disinfection_required: string;
+  ward_noise_limit_dba: number;
+  has_access_control: boolean;
+  robot_surface_material_requirements: string;
+  // Инфраструктура
+  has_mis: boolean;
+  has_lis: boolean;
+  has_bms: boolean;
+  corridor_width_m: number;
+  has_ramps_or_lifts: boolean;
+  available_charging_power_kw: number;
+  planned_capex_mln_rub: number;
+  payback_horizon_years: number;
   access_restrictions: string[];
 }
 

@@ -1,4 +1,4 @@
-"""Контракт 6: Scene. Граница Алексей (editor2d) -> Артём/Стас (matching), Стас (simulation),
+"""Контракт 6: Scene. Граница Алексей (editor2d, Project/frontend/editor2d/) -> Артём/Стас (matching), Стас (simulation),
 Владимиров (хранение проекта, contracts/records.py).
 
 Зеркалит поле-в-поле ../scene.md (источник истины — Алексей ведёт его вручную рядом

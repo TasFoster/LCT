@@ -5,9 +5,11 @@
 
 - [`../../Project/scene.md`](../../Project/scene.md) — контракт `Scene` (актуальная версия, v1.2:
   добавлены стены — `Scene.walls`, полилиния-препятствие с толщиной): зоны, маршруты, точки
-  операций/зарядки, роботы, стены. Читать перед правкой `Project/editor2d/src/scene/types.ts`.
+  операций/зарядки, роботы, стены. Читать перед правкой `Project/frontend/editor2d/src/scene/types.ts`.
 - [`../../Project/scene.example.json`](../../Project/scene.example.json) — пример сцены, грузится редактором по умолчанию.
-- [`../../Project/editor2d`](../../Project/editor2d) — 2D-редактор сцены (React + Konva); у него
+- [`../../Project/frontend/editor2d`](../../Project/frontend/editor2d) — 2D-редактор сцены (React + Konva),
+  с 2026-09-25 живёт внутри `Project/frontend/` (перенесён из `Project/editor2d/`) как независимое
+  Vite-приложение; у него
   свой `CLAUDE.md` с архитектурой слоёв и `PROGRESS.md` с журналом работы.
 - [`../../Project/README.md`](../../Project/README.md) + `Project/Запустить редактор.bat` — дистрибутив
   редактора для запуска в один клик на Windows (без npm/установки зависимостей вручную).

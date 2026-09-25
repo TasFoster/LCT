@@ -1,4 +1,4 @@
-// Проверки сцены перед отдачей (раздел «Проверки» в ../../../scene.md).
+// Проверки сцены перед отдачей (раздел «Проверки» в ../../../../scene.md).
 // error — сцена нарушает контракт; warning — формально допустимо, но скорее всего ошибка на плане.
 import { distToPolyline, insideOrOnPolygon, pointInPolygon, polygonSelfIntersects, segmentDistance, segmentTouchesPolygon } from "./geometry";
 import type { Scene } from "./types";
