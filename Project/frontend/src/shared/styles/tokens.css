@@ -1,0 +1,131 @@
+/*
+ * Дизайн-токены. Язык интерфейса — инженерный: холодный графит как основа,
+ * сигнальный оранжевый как единственный акцент (он же на карте экранов),
+ * семантические цвета отдельно от акцента.
+ *
+ * Все цвета объявлены в :root. Тёмная тема только переопределяет значения,
+ * поэтому ни один компонент не знает, какая тема активна.
+ */
+
+:root {
+  /* Поверхности */
+  --bg: #eef0f2;
+  --surface: #ffffff;
+  --surface-2: #f6f7f9;
+  --surface-3: #eceff2;
+  --overlay: rgba(21, 24, 28, .45);
+
+  /* Текст */
+  --ink: #15181c;
+  --muted: #5c6673;
+  --faint: #8b95a1;
+  --on-accent: #ffffff;
+
+  /* Линии */
+  --line: #d6dbe1;
+  --line-strong: #b4bcc5;
+
+  /* Акцент */
+  --accent: #c2410c;
+  --accent-hover: #9a3412;
+  --accent-soft: #fdeee6;
+  --accent-line: #f0b79a;
+
+  /* Семантика: отдельно от акцента */
+  --ok: #15803d;
+  --ok-soft: #e8f5ec;
+  --warn: #b45309;
+  --warn-soft: #fdf3e3;
+  --danger: #b91c1c;
+  --danger-soft: #fdeceb;
+  --info: #1f5fd0;
+  --info-soft: #e9f0fc;
+
+  /* Тени */
+  --shadow-1: 0 1px 2px rgba(21, 24, 28, .07);
+  --shadow-2: 0 4px 16px rgba(21, 24, 28, .12);
+
+  /* Радиусы и размеры */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --header-h: 56px;
+  --projectbar-h: 48px;
+  --stepper-h: 52px;
+  --wizardfooter-h: 64px;
+  --page-max: 1320px;
+
+  /* Шрифты */
+  --font-body: 'IBM Plex Sans', 'Segoe UI', Roboto, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Cascadia Mono', Consolas, monospace;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #101317;
+    --surface: #191d22;
+    --surface-2: #1f242a;
+    --surface-3: #262c33;
+    --overlay: rgba(0, 0, 0, .6);
+
+    --ink: #e7eaee;
+    --muted: #9aa4b0;
+    --faint: #6f7987;
+    --on-accent: #ffffff;
+
+    --line: #2f363e;
+    --line-strong: #454f59;
+
+    --accent: #f97316;
+    --accent-hover: #fb8c3c;
+    --accent-soft: #2a1a0e;
+    --accent-line: #7c3c12;
+
+    --ok: #4ade80;
+    --ok-soft: #10241a;
+    --warn: #fbbf24;
+    --warn-soft: #2a2110;
+    --danger: #f87171;
+    --danger-soft: #2a1414;
+    --info: #60a5fa;
+    --info-soft: #11203a;
+
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .45);
+    --shadow-2: 0 4px 16px rgba(0, 0, 0, .55);
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #101317;
+  --surface: #191d22;
+  --surface-2: #1f242a;
+  --surface-3: #262c33;
+  --overlay: rgba(0, 0, 0, .6);
+
+  --ink: #e7eaee;
+  --muted: #9aa4b0;
+  --faint: #6f7987;
+  --on-accent: #ffffff;
+
+  --line: #2f363e;
+  --line-strong: #454f59;
+
+  --accent: #f97316;
+  --accent-hover: #fb8c3c;
+  --accent-soft: #2a1a0e;
+  --accent-line: #7c3c12;
+
+  --ok: #4ade80;
+  --ok-soft: #10241a;
+  --warn: #fbbf24;
+  --warn-soft: #2a2110;
+  --danger: #f87171;
+  --danger-soft: #2a1414;
+  --info: #60a5fa;
+  --info-soft: #11203a;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .45);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, .55);
+}

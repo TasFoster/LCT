@@ -4,7 +4,7 @@ import './wireframes.css';
 
 /**
  * Вайрфрейм итогового дашборда сравнения сценариев.
- * Описание: docs/wireframes/dashboard-scenarios.md
+ * Описание: Документация/Фронтенд и визард/wireframes/dashboard-scenarios.md
  * Данные: EconomicsResult[] (contracts/economics.md), минимум 3 сценария по ТЗ.
  */
 
@@ -22,7 +22,7 @@ export function DashboardWireframe() {
         <h1>Вайрфрейм: итоговый дашборд сравнения сценариев</h1>
         <p>
           Красная линия — граница первого экрана при 1366×768: KPI и таблица сравнения помещаются над ней,
-          графики и чувствительность уходят под прокрутку. Описание — docs/wireframes/dashboard-scenarios.md
+          графики и чувствительность уходят под прокрутку. Описание — Документация/Фронтенд и визард/wireframes/dashboard-scenarios.md
           · <Link to={ROUTES.wireframeParams}>первый макет: параметры объекта</Link>
         </p>
       </div>

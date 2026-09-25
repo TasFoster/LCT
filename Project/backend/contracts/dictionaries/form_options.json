@@ -1,0 +1,392 @@
+{
+  "$comment": "Справочники форм визарда и оформление плана. Оборудование, рабочие зоны, виды точек, задачи и среды живут в categories.json, который генерируется из Книга1.xlsx/книга2.xlsx скриптом Project/tools/categories_from_xlsx.py — там их не дублируем. Этот файл ведётся руками: значения из него показываются в формах шага 2 визарда (Документация/Фронтенд и визард/wireframes/02-object-params.md) и в 2D-плане.",
+  "version": 1,
+  "zone_types": [
+    {
+      "id": "storage",
+      "label": "Зона хранения",
+      "color": "#2a78d6",
+      "aliases": [
+        "hranenie"
+      ]
+    },
+    {
+      "id": "operation",
+      "label": "Зона операций",
+      "color": "#eb6834",
+      "aliases": [
+        "operacii"
+      ]
+    },
+    {
+      "id": "charging",
+      "label": "Зона зарядки",
+      "color": "#1baf7a",
+      "aliases": [
+        "zaryadka"
+      ]
+    },
+    {
+      "id": "restricted",
+      "label": "Ограниченный доступ",
+      "color": "#e34948",
+      "aliases": [
+        "ogranichennyy_dostup",
+        "zapretnaya_zona"
+      ]
+    },
+    {
+      "id": "transit",
+      "label": "Транзит, маршрут",
+      "color": "#8b95a1",
+      "aliases": [
+        "tranzit",
+        "marshrut"
+      ]
+    }
+  ],
+  "working_zone_object_types": {
+    "zona_sterilnosti": [
+      "medical"
+    ],
+    "storage": [
+      "warehouse"
+    ],
+    "picking": [
+      "warehouse"
+    ],
+    "zona_sortirovki": [
+      "warehouse",
+      "airport"
+    ],
+    "shipping": [
+      "warehouse"
+    ],
+    "receiving": [
+      "warehouse"
+    ],
+    "zona_uborki": [
+      "warehouse",
+      "airport",
+      "medical"
+    ],
+    "zona_moyki": [
+      "airport",
+      "medical"
+    ],
+    "zona_to": [
+      "warehouse",
+      "airport",
+      "medical"
+    ],
+    "zona_stoyanki": [
+      "warehouse",
+      "airport",
+      "medical"
+    ],
+    "zona_ozhidaniya": [
+      "airport",
+      "medical"
+    ],
+    "zona_manevrirovaniya": [
+      "warehouse",
+      "airport"
+    ]
+  },
+  "equipment_footprints": {
+    "default": [
+      1.2,
+      0.8
+    ],
+    "amr": [
+      1.2,
+      0.8
+    ],
+    "stacker": [
+      1.9,
+      0.9
+    ],
+    "tug": [
+      1.4,
+      0.7
+    ],
+    "forklift": [
+      2.4,
+      1.2
+    ],
+    "cleaner": [
+      1.0,
+      0.7
+    ],
+    "asrs": [
+      10.0,
+      8.0
+    ],
+    "sorter": [
+      0.5,
+      0.5
+    ],
+    "delivery": [
+      0.7,
+      0.5
+    ]
+  },
+  "operating_modes": [
+    {
+      "id": "24_7",
+      "label": "24/7"
+    },
+    {
+      "id": "2x12",
+      "label": "2 смены по 12 ч"
+    },
+    {
+      "id": "3x8",
+      "label": "3 смены по 8 ч"
+    },
+    {
+      "id": "1x8",
+      "label": "1 смена, 8 ч"
+    },
+    {
+      "id": "5_2_2x8",
+      "label": "5/2, 2 смены по 8 ч"
+    }
+  ],
+  "storage_types": [
+    {
+      "id": "selective_rack",
+      "label": "Фронтальные стеллажи"
+    },
+    {
+      "id": "drive_in",
+      "label": "Набивные стеллажи"
+    },
+    {
+      "id": "mezzanine",
+      "label": "Мезонин"
+    },
+    {
+      "id": "floor",
+      "label": "Напольное хранение"
+    },
+    {
+      "id": "shelving",
+      "label": "Полочные стеллажи"
+    },
+    {
+      "id": "gravity",
+      "label": "Гравитационные стеллажи"
+    }
+  ],
+  "layout_constraints": [
+    {
+      "id": "narrow_aisles_2_5",
+      "label": "Узкие проходы до 2,5 м"
+    },
+    {
+      "id": "columns_6x6",
+      "label": "Колонны с шагом 6×6 м"
+    },
+    {
+      "id": "floor_level_diff",
+      "label": "Перепады уровня пола"
+    },
+    {
+      "id": "ramps",
+      "label": "Рампы и пандусы"
+    },
+    {
+      "id": "mixed_traffic",
+      "label": "Смешанное движение с погрузчиками"
+    },
+    {
+      "id": "low_ceiling_6",
+      "label": "Низкие потолки до 6 м"
+    }
+  ],
+  "airport_zones": [
+    {
+      "id": "apron",
+      "label": "Перрон"
+    },
+    {
+      "id": "terminal_airside",
+      "label": "Терминал, чистая зона"
+    },
+    {
+      "id": "terminal_landside",
+      "label": "Терминал, общая зона"
+    },
+    {
+      "id": "baggage_hall",
+      "label": "Багажное отделение"
+    },
+    {
+      "id": "cargo_terminal",
+      "label": "Грузовой терминал"
+    }
+  ],
+  "safety_requirements": [
+    {
+      "id": "none",
+      "label": "Особых требований нет"
+    },
+    {
+      "id": "security_check",
+      "label": "Досмотр оборудования СБ"
+    },
+    {
+      "id": "speed_6kmh",
+      "label": "Ограничение скорости 6 км/ч"
+    },
+    {
+      "id": "beacon",
+      "label": "Проблесковый маячок"
+    },
+    {
+      "id": "cold_minus_30",
+      "label": "Работа при −30 °C"
+    },
+    {
+      "id": "gse_interaction",
+      "label": "Взаимодействие с наземной техникой"
+    }
+  ],
+  "facility_types": [
+    {
+      "id": "multi_hospital",
+      "label": "Многопрофильная больница"
+    },
+    {
+      "id": "specialized_center",
+      "label": "Специализированный центр"
+    },
+    {
+      "id": "polyclinic",
+      "label": "Поликлиника"
+    },
+    {
+      "id": "laboratory",
+      "label": "Лаборатория"
+    },
+    {
+      "id": "rehab_center",
+      "label": "Реабилитационный центр"
+    }
+  ],
+  "medical_cargo_categories": [
+    {
+      "id": "cargo",
+      "label": "Грузы"
+    },
+    {
+      "id": "linen",
+      "label": "Бельё"
+    },
+    {
+      "id": "food",
+      "label": "Питание"
+    },
+    {
+      "id": "drugs",
+      "label": "Медикаменты"
+    },
+    {
+      "id": "waste",
+      "label": "Отходы"
+    }
+  ],
+  "routes_and_elevators": [
+    {
+      "id": "freight_elevator_each",
+      "label": "Грузовой лифт в каждом корпусе"
+    },
+    {
+      "id": "building_passages",
+      "label": "Переходы между корпусами"
+    },
+    {
+      "id": "tunnel",
+      "label": "Подземный тоннель"
+    },
+    {
+      "id": "shared_elevators",
+      "label": "Общие лифты с пациентами"
+    }
+  ],
+  "sanitary_requirements": [
+    {
+      "id": "standard",
+      "label": "Стандартные требования СанПиН"
+    },
+    {
+      "id": "clean_dirty_split",
+      "label": "Раздельные потоки чистого и грязного"
+    },
+    {
+      "id": "disinfection",
+      "label": "Обработка дезсредствами"
+    },
+    {
+      "id": "closed_containers",
+      "label": "Закрытые контейнеры"
+    },
+    {
+      "id": "cleanroom_class",
+      "label": "Класс чистоты помещений"
+    }
+  ],
+  "access_restrictions": [
+    {
+      "id": "none",
+      "label": "Ограничений нет"
+    },
+    {
+      "id": "operating_block",
+      "label": "Операционный блок"
+    },
+    {
+      "id": "icu",
+      "label": "Реанимация"
+    },
+    {
+      "id": "infectious",
+      "label": "Инфекционное отделение"
+    }
+  ],
+  "processes": [
+    {
+      "id": "receiving",
+      "label": "Приёмка"
+    },
+    {
+      "id": "transport",
+      "label": "Перемещение"
+    },
+    {
+      "id": "picking",
+      "label": "Комплектация"
+    },
+    {
+      "id": "shipping",
+      "label": "Отгрузка"
+    },
+    {
+      "id": "inventory",
+      "label": "Инвентаризация"
+    },
+    {
+      "id": "cleaning",
+      "label": "Уборка"
+    },
+    {
+      "id": "towing",
+      "label": "Буксировка"
+    },
+    {
+      "id": "delivery",
+      "label": "Доставка"
+    }
+  ]
+}
