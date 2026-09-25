@@ -5,7 +5,7 @@ export function RootLayout() {
   return (
     <div className="app-shell">
       <AppHeader />
-      <main className="app-main">
+      <main>
         <Outlet />
       </main>
     </div>

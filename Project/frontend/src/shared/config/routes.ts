@@ -1,9 +1,10 @@
-/** Единый список маршрутов. Карта экранов: docs/architecture/pages.md */
+/** Единый список маршрутов. Карта экранов: Документация/Фронтенд и визард/architecture/pages.md */
 export const ROUTES = {
   landing: '/',
   catalog: '/catalog',
   catalogItem: (id = ':itemId') => `/catalog/${id}`,
   demo: '/demo',
+  demoStep: (step = ':step') => `/demo/${step}`,
   login: '/login',
   register: '/register',
   forgotPassword: '/forgot-password',
@@ -14,6 +15,7 @@ export const ROUTES = {
   versions: (id = ':projectId') => `/projects/${id}/versions`,
   dashboard: (id = ':projectId') => `/projects/${id}/dashboard`,
   report: (id = ':projectId') => `/projects/${id}/report`,
+  wizard: (id = ':projectId') => `/projects/${id}/wizard`,
   wizardStep: (id = ':projectId', step = ':step') => `/projects/${id}/wizard/${step}`,
   profile: '/profile',
 
@@ -45,3 +47,11 @@ export const WIZARD_STEPS = [
 ] as const;
 
 export type WizardStepSlug = (typeof WIZARD_STEPS)[number]['slug'];
+
+/** Путь шага визарда: в демо-режиме гостя — /demo/:step, иначе — внутри проекта. */
+export function stepPath(projectId: string, step: WizardStepSlug, isDemo: boolean): string {
+  return isDemo ? ROUTES.demoStep(step) : ROUTES.wizardStep(projectId, step);
+}
+
+/** Шаги, недоступные гостю в демо-режиме (Документация/Фронтенд и визард/architecture/pages.md, §4). */
+export const GUEST_LOCKED_STEPS: readonly WizardStepSlug[] = ['topology', 'export'];

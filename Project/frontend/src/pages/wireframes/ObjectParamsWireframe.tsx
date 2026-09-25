@@ -5,7 +5,7 @@ import './wireframes.css';
 /**
  * Вайрфрейм шага 2 «Параметры объекта» (склад).
  * Не дизайн — расположение блоков и поведение формы.
- * Описание: docs/wireframes/02-object-params.md
+ * Описание: Документация/Фронтенд и визард/wireframes/02-object-params.md
  * Данные: WarehouseParams (contracts/project_input.md)
  */
 export function ObjectParamsWireframe() {
@@ -15,7 +15,7 @@ export function ObjectParamsWireframe() {
         <h1>Вайрфрейм: шаг 2 «Параметры объекта» (склад)</h1>
         <p>
           Кадр 1366×768 — рабочее разрешение по НФТ. Прокручивается только колонка формы: навигация по
-          разделам и кнопка «Далее» видны всегда. Описание — docs/wireframes/02-object-params.md ·{' '}
+          разделам и кнопка «Далее» видны всегда. Описание — Документация/Фронтенд и визард/wireframes/02-object-params.md ·{' '}
           <Link to={ROUTES.wireframeDashboard}>второй макет: дашборд</Link>
         </p>
       </div>
