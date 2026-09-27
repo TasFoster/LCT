@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
-import { saveInput, useProjectState } from '../../../features/projectApi';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { saveInput, saveScene, uploadBackground, useProjectState } from '../../../features/projectApi';
 import type { FieldError } from '../../../shared/api/projectState';
-import type { ObjectParams } from '../../../shared/types/contracts';
+import type { ObjectParams, Scene } from '../../../shared/types/contracts';
 import { Navigate } from 'react-router-dom';
 import {
   MEDICAL_CARGO_CATEGORIES,
@@ -14,8 +14,26 @@ import { DEMO_WAREHOUSE_PARAMS } from '../../../shared/mock/projects';
 import { objectTypeLabel } from '../../../shared/mock/dictionaries';
 import { formatRub, pluralize } from '../../../shared/lib/format';
 import { Alert, Button, ComboField, Field, NumberField, Progress, Segmented, SelectField, TagsField, TextField } from '../../../shared/ui';
+import { autoLayout } from '../../../features/planEditor/autoLayout';
+import { PlanEditor } from '../../../features/planEditor';
+import type { PlanEditorContext } from '../../../features/planEditor/types';
+import { CATEGORIES } from '../../../shared/dictionaries';
 import { useWizard } from '../context';
 import { WizardFooter } from '../WizardFooter';
+
+/** Размер области, которую форма отдаёт встроенному редактору плана. */
+function usePlanBoxSize() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ width: 900, height: 420 });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setSize({ width: Math.floor(e.contentRect.width), height: Math.floor(e.contentRect.height) }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return { ref, ...size };
+}
 
 const DEMO_VALUES: Record<string, ParamValues> = {
   warehouse: { ...DEMO_WAREHOUSE_PARAMS },
@@ -60,13 +78,67 @@ export function StepParams() {
   const [triedNext, setTriedNext] = useState(false);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [importNote, setImportNote] = useState(false);
+  const [showPlan, setShowPlan] = useState(false);
+  const [plan, setPlan] = useState<Scene | null>(null);
+  const [planDirty, setPlanDirty] = useState(false);
+  const [planSaving, setPlanSaving] = useState(false);
+  const planBox = usePlanBoxSize();
 
   const values: ParamValues = useMemo(() => (type ? (draft.params[type] ?? {}) : {}), [draft.params, type]);
   const issues = useMemo(() => (type ? validateParams(type, values) : {}), [type, values]);
 
+  // План можно набросать уже здесь — та же запись сцены, что открывается на шаге 7
+  // (contract 6, `Project/scene.md`), сохраняется тем же PUT /api/projects/{id}/scene.
+  const serverScene = server?.scene.data ?? null;
+  const serverSceneRevision = server?.scene.revision ?? null;
+  useEffect(() => {
+    if (!planDirty) setPlan(serverScene);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverSceneRevision]);
+
   if (!type) return <Navigate to={path('object')} replace />;
 
   const sections = PARAMS_SCHEMA[type];
+
+  // Оборудование ещё не подобрано (это шаг 3) — палитра роботов пуста, план
+  // рисуется по площади/рабочим зонам из формы, как и на шаге 7 до подбора.
+  const planContext: PlanEditorContext = {
+    objectType: type,
+    areaSqm: typeof values.available_area_sqm === 'number' ? values.available_area_sqm : typeof values.area_sqm === 'number' ? values.area_sqm : null,
+    routeLengthM: typeof values.route_length_m === 'number' ? values.route_length_m : null,
+    workingZoneIds: Array.isArray(values.working_zones) ? (values.working_zones as string[]) : [],
+    robots: [],
+    minAisleWidthM: null,
+  };
+
+  const editPlan = (p: Scene) => {
+    setPlan(p);
+    setPlanDirty(true);
+  };
+
+  const savePlan = async () => {
+    if (!server || !plan) return;
+    setPlanSaving(true);
+    const res = await saveScene(
+      projectId,
+      { base_revision: server.revision, based_on_input_revision: server.input.revision ?? 0, scene: plan },
+      { minAisleWidthM: planContext.minAisleWidthM, formAreaSqm: planContext.areaSqm },
+    );
+    setPlanSaving(false);
+    if (res.status === 200) setPlanDirty(false);
+  };
+
+  const onPickPlanBackground = async (file: File) => {
+    if (!plan) return;
+    const uploaded = await uploadBackground(projectId, file);
+    const width = plan.site.width || 100;
+    const ratio = uploaded.width_px ? uploaded.height_px / uploaded.width_px : 0.6;
+    editPlan({
+      ...plan,
+      site: { ...plan.site, background: { image_url: uploaded.image_url, x: 0, y: 0, width, height: Math.round(width * ratio), opacity: 0.5 } },
+    });
+  };
+
   const errorKeys = Object.keys(issues).filter((k) => issues[k].error);
   const visibleIssue = (key: string) => (touched[key] || triedNext ? issues[key] : issues[key]?.warning ? issues[key] : undefined);
 
@@ -237,6 +309,11 @@ export function StepParams() {
               Заполнить примером
             </Button>
             <Button onClick={() => setImportNote(true)}>Импорт из Excel / CSV</Button>
+            {!isDemo && (
+              <Button variant={showPlan ? 'primary' : 'secondary'} onClick={() => setShowPlan((v) => !v)} aria-pressed={showPlan}>
+                {showPlan ? 'Скрыть план' : 'План объекта'}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -274,6 +351,34 @@ export function StepParams() {
           <Alert tone="warn" title="Параметры изменились после расчёта">
             Подбор и экономика остались от прошлых параметров — после этого шага их нужно будет пересчитать.
           </Alert>
+        )}
+
+        {showPlan && !isDemo && (
+          <section className="card" style={{ padding: 0 }}>
+            <div className="editor-step__bar" style={{ padding: 12 }}>
+              <span className="editor-step__title">План объекта — необязательный черновик</span>
+              <span className="faint">та же сцена, что и на шаге 7; можно нарисовать сейчас или пропустить</span>
+              <span className="spacer" />
+              <Button size="sm" onClick={() => editPlan(autoLayout(projectId, planContext))}>
+                {plan ? 'Пересобрать из параметров' : 'Черновик из параметров'}
+              </Button>
+              <Button size="sm" variant="primary" disabled={!plan || !planDirty || planSaving || !server} onClick={() => void savePlan()}>
+                {planSaving ? 'Сохраняем…' : 'Сохранить план'}
+              </Button>
+            </div>
+            <div ref={planBox.ref} style={{ height: 420 }}>
+              <PlanEditor
+                value={plan}
+                onChange={editPlan}
+                context={planContext}
+                categories={CATEGORIES}
+                warnings={server?.scene.warnings ?? []}
+                onUploadBackground={onPickPlanBackground}
+                width={planBox.width}
+                height={planBox.height}
+              />
+            </div>
+          </section>
         )}
 
         <div className="step-3col">

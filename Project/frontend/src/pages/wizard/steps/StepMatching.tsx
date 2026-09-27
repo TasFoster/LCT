@@ -8,6 +8,7 @@ import { formatNumber, formatRubShort, pluralize } from '../../../shared/lib/for
 import { Alert, Bar, Button, Card, Chip, Segmented } from '../../../shared/ui';
 import type { Tone } from '../../../shared/ui';
 import { buildProjectInput, fetchRealCatalog, RealApiError, runRealMatching } from '../../../features/projectApi/realApi';
+import { useProjectState } from '../../../features/projectApi';
 import { CalcStatus } from '../../../widgets/CalcStatus';
 import { useWizard } from '../context';
 import { WizardFooter } from '../WizardFooter';
@@ -31,7 +32,8 @@ const EMPTY_RESULT: MatchResult = {
  * категориальные правила Артёма), не моковая шестёрка позиций. Сервер:
  * `cd Project/backend && uvicorn api.main:app --port 8000`. */
 export function StepMatching() {
-  const { draft, update, projectId } = useWizard();
+  const { draft, update, projectId, isDemo } = useWizard();
+  const server = useProjectState(projectId, !isDemo);
   const [filter, setFilter] = useState<Filter>('all');
   const [open, setOpen] = useState<string | null>(null);
   const [addId, setAddId] = useState('');
@@ -46,9 +48,19 @@ export function StepMatching() {
     setLoading(true);
     setError(null);
     try {
+      // Рабочие зоны, реально нарисованные на плане (шаг 2 или шаг 7, если он
+      // уже есть), дополняют то, что вписано в форму — план мог разойтись с
+      // текстовым полем, а подбор должен видеть фактическую планировку.
+      const scene = server?.scene.data;
+      const sceneZoneIds = scene ? Array.from(new Set(scene.zones.flatMap((z) => z.categories))) : [];
+      const formZoneIds = Array.isArray(params.working_zones) ? (params.working_zones as string[]) : [];
+      const effectiveParams = sceneZoneIds.length
+        ? { ...params, working_zones: Array.from(new Set([...formZoneIds, ...sceneZoneIds])) }
+        : params;
+
       const [catalog, matchResult] = await Promise.all([
         fetchRealCatalog(),
-        runRealMatching(buildProjectInput(projectId, type, params)),
+        runRealMatching(buildProjectInput(projectId, type, effectiveParams)),
       ]);
       setRealCatalog(catalog);
       setResult(matchResult);
@@ -63,7 +75,7 @@ export function StepMatching() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     void run();
-  }, [projectId]);
+  }, [projectId, server?.scene.revision]);
 
   const manual = result.manual_additions.concat(
     Object.keys(draft.quantities).filter((id) => !result.candidates.some((c) => c.catalog_item_id === id)),
