@@ -24,11 +24,14 @@ from pydantic import BaseModel
 
 from catalog.loader import load_catalog
 from contracts import CatalogItem, MatchResult, ProjectInput, Scene, SimulationTimeline
+from contracts.economics import EconomicsResult, ScenarioInput
+from contracts.matching import SelectedEquipment
+from economics.wrapper import run_economics
 from matching.fixtures import DEMO_RULES
 from matching.service import run_matching
 from simulation.service import run_simulation
 
-app = FastAPI(title="ROBOCALC API (минимальный срез: catalog/matching/simulation)", version="0.1.0")
+app = FastAPI(title="ROBOCALC API (минимальный срез: catalog/matching/simulation/economics)", version="0.1.0")
 
 # Vite dev server фронта — 127.0.0.1 и localhost порознь, т.к. браузер их не отождествляет.
 app.add_middleware(
@@ -82,3 +85,19 @@ def post_simulation_run(req: SimulationRunRequest) -> SimulationTimeline:
         project_id=req.project_input.id,
         scenario_id=req.scenario_id,
     )
+
+
+class EconomicsRunRequest(BaseModel):
+    scenario: ScenarioInput
+    selected_equipment: list[SelectedEquipment]
+
+
+@app.post("/api/economics/run", response_model=EconomicsResult)
+def post_economics_run(req: EconomicsRunRequest) -> EconomicsResult:
+    """econWrapper (контракт 8): ScenarioInput + состав оборудования -> EconomicsResult
+    по формулам Александры (economics/calculator.py). Стоимость оборудования — из
+    реального каталога по `selected_equipment`; статьи, которых в каталоге нет
+    (инфраструктура/энергия/связь/пусконаладка/обучение), — документированные
+    допущения в economics/wrapper.py, переопределяемые через
+    `scenario.assumptions_overrides`."""
+    return run_economics(req.scenario, req.selected_equipment, _CATALOG)

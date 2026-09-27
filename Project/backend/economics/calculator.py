@@ -1,97 +1,21 @@
+"""Контракт 3: EconInput -> EconOutput. Формулы Александры (экономика.py,
+2026-09-28), перенесённые на канонические датаклассы contracts/econ_io.py —
+сама логика не менялась при переносе, только источник EconInput/EconOutput/
+SensitivityPoint (были собственные dataclass здесь же, теперь общий контракт).
 
-# Контракт: EconInput -> EconOutput.
+Только stdlib, никакого pydantic/FastAPI — Александра пишет чистые функции
+над этими датаклассами и не должна знать об остальном стеке (см. docstring
+contracts/econ_io.py). Обёртка над API — economics/wrapper.py.
+"""
 
+from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
+from dataclasses import replace
 
-
-@dataclass
-class EconInput:
-    # --- CAPEX по статьям ---
-    equipment_cost_total: float
-    software_cost_total: float = 0.0
-    infrastructure_cost_total: float = 0.0
-    integration_cost_total: float = 0.0
-    commissioning_cost_total: float = 0.0
-    training_cost_total: float = 0.0
-    reserve_ratio: float = 0.1
+from contracts.econ_io import EconInput, EconOutput, SensitivityPoint
 
 
-    staff_count: int = 0
-    staff_salary_per_month: float = 0.0
-    staff_tax_rate: float = 0.30
-
-
-    operating_hours_per_year: float = 0.0
-    load_factor: float = 1.0
-
-
-    maintenance_cost_per_year: float = 0.0
-    energy_cost_per_year: float = 0.0
-    connectivity_cost_per_year: float = 0.0
-    consumables_cost_per_year: float = 0.0
-
-
-    financing_type: str = "own_funds"
-    financing_rate: float = 0.0
-    financing_term_years: float = 0.0
-
-
-    discount_rate: float = 0.10
-    horizon_years: float = 5.0
-
-
-    sensitivity_params: List[str] = field(default_factory=lambda: [
-        "equipment_cost_total",
-        "staff_salary_per_month",
-        "operating_hours_per_year",
-    ])
-    sensitivity_delta_pct: float = 0.20
-
-
-
-@dataclass
-class SensitivityPoint:
-    parameter: str
-    delta_pct: float
-    resulting_payback_years: Optional[float]
-    resulting_roi_pct: float
-    resulting_annual_effect: float
-
-
-@dataclass
-class EconOutput:
-    # CAPEX
-    capex_equipment: float
-    capex_infrastructure: float
-    capex_software: float
-    capex_integration: float
-    capex_commissioning: float
-    capex_training: float
-    capex_reserve: float
-    capex_total: float
-
-    # OPEX
-    opex_annual: float
-    opex_delta_vs_baseline: float
-
-    # Экономика
-    annual_effect: float
-    payback_years: Optional[float]                  # None, если эффект <= 0
-    roi_pct: float
-    tco_total: float
-    npv: float
-
-    # Чувствительность
-    sensitivity: List[SensitivityPoint]
-
-    # Прозрачность
-    assumptions_text: str
-    warnings: List[str]
-
-
-def _calc_capex(inp: EconInput) -> Dict[str, float]:
+def _calc_capex(inp: EconInput) -> dict[str, float]:
     """Считает CAPEX по статьям и итог."""
     base = (
         inp.equipment_cost_total
@@ -116,12 +40,7 @@ def _calc_capex(inp: EconInput) -> Dict[str, float]:
 
 def _calc_annual_payroll(inp: EconInput) -> float:
     """Годовой ФОТ замещаемого персонала с налогами."""
-    return (
-        inp.staff_count
-        * inp.staff_salary_per_month
-        * 12.0
-        * (1.0 + inp.staff_tax_rate)
-    )
+    return inp.staff_count * inp.staff_salary_per_month * 12.0 * (1.0 + inp.staff_tax_rate)
 
 
 def _calc_opex(inp: EconInput) -> float:
@@ -176,8 +95,14 @@ def _calc_financing(inp: EconInput, capex_total: float) -> tuple[float, float, f
     return capex_total, 0.0, 0.0, "оплата из собственных средств, единовременно"
 
 
-def _calc_npv(base_annual_effect: float, capex_upfront: float, annual_financing_cost: float,
-              financing_term_years: float, discount_rate: float, horizon_years: float) -> float:
+def _calc_npv(
+    base_annual_effect: float,
+    capex_upfront: float,
+    annual_financing_cost: float,
+    financing_term_years: float,
+    discount_rate: float,
+    horizon_years: float,
+) -> float:
     """NPV на горизонте. Пока действует финансирование (financing_term_years),
     эффект каждого года уменьшен на annual_financing_cost — после погашения
     восстанавливается до base_annual_effect."""
@@ -190,25 +115,22 @@ def _calc_npv(base_annual_effect: float, capex_upfront: float, annual_financing_
     return npv
 
 
-def _calc_roi(annual_effect: float, capex_total: float,
-              horizon_years: float) -> float:
+def _calc_roi(annual_effect: float, capex_total: float, horizon_years: float) -> float:
     """ROI за горизонт, %."""
     if capex_total <= 0:
         return 0.0
     return ((annual_effect * horizon_years) - capex_total) / capex_total * 100.0
 
 
-def _calc_payback(annual_effect: float, capex_total: float) -> Optional[float]:
+def _calc_payback(annual_effect: float, capex_total: float) -> float | None:
     """Срок окупаемости. None, если эффект <= 0."""
     if annual_effect <= 0 or capex_total <= 0:
         return None
     return capex_total / annual_effect
 
-# ОСНОВНАЯ ФУНКЦИЯ РАСЧЁТА
-
 
 def calculate_economics(inp: EconInput) -> EconOutput:
-    warnings: List[str] = []
+    warnings: list[str] = []
 
     # --- CAPEX: стоимость владения оборудованием, не зависит от способа оплаты ---
     capex = _calc_capex(inp)
@@ -249,42 +171,40 @@ def calculate_economics(inp: EconInput) -> EconOutput:
         roi_pct = _calc_roi(annual_effect, capex_total, inp.horizon_years)
 
     tco_total = capex_upfront + (opex_annual + annual_financing_cost) * inp.horizon_years
-    npv = _calc_npv(annual_effect_base, capex_upfront, annual_financing_cost, financing_term,
-                     inp.discount_rate, inp.horizon_years)
+    npv = _calc_npv(
+        annual_effect_base, capex_upfront, annual_financing_cost, financing_term, inp.discount_rate, inp.horizon_years
+    )
 
     opex_delta_vs_baseline = opex_annual + annual_financing_cost
 
     if annual_effect <= 0:
-        warnings.append(
-            "Годовой экономический эффект отрицательный: "
-            "OPEX роботов превышает экономию на ФОТ."
-        )
+        warnings.append("Годовой экономический эффект отрицательный: OPEX роботов превышает экономию на ФОТ.")
     if payback_years is not None and payback_years > inp.horizon_years:
         warnings.append(
-            f"Срок окупаемости ({payback_years:.2f} лет) превышает "
-            f"горизонт расчёта ({inp.horizon_years} лет)."
+            f"Срок окупаемости ({payback_years:.2f} лет) превышает горизонт расчёта ({inp.horizon_years} лет)."
         )
     if inp.horizon_years < 5:
-        warnings.append(
-            "Горизонт расчёта меньше 5 лет — по ТЗ рекомендуется минимум 5."
-        )
+        warnings.append("Горизонт расчёта меньше 5 лет — по ТЗ рекомендуется минимум 5.")
     if inp.load_factor < 0.3:
-        warnings.append(
-            f"Низкий коэффициент загрузки ({inp.load_factor:.2f}) — "
-            "роботы будут простаивать."
-        )
+        warnings.append(f"Низкий коэффициент загрузки ({inp.load_factor:.2f}) — роботы будут простаивать.")
     if inp.staff_count == 0:
-        warnings.append(
-            "Количество замещаемых сотрудников = 0. "
-            "Экономия на ФОТ не учитывается."
-        )
+        warnings.append("Количество замещаемых сотрудников = 0. Экономия на ФОТ не учитывается.")
 
     sensitivity = _calc_sensitivity(inp)
 
     assumptions_text = _build_assumptions_text(
-        inp, capex, annual_payroll, opex_annual,
-        annual_effect, payback_years, roi_pct, tco_total, npv,
-        financing_note, annual_financing_cost, capex_upfront,
+        inp,
+        capex,
+        annual_payroll,
+        opex_annual,
+        annual_effect,
+        payback_years,
+        roi_pct,
+        tco_total,
+        npv,
+        financing_note,
+        annual_financing_cost,
+        capex_upfront,
     )
 
     return EconOutput(
@@ -309,10 +229,7 @@ def calculate_economics(inp: EconInput) -> EconOutput:
     )
 
 
-
 def _apply_delta(inp: EconInput, param: str, delta_pct: float) -> EconInput:
-
-    from dataclasses import replace
     if not hasattr(inp, param):
         return inp
     current = getattr(inp, param)
@@ -324,11 +241,11 @@ def _apply_delta(inp: EconInput, param: str, delta_pct: float) -> EconInput:
     return inp
 
 
-def _calc_sensitivity(inp: EconInput) -> List[SensitivityPoint]:
+def _calc_sensitivity(inp: EconInput) -> list[SensitivityPoint]:
     """Пересчёт при ±delta по каждому параметру — той же логикой (включая
     финансирование), что и основной расчёт, иначе чувствительность для
     credit/leasing/raas-сценариев считалась бы как для собственных средств."""
-    points: List[SensitivityPoint] = []
+    points: list[SensitivityPoint] = []
     for param in inp.sensitivity_params:
         for delta in (+inp.sensitivity_delta_pct, -inp.sensitivity_delta_pct):
             modified = _apply_delta(inp, param, delta)
@@ -343,16 +260,16 @@ def _calc_sensitivity(inp: EconInput) -> List[SensitivityPoint]:
             else:
                 payback = 0.0 if annual_effect > 0 else None
                 roi = _calc_roi(annual_effect, capex_total, modified.horizon_years)
-            points.append(SensitivityPoint(
-                parameter=param,
-                delta_pct=delta,
-                resulting_payback_years=payback,
-                resulting_roi_pct=roi,
-                resulting_annual_effect=annual_effect,
-            ))
+            points.append(
+                SensitivityPoint(
+                    parameter=param,
+                    delta_pct=delta,
+                    resulting_payback_years=payback,
+                    resulting_roi_pct=roi,
+                    resulting_annual_effect=annual_effect,
+                )
+            )
     return points
-
-
 
 
 def _fmt(x: float) -> str:
@@ -361,11 +278,11 @@ def _fmt(x: float) -> str:
 
 def _build_assumptions_text(
     inp: EconInput,
-    capex: Dict[str, float],
+    capex: dict[str, float],
     annual_payroll: float,
     opex_annual: float,
     annual_effect: float,
-    payback_years: Optional[float],
+    payback_years: float | None,
     roi_pct: float,
     tco_total: float,
     npv: float,
@@ -373,7 +290,7 @@ def _build_assumptions_text(
     annual_financing_cost: float,
     capex_upfront: float,
 ) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append(f"Расчёт выполнен для горизонта {inp.horizon_years:.0f} лет.")
     lines.append("")
     lines.append("CAPEX (единовременные затраты):")
@@ -409,10 +326,7 @@ def _build_assumptions_text(
             f"− {_fmt(annual_financing_cost)} = {_fmt(annual_effect)} ₽/год (пока действует финансирование)"
         )
     else:
-        lines.append(
-            f"  ФОТ − OPEX = {_fmt(annual_payroll)} − {_fmt(opex_annual)} "
-            f"= {_fmt(annual_effect)} ₽/год"
-        )
+        lines.append(f"  ФОТ − OPEX = {_fmt(annual_payroll)} − {_fmt(opex_annual)} = {_fmt(annual_effect)} ₽/год")
     lines.append("")
     if capex_upfront <= 0:
         lines.append(
@@ -421,34 +335,22 @@ def _build_assumptions_text(
         )
     elif payback_years is not None:
         lines.append("Срок окупаемости:")
-        lines.append(
-            f"  CAPEX / эффект = {_fmt(capex_upfront)} / {_fmt(annual_effect)} "
-            f"= {payback_years:.2f} лет"
-        )
+        lines.append(f"  CAPEX / эффект = {_fmt(capex_upfront)} / {_fmt(annual_effect)} = {payback_years:.2f} лет")
     else:
         lines.append("Срок окупаемости: не достижим (эффект ≤ 0).")
     lines.append("")
-    lines.append(f"ROI за {inp.horizon_years:.0f} лет: {roi_pct:.1f}%" + (
-        " (относительно стоимости владения оборудованием, т.к. единовременного вложения нет)" if capex_upfront <= 0 else ""
-    ))
-    lines.append(f"TCO на горизонте: {_fmt(tco_total)} ₽")
     lines.append(
-        f"NPV при ставке дисконтирования {inp.discount_rate*100:.0f}%: "
-        f"{_fmt(npv)} ₽"
+        f"ROI за {inp.horizon_years:.0f} лет: {roi_pct:.1f}%"
+        + (" (относительно стоимости владения оборудованием, т.к. единовременного вложения нет)" if capex_upfront <= 0 else "")
     )
+    lines.append(f"TCO на горизонте: {_fmt(tco_total)} ₽")
+    lines.append(f"NPV при ставке дисконтирования {inp.discount_rate*100:.0f}%: {_fmt(npv)} ₽")
     lines.append("")
     lines.append("Допущения:")
     lines.append("  - Инфляция зарплат и OPEX не учитывалась.")
     lines.append("  - Остаточная стоимость оборудования не учитывалась.")
     lines.append("  - Налог на прибыль не учитывался (эффект до налогообложения).")
-    lines.append(
-        f"  - Коэффициент загрузки оборудования: {inp.load_factor:.2f}."
-    )
-    lines.append(
-        f"  - Часы работы в год: {_fmt(inp.operating_hours_per_year)}."
-    )
-    lines.append(
-        "  - Анализ чувствительности: "
-        f"±{inp.sensitivity_delta_pct*100:.0f}% по {len(inp.sensitivity_params)} параметрам."
-    )
+    lines.append(f"  - Коэффициент загрузки оборудования: {inp.load_factor:.2f}.")
+    lines.append(f"  - Часы работы в год: {_fmt(inp.operating_hours_per_year)}.")
+    lines.append(f"  - Анализ чувствительности: ±{inp.sensitivity_delta_pct*100:.0f}% по {len(inp.sensitivity_params)} параметрам.")
     return "\n".join(lines)
