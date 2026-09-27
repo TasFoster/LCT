@@ -8,7 +8,7 @@
  */
 
 import { resolveId, workingZone } from '../../shared/dictionaries';
-import type { ChargingPoint, OperationPoint, Scene, Zone } from '../../shared/types/contracts';
+import type { ChargingPoint, OperationPoint, RoutePoint, Scene, Zone } from '../../shared/types/contracts';
 import type { PlanEditorContext } from './types';
 
 const rect = (x: number, y: number, w: number, h: number) => [
@@ -100,8 +100,15 @@ export function autoLayout(projectId: string, ctx: PlanEditorContext): Scene {
       tags: [],
     }));
 
-  const first = operationPoints[0];
-  const last = operationPoints[operationPoints.length - 1] ?? first;
+  const mainY = depth / 2;
+  // Маршрут проходит ЧЕРЕЗ КАЖДУЮ точку операции (не только первую/последнюю
+  // — иначе точки между ними не попадают ни на одну route и симуляция не
+  // может построить до них путь, contracts/topology.md: ref у вершины делает
+  // узел графа), затем отворотом доходит до зарядки, которая иначе тоже
+  // остаётся не на графе — её сейчас просто ставили в зоне стоянки без пути.
+  const routePoints: RoutePoint[] = operationPoints.map((p) => ({ x: p.position.x, y: mainY, ref: p.id }));
+  if (routePoints.length === 0) routePoints.push({ x: aisle / 2, y: mainY, ref: null }, { x: width - aisle / 2, y: mainY, ref: null });
+  routePoints.push({ x: chargingPoint.position.x, y: mainY, ref: null }, { x: chargingPoint.position.x, y: chargingPoint.position.y, ref: chargingPoint.id });
 
   return {
     schema_version: '1.0',
@@ -133,10 +140,7 @@ export function autoLayout(projectId: string, ctx: PlanEditorContext): Scene {
       {
         id: 'r-main',
         name: 'Главный проезд',
-        points: [
-          { x: aisle / 2, y: depth / 2, ref: first?.id ?? null },
-          { x: width - aisle / 2, y: depth / 2, ref: last?.id ?? null },
-        ],
+        points: routePoints,
         bidirectional: true,
         tags: ['main'],
       },
