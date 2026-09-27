@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { saveScene, uploadBackground, useApiLog, useProjectState } from '../../../features/projectApi';
 import { autoLayout, estimateSize } from '../../../features/planEditor/autoLayout';
-import { PlanEditor } from '../../../features/planEditor';
+import { PlanEditor, PlaybackView, zoneColorsFrom } from '../../../features/planEditor';
 import type { PlanEditorContext } from '../../../features/planEditor/types';
 import { CATEGORIES } from '../../../shared/dictionaries';
 import { catalogById } from '../../../shared/mock/catalog';
@@ -13,7 +13,7 @@ import { GuestLock } from '../GuestLock';
 import { useWizard } from '../context';
 import { WizardFooter } from '../WizardFooter';
 
-type View = '2d' | '3d';
+type View = '2d' | 'sim';
 
 /** Размер области, которую визард отдаёт редактору. */
 function useBoxSize() {
@@ -74,6 +74,7 @@ export function StepTopology() {
       minAisleWidthM: aisles.length ? Math.max(...aisles) / 1000 : null,
     };
   }, [draft.selected, draft.quantities, draft.params, type]);
+  const zoneColors = useMemo(() => zoneColorsFrom(CATEGORIES), []);
 
   if (isDemo) {
     return <GuestLock title="План объекта доступен после регистрации" benefit="На плане можно расставить зоны и роботов, проиграть симуляцию и найти узкие места." />;
@@ -165,7 +166,7 @@ export function StepTopology() {
             onChange={setView}
             options={[
               { value: '2d', label: '2D-план' },
-              { value: '3d', label: '3D' },
+              { value: 'sim', label: 'Симуляция' },
             ]}
           />
           <Button size="sm" onClick={() => edit(autoLayout(projectId, context))} title="Построить черновик плана по площади и рабочим зонам из формы">
@@ -205,11 +206,11 @@ export function StepTopology() {
               width={box.width}
               height={box.height}
             />
+          ) : plan ? (
+            <PlaybackView scene={plan} zoneColors={zoneColors} />
           ) : (
             <div className="plan-editor__empty" style={{ background: 'var(--surface-2)' }}>
-              <span className="stub__badge">Заглушка</span>
-              <strong>3D-вид и проигрывание симуляции</strong>
-              <span className="muted">Та же сцена в объёме и таймлайн SimulationTimeline — встраиваются в эту область тем же способом, что и 2D-редактор.</span>
+              <span className="muted">Сначала постройте план («Черновик из параметров» или редактор на вкладке «2D-план») — симуляцию не на чем проигрывать.</span>
             </div>
           )}
 
