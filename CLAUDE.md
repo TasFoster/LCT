@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Репозиторий разложен на две верхнеуровневые папки:
 
-- **`Project/`** — весь код и «живые» контракты: `Project/backend/contracts/` (контракты данных, без API/БД) + `Project/backend/simulation/` (реализация контракта 7 — событийная симуляция сцены, см. раздел «Симуляция» ниже), `Project/frontend/` (каркас всех экранов платформы, React 19 + TS, плюс с 2026-09-25 внутри — `Project/frontend/editor2d/`, 2D-редактор сцены объекта, React + Konva, контракт 6, независимое Vite-приложение) с контрактом сцены `Project/scene.md`/`Project/scene.example.json` рядом на уровне `Project/` (`Project/frontend/editor2d/vite.config.ts` читает `scene.example.json` по относительному пути `../..`). `Project/архив/` — вытесненные версии тех же модулей, см. раздел «История» ниже.
+- **`Project/`** — весь код и «живые» контракты: `Project/backend/contracts/` (контракты данных, без API/БД) + `Project/backend/simulation/` (реализация контракта 7 — событийная симуляция сцены, см. раздел «Симуляция» ниже) + `Project/backend/matching/` (реализация контракта 5 — подбор и explainable-ранжирование, см. раздел «Подбор и ранжирование: matching» ниже), `Project/frontend/` (каркас всех экранов платформы, React 19 + TS, плюс с 2026-09-25 внутри — `Project/frontend/editor2d/`, 2D-редактор сцены объекта, React + Konva, контракт 6, независимое Vite-приложение) с контрактом сцены `Project/scene.md`/`Project/scene.example.json` рядом на уровне `Project/` (`Project/frontend/editor2d/vite.config.ts` читает `scene.example.json` по относительному пути `../..`). `Project/архив/` — вытесненные версии тех же модулей, см. раздел «История» ниже.
 - **`Документация/`** — справочные и проектные материалы без кода, по зонам ответственности (`общее/` + по папке на каждую предметную область). У каждой зоны — короткий `README.md`-указатель на канонические файлы в `Project/`, без дублирования; общий индекс — `Документация/README.md`.
 
 `Документация/общее/` — референсные материалы хакатона:
@@ -19,15 +19,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Команды разработки
 
-Бэкенд (только контракты + модуль симуляции, без API-слоя/БД/Docker, без линтера; тестов на Python в репозитории нет — не придумывай для них команды):
+Бэкенд (только контракты + модули симуляции/matching, без API-слоя/БД/Docker, без линтера; тестов на Python в репозитории нет — не придумывай для них команды):
 
-- Зависимости: `pip install -r Project/backend/requirements.txt` (пока единственная зависимость — `pydantic>=2,<3`; `backend/simulation/` тоже написан только на stdlib, новых зависимостей не тянет).
+- Зависимости: `pip install -r Project/backend/requirements.txt` (пока единственная зависимость — `pydantic>=2,<3`; `backend/simulation/` и `backend/matching/` тоже написаны только на stdlib, новых зависимостей не тянут).
 - `Project/backend/contracts.zip` — упакованный снапшот `Project/backend/contracts/` для передачи вовне репозитория; при изменении контрактов синхронизируй архив вручную либо игнорируй его как устаревший артефакт.
 - `backend/simulation/demo.py` — единственный способ прогнать симуляцию без API-слоя: строит `Scene` из `scene.example.json` + захардкоженные `WarehouseParams` и печатает/сохраняет `SimulationTimeline`:
   ```bash
   cd Project/backend
   python -m simulation.demo                 # печатает JSON таймлайна в stdout
   python -m simulation.demo out.json         # сохраняет в файл (его же можно открыть в editor2d, см. ниже)
+  ```
+- `backend/matching/demo.py` — аналогично, для подбора: прогоняет `run_matching()` на иллюстративных `fixtures.py` (НЕ настоящий каталог/правила, см. раздел «Подбор и ранжирование: matching» ниже) и печатает/сохраняет `MatchResult`:
+  ```bash
+  cd Project/backend
+  python -m matching.demo
+  python -m matching.demo out.json
   ```
 
 Фронтенд-каркас `Project/frontend/` (React 19 + TS + Vite; тестов нет, подробнее — `Project/frontend/README.md`):
@@ -80,7 +86,7 @@ python tools/categories_from_xlsx.py Книга1.xlsx frontend/editor2d/src/cata
 2. **CompatibilityRule** (`compatibility.py`) — Артём → Стас (эвалюатор в matching). Плоская таблица правил `если условие на оборудовании и условие на объекте → вердикт`, а не дерево связей — это осознанный MVP-выбор. Каждое правило обязано нести `reason` для explainable-ranking.
 3. **EconInput/EconOutput** (`econ_io.py`) — Александра → Стас (econWrapper). Единственный контракт на голых `dataclass`, без pydantic/FastAPI: Александра пишет чистые функции расчёта экономики и не должна зависеть от остального стека. `econWrapper` — адаптер, конвертирующий `ScenarioInput → EconInput` и `EconOutput → EconomicsResult` на границе API.
 4. **ProjectInput** (`project_input.py`) — Владимиров (визард) → Стас. Discriminated union по `object_type` (`Literal` + `Field(discriminator=...)`): новый тип объекта — это новый `*Params`-класс и новое значение `ObjectType`, без изменений в matching/economics (они должны читать параметры через общие поля/теги, а не через ветвление по типу объекта).
-5. **MatchResult** (`matching.py`) — Стас (matching) → фронт, econWrapper, simulation. `MatchCandidate.factors` — разбивка score по факторам для explainable-ranking; `selected_equipment` — финальный состав оборудования, общий вход для расчёта экономики и симуляции.
+5. **MatchResult** (`matching.py`) — Стас (matching) → фронт, econWrapper, simulation. `MatchCandidate.factors` — разбивка score по факторам для explainable-ranking; `selected_equipment` — финальный состав оборудования, общий вход для расчёта экономики и симуляции. Движок реализован в `Project/backend/matching/`, см. раздел «Подбор и ранжирование: matching» ниже.
 6. **Scene** (`topology.py`) — Алексей (editor2d) → Артём/Стас (matching), Стас (simulation), Владимиров (хранение). 2D-сцена: зоны, стены, маршруты, точки операций/зарядки, стартовые позиции роботов. Файл называется `topology.py` по историческим причинам, но с 2026-09-22 — pydantic-зеркало `Project/scene.md` (v1.2, включая `walls`); при изменении `scene.md` синхронизируй `topology.py`/`topology.md` вручную (детали — в `topology.md`).
 7. **SimulationTimeline** (`simulation.py`) — Стас (simulation) → Алексей (editor2d/viewer3d). Таймлайн считается один раз на бэкенде и просто проигрывается на фронте — без физики в браузере (см. ограничение по времени пересчёта в разделе НФТ).
 8. **ScenarioInput/EconomicsResult** (`economics.py`) — Стас (econWrapper) → Владимиров. API-обёртка вокруг `EconInput`/`EconOutput`; не путать `EconomicsResult` (контракт 8, pydantic, для API/фронта) с `EconOutput` (контракт 3, dataclass, внутренний расчёт).
@@ -188,6 +194,16 @@ python tools/categories_from_xlsx.py Книга1.xlsx frontend/editor2d/src/cata
 - Не рекомендовать решение при жестком несовместимом ограничении; при нехватке данных — помечать «требует проверки», а не скрывать.
 - Ранжирование должно быть объяснимым: пользователь видит критерии и вклад факторов в итоговую оценку.
 - Разрешено ручное добавление в сравнение решений вне автоподборки — с предупреждением.
+
+### Подбор и ранжирование: matching (контракт 5, движок реализован)
+
+`Project/backend/matching/`: `rules.py` (эвалюатор `CompatibilityRule` — путь через точку до поля `CatalogItem`/`ProjectInput`, операторы `eq/ne/lt/lte/gt/gte/in/has_tag`; правило срабатывает только если истинны ОБА условия — на оборудовании и на объекте; отсутствие данных на стороне оборудования при релевантном объекте даёт отдельный исход `UNKNOWN`, а не тихий пропуск — так и реализовано требование «при нехватке данных помечать «требует проверки»»), `scoring.py` (explainable score: 4 взвешенных фактора — совместимость 0.5, доступность решения 0.2, качество данных каталога 0.15, заявленная применимость к типу объекта 0.15; любой `forbidden`-вердикт обнуляет score и переводит кандидата в `excluded`; сумма `factors[].contribution` всегда равна итоговому `score`), `quantity.py` (оценка `quantity_if_selected` = пиковая нагрузка/час ÷ (`throughput_per_hour` каталога × коэффициент использования 0.85) — реализовано для склада и аэропорта, для медучреждения формула не определена, см. ниже), `service.py` (`run_matching(project_input, catalog, rules, project_id=...) -> MatchResult` — точка входа), `fixtures.py`/`demo.py` (иллюстративные данные и CLI, см. «Команды разработки»).
+
+Открытые вопросы, требующие решения команды (не разрешены самостоятельно, т.к. это не техническая, а данные/продуктовая развилка):
+1. **Реальный каталог не загружен.** `Датасет/Датасет/catalog_export_v4.csv` (223 позиции) не структурирован под `CatalogItem` — большинство `TechnicalSpecs` пришлось бы либо парсить из свободного текста названия/описания (ненадёжно), либо оставлять `None`. Загрузка каталога — контракт 1, граница Артём → Стас; `matching/` его только потребляет.
+2. **Отрасль → ObjectType не сопоставлена.** Колонка `Отрасль` в CSV (Торговля и услуги / Промышленность / Транспорт и логистика / ТЭК / Сельское хозяйство / Безопасность / Строительство / ЖКХ / Лесное хозяйство) не совпадает с нашими тремя `ObjectType` (warehouse/airport/medical) ни для одного значения напрямую — нужна классификация команды, а не автоматический вывод.
+3. **Реального набора `CompatibilityRule` от Артёма ещё нет.** Три правила в `matching/fixtures.py` — иллюстративные, специально подобраны, чтобы пройти по всем веткам `rules.py`/`scoring.py` (forbidden/allowed/warning/unknown), не бизнес-правила.
+4. **`quantity.py` не считает медучреждение** — в `MedicalParams` нет явного поля пиковой часовой нагрузки (`cargo_volume_per_day` — только суточный объём по категориям без коэффициента пика); нужно решить, откуда брать коэффициент, а не выдумывать его.
 
 ## Экономическая модель
 
