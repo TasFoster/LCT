@@ -1,14 +1,13 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MATCH_RESULT } from '../../../shared/mock/results';
-import { CATALOG, catalogById } from '../../../shared/mock/catalog';
+import { allCatalog, catalogById, setRealCatalog } from '../../../shared/mock/catalog';
 import { CONFIDENCE_LABEL, MATCH_STATUS_LABEL } from '../../../shared/mock/dictionaries';
 import { ROUTES } from '../../../shared/config/routes';
-import type { MatchCandidate, MatchStatus } from '../../../shared/types/contracts';
+import type { MatchCandidate, MatchResult, MatchStatus } from '../../../shared/types/contracts';
 import { formatNumber, formatRubShort, pluralize } from '../../../shared/lib/format';
-import { Alert, Bar, Button, Card, Chip, MockNote, Segmented } from '../../../shared/ui';
+import { Alert, Bar, Button, Card, Chip, Segmented } from '../../../shared/ui';
 import type { Tone } from '../../../shared/ui';
-import { useMockCalc } from '../../../features/wizard/useMockCalc';
+import { buildProjectInput, fetchRealCatalog, RealApiError, runRealMatching } from '../../../features/projectApi/realApi';
 import { CalcStatus } from '../../../widgets/CalcStatus';
 import { useWizard } from '../context';
 import { WizardFooter } from '../WizardFooter';
@@ -17,19 +16,60 @@ import { solutionTypeLabel } from '../../../shared/dictionaries';
 const STATUS_TONE: Record<MatchStatus, Tone> = { recommended: 'ok', needs_review: 'warn', excluded: 'danger' };
 type Filter = 'all' | MatchStatus;
 
-/** Шаг 3. Подбор: ранжированные кандидаты с объяснением и ручными правками. */
-export function StepMatching() {
-  const { draft, update } = useWizard();
-  const [filter, setFilter] = useState<Filter>('all');
-  const [open, setOpen] = useState<string | null>(MATCH_RESULT.candidates[0].catalog_item_id);
-  const [addId, setAddId] = useState('');
-  const calc = useMockCalc();
+const EMPTY_RESULT: MatchResult = {
+  id: '',
+  project_id: '',
+  project_input_id: '',
+  generated_at: '',
+  candidates: [],
+  selected_equipment: [],
+  manual_additions: [],
+};
 
-  const manual = MATCH_RESULT.manual_additions.concat(
-    Object.keys(draft.quantities).filter((id) => !MATCH_RESULT.candidates.some((c) => c.catalog_item_id === id)),
+/** Шаг 3. Подбор: ранжированные кандидаты с объяснением и ручными правками.
+ * Данные — с настоящего бэкенда (реальный каталог + matching/, включая
+ * категориальные правила Артёма), не моковая шестёрка позиций. Сервер:
+ * `cd Project/backend && uvicorn api.main:app --port 8000`. */
+export function StepMatching() {
+  const { draft, update, projectId } = useWizard();
+  const [filter, setFilter] = useState<Filter>('all');
+  const [open, setOpen] = useState<string | null>(null);
+  const [addId, setAddId] = useState('');
+  const [result, setResult] = useState<MatchResult>(EMPTY_RESULT);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const type = draft.objectType ?? 'warehouse';
+  const params = draft.params[type] ?? {};
+
+  const run = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [catalog, matchResult] = await Promise.all([
+        fetchRealCatalog(),
+        runRealMatching(buildProjectInput(projectId, type, params)),
+      ]);
+      setRealCatalog(catalog);
+      setResult(matchResult);
+      setOpen(matchResult.candidates[0]?.catalog_item_id ?? null);
+    } catch (e) {
+      setError(e instanceof RealApiError ? e.message : 'Не удалось выполнить подбор');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    void run();
+  }, [projectId]);
+
+  const manual = result.manual_additions.concat(
+    Object.keys(draft.quantities).filter((id) => !result.candidates.some((c) => c.catalog_item_id === id)),
   );
   const candidates: MatchCandidate[] = [
-    ...MATCH_RESULT.candidates,
+    ...result.candidates,
     ...manual.map((id) => ({
       catalog_item_id: id,
       status: 'needs_review' as const,
@@ -60,7 +100,7 @@ export function StepMatching() {
       compare: d.compare.filter((x) => x !== id),
     }));
 
-  const rerun = () => calc.start(() => update({ staleAfterParams: false }));
+  const rerun = () => void run().then(() => update({ staleAfterParams: false }));
 
   return (
     <>
@@ -75,15 +115,19 @@ export function StepMatching() {
             </p>
           </div>
           <div className="page-head__actions">
-            <MockNote />
-            <Button onClick={rerun} disabled={calc.running}>
+            <Button onClick={rerun} disabled={loading}>
               Пересчитать подбор
             </Button>
           </div>
         </div>
 
-        {calc.running && <CalcStatus progress={calc.progress} label="Подбираем технику под параметры объекта" />}
-        {!calc.running && draft.staleAfterParams && (
+        {loading && <CalcStatus progress={70} label="Подбираем технику по реальному каталогу и правилам совместимости" />}
+        {error && (
+          <Alert tone="danger" title="Сервер подбора недоступен" action={<Button size="sm" variant="primary" onClick={rerun}>Повторить</Button>}>
+            {error}
+          </Alert>
+        )}
+        {!loading && !error && draft.staleAfterParams && (
           <Alert tone="warn" title="Параметры объекта изменились — подбор устарел" action={<Button size="sm" variant="primary" onClick={rerun}>Пересчитать</Button>}>
             Ниже — результат по прежним параметрам.
           </Alert>
@@ -105,7 +149,7 @@ export function StepMatching() {
             <div className="control" style={{ width: 280 }}>
               <select value={addId} onChange={(e) => setAddId(e.target.value)} aria-label="Добавить решение из каталога вручную">
                 <option value="">Добавить из каталога вручную…</option>
-                {CATALOG.filter((c) => !candidates.some((x) => x.catalog_item_id === c.id)).map((c) => (
+                {allCatalog().filter((c) => !candidates.some((x) => x.catalog_item_id === c.id)).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.identification.product_name} — {solutionTypeLabel(c.identification.solution_type)}
                   </option>
@@ -263,7 +307,7 @@ export function StepMatching() {
       </div>
       <WizardFooter
         blockedReason={
-          calc.running
+          loading
             ? 'Дождитесь окончания подбора'
             : draft.compare.length === 0
               ? 'Отметьте хотя бы одно решение для сравнения'

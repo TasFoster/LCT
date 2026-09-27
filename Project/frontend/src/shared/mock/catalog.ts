@@ -411,7 +411,18 @@ export const CATALOG: CatalogItem[] = [
   }),
 ];
 
-export const catalogById = (id: string) => CATALOG.find((c) => c.id === id);
+// Реальный каталог (223 позиции, GET /api/catalog) — подгружается один раз шагом
+// подбора (StepMatching) и кэшируется здесь же, чтобы более поздние шаги (сравнение,
+// топология, экономика), которые ищут позицию по id тем же catalogById, видели те же
+// объекты без переписывания остального приложения на асинхронный источник.
+let realCatalog: CatalogItem[] = [];
+export const setRealCatalog = (items: CatalogItem[]) => {
+  realCatalog = items;
+};
+/** Реальный каталог, если уже загружен, иначе — заглушка (демо без бэкенда). */
+export const allCatalog = () => (realCatalog.length ? realCatalog : CATALOG);
+
+export const catalogById = (id: string) => realCatalog.find((c) => c.id === id) ?? CATALOG.find((c) => c.id === id);
 export const catalogName = (id: string) => {
   const c = catalogById(id);
   return c ? `${c.identification.product_name}` : id;

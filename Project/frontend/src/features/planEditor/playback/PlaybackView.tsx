@@ -52,13 +52,17 @@ interface Props {
   scene: Scene;
   /** цвет типа зоны — из справочника (form_options.json → zone_types) */
   zoneColors: Record<ZoneType, string>;
+  /** Таймлайн, полученный снаружи (например, реальным вызовом /api/simulation/run) —
+   * подхватывается наравне с открытым вручную файлом, каждая новая ссылка перезапускает
+   * проигрывание с начала. Необязателен: без него работает только «Открыть файл». */
+  externalTimeline?: SimulationTimeline | null;
 }
 
 /**
  * Проигрывание таймлайна симуляции (контракт 7) на плане. Пока не подключено к визарду:
  * на шаге 7 место под него — вкладка «3D» (заглушка).
  */
-export function PlaybackView({ scene, zoneColors }: Props) {
+export function PlaybackView({ scene, zoneColors, externalTimeline }: Props) {
   const c = usePalette();
   const [timeline, setTimeline] = useState<SimulationTimeline | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +72,14 @@ export function PlaybackView({ scene, zoneColors }: Props) {
   const rafRef = useRef<number | null>(null);
   const lastWallClock = useRef<number | null>(null);
   const [canvasRef, { width, height }] = useSize<HTMLDivElement>();
+
+  useEffect(() => {
+    if (!externalTimeline) return;
+    setTimeline(externalTimeline);
+    setT(0);
+    setPlaying(false);
+    setError(null);
+  }, [externalTimeline]);
 
   const { width: siteW, height: siteH } = scene.site;
   const k = width > 0 ? Math.min((width - 2 * FIT_PAD) / siteW, (height - 2 * FIT_PAD) / siteH) || 1 : 1;

@@ -6,7 +6,8 @@ import type { PlanEditorContext } from '../../../features/planEditor/types';
 import { CATEGORIES } from '../../../shared/dictionaries';
 import { catalogById } from '../../../shared/mock/catalog';
 import type { FieldError } from '../../../shared/api/projectState';
-import type { Scene } from '../../../shared/types/contracts';
+import type { Scene, SimulationTimeline } from '../../../shared/types/contracts';
+import { buildProjectInput, RealApiError, runRealSimulation } from '../../../features/projectApi/realApi';
 import { formatTime } from '../../../shared/lib/format';
 import { Alert, Button, Chip, Segmented } from '../../../shared/ui';
 import { GuestLock } from '../GuestLock';
@@ -48,6 +49,9 @@ export function StepTopology() {
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
   const [showApi, setShowApi] = useState(false);
+  const [simTimeline, setSimTimeline] = useState<SimulationTimeline | null>(null);
+  const [simLoading, setSimLoading] = useState(false);
+  const [simError, setSimError] = useState<string | null>(null);
 
   // План с сервера — стартовое состояние (в т. ч. когда пользователь вернулся через день)
   const serverScene = server?.scene.data ?? null;
@@ -132,6 +136,24 @@ export function StepTopology() {
     });
   };
 
+  /** Прогон реального backend/simulation/service.py на текущем плане — без
+   * файла таймлайна: сцена и параметры объекта отправляются прямо в теле
+   * запроса (POST /api/simulation/run, см. Project/backend/api/main.py). */
+  const runSimulation = async () => {
+    if (!plan) return;
+    setSimLoading(true);
+    setSimError(null);
+    try {
+      const projectInput = buildProjectInput(projectId, type, draft.params[type] ?? {});
+      const timeline = await runRealSimulation(plan, projectInput, projectId);
+      setSimTimeline(timeline);
+    } catch (e) {
+      setSimError(e instanceof RealApiError ? e.message : 'Не удалось прогнать симуляцию');
+    } finally {
+      setSimLoading(false);
+    }
+  };
+
   const sceneState = server?.scene.state ?? 'missing';
   const warnings = server?.scene.warnings ?? [];
   const status = dirty ? (
@@ -207,7 +229,15 @@ export function StepTopology() {
               height={box.height}
             />
           ) : plan ? (
-            <PlaybackView scene={plan} zoneColors={zoneColors} />
+            <div className="stack stack--sm" style={{ height: '100%' }}>
+              <div className="row">
+                <Button size="sm" variant="primary" onClick={() => void runSimulation()} disabled={simLoading}>
+                  {simLoading ? 'Считаем…' : 'Запустить симуляцию'}
+                </Button>
+                {simError && <Alert tone="danger" title="Сервер симуляции недоступен">{simError}</Alert>}
+              </div>
+              <PlaybackView scene={plan} zoneColors={zoneColors} externalTimeline={simTimeline} />
+            </div>
           ) : (
             <div className="plan-editor__empty" style={{ background: 'var(--surface-2)' }}>
               <span className="muted">Сначала постройте план («Черновик из параметров» или редактор на вкладке «2D-план») — симуляцию не на чем проигрывать.</span>
