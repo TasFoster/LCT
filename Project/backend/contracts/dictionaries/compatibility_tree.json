@@ -1,0 +1,356 @@
+{
+  "meta": {
+    "version": "1.0",
+    "source": "книга2.xlsx",
+    "description": "Конфигурация совместимости роботов, задач и зон"
+  },
+
+  "entities": {
+    "mobile_ground": {
+      "name": "Наземные мобильные роботы",
+      "type": "equipment",
+      "children": [
+        "mobile_robot", "amr", "fmr_loader", "robot_stacker", "robot_tug",
+        "robot_cleaner", "unmanned_loader", "robot_sorter", "robot_inventory",
+        "robot_rover", "robot_courier", "mobile_manipulator", "demolition_robot",
+        "spider_robot", "inpipe_system", "heat_network_diag", "pipe_heat_inspect",
+        "unmanned_bulldozer", "unmanned_roller", "unmanned_asphalt",
+        "unmanned_tractor", "agrobot", "fruit_collector", "wheeled_poultry",
+        "high_cross_country", "production_sorter", "eco_patrol", "guard_robot",
+        "robotic_cart", "universal_platform", "soil_analyzer"
+      ]
+    },
+
+    "stationary": {
+      "name": "Стационарные роботы и комплексы",
+      "type": "equipment",
+      "children": [
+        "smart_storage", "robot_manipulator", "robot_placer", "delta_robot",
+        "cobot", "welding_robot", "anthropomorphic", "robot_cafe",
+        "robotic_unit", "robotic_cell", "robotic_3d_printer", "welding_complex",
+        "loading_cranes", "milking_unit", "vaccination_conveyor",
+        "lab_robot", "fire_nozzle"
+      ]
+    },
+
+    "aerial": {
+      "name": "Воздушные роботы (БАС)",
+      "type": "equipment",
+      "children": [
+        "uas", "uas_multirotor", "uas_fixed_wing", "uas_vtol",
+        "uas_aerophoto", "uas_monitoring", "uas_delivery",
+        "uas_facade_wash", "uas_search"
+      ]
+    },
+
+    "marine": {
+      "name": "Морские и подводные роботы",
+      "type": "equipment",
+      "children": [
+        "marine_robot", "service_catamaran", "unmanned_boat",
+        "tnpa", "modular_surface", "unmanned_cutter"
+      ]
+    },
+
+    "software": {
+      "name": "ПО и системы управления",
+      "type": "equipment",
+      "children": ["software", "software_sorting", "software_brs"]
+    },
+
+    "tasks": {
+      "name": "Задачи и зоны применения",
+      "type": "task",
+      "children": [
+        "warehouse_logistics", "production_logistics", "cargo_sorting",
+        "indoor_cleaning", "street_cleaning", "warehouse_inventory",
+        "last_mile", "drink_prep", "production", "assembly",
+        "blank_placement", "infra_monitoring", "production_sorting",
+        "lab_analysis", "poultry", "milk_collection", "plowing",
+        "harvest", "field_application", "crop_monitoring",
+        "inpipe_diag", "inpipe_repair", "road_repair", "road_work",
+        "facade_wash", "window_wash", "heat_monitoring",
+        "water_work", "underwater_work", "pipeline_monitoring",
+        "shallow_monitoring", "patrol_water", "monitor_patrol_cargo",
+        "underwater_delivery", "water_delivery",
+        "delivery_remote", "delivery_far_remote",
+        "cargo_closed", "cargo_remote", "cargo_main",
+        "passenger_public", "passenger_commercial",
+        "rail_uncoupling", "rail_service", "heavy_logistics",
+        "crossing_monitoring", "wildlife_count", "forest_taxation",
+        "forest_plot_taxation", "forest_fire_monitoring", "forest_pathology",
+        "monitoring", "area_patrol", "biomaterial_delivery",
+        "medical_help", "firefighting", "evacuation",
+        "underground_survey", "land_control", "building_defects",
+        "preproject_survey", "construction_control", "quarry_control",
+        "landfill_monitoring", "geology_control",
+        "pipeline_regular", "powerline_regular", "powerline_detailed",
+        "mining_stockpile", "flood_monitoring", "geophysics",
+        "damage_assessment", "search_people", "traffic_monitoring",
+        "accident_analysis", "uav_support", "rail_monitoring",
+        "ice_monitoring", "road_condition", "transport_infra",
+        "parcel_locker", "last_mile_zone", "cargo_remote_zone",
+        "confined_monitoring"
+      ]
+    },
+
+    "points": {
+      "name": "Точки на плане",
+      "type": "point",
+      "children": [
+        "point_receiving", "point_charging", "post_packing",
+        "zone_sterile", "zone_storage", "zone_picking",
+        "zone_sorting", "zone_shipping", "zone_acceptance"
+      ]
+    },
+
+    "environments": {
+      "name": "Характеристики среды",
+      "type": "environment",
+      "children": [
+        "indoor", "outdoor", "water", "underwater", "air",
+        "height", "mine", "pipe", "field", "road",
+        "railway", "port", "airport", "warehouse",
+        "workshop", "shop", "office", "residential",
+        "university", "hospital", "laboratory",
+        "fuel_energy", "utilities", "construction_site",
+        "agriculture", "forestry", "transport_logistics",
+        "security", "retail", "industry",
+        "cold", "humidity", "sterility", "explosive"
+      ]
+    },
+
+    "cargo": {
+      "name": "Характеристики грузов",
+      "type": "cargo",
+      "children": [
+        "flat_floor", "marking", "no_marking", "gnss", "no_gnss",
+        "dynamic_env", "high_racks", "heavy_cargo", "light_cargo",
+        "small_cargo", "oversized", "pallets", "carts",
+        "conveyor", "roll_cages", "klt", "racks", "shelves",
+        "cardboard", "biomaterials", "medicines", "ballots",
+        "up_to_6", "up_to_20", "up_to_40", "up_to_70", "up_to_100",
+        "up_to_300", "up_to_500", "up_to_750", "up_to_1500",
+        "up_to_2000", "up_to_6000", "up_to_35000"
+      ]
+    }
+  },
+
+  "tree": {
+    "root": "robot",
+    "nodes": {
+      "robot": { "name": "Робот", "children": ["mobile", "stationary", "aerial", "marine", "software"] },
+      "mobile": { "name": "Мобильный робот", "parent": "robot", "children": ["mobile_ground"] },
+      "stationary": { "name": "Стационарный робот", "parent": "robot", "children": [] },
+      "aerial": { "name": "Воздушный робот", "parent": "robot", "children": [] },
+      "marine": { "name": "Морской робот", "parent": "robot", "children": [] },
+      "software": { "name": "ПО", "parent": "robot", "children": [] },
+
+      "mobile_ground": { "name": "Наземный мобильный робот", "parent": "mobile", "children": [] },
+
+      "amr":        { "name": "AMR", "parent": "mobile_ground", "children": [] },
+      "fmr_loader": { "name": "FMR / автономный погрузчик", "parent": "mobile_ground", "children": [] },
+      "robot_stacker": { "name": "Робот-штабелер", "parent": "mobile_ground", "children": [] },
+      "robot_tug":  { "name": "Робот-тягач", "parent": "mobile_ground", "children": [] },
+      "robot_cleaner": { "name": "Робот-уборщик", "parent": "mobile_ground", "children": [] },
+      "robot_sorter": { "name": "Робот-сортировщик", "parent": "mobile_ground", "children": [] },
+      "robot_inventory": { "name": "Робот-инвентаризатор", "parent": "mobile_ground", "children": [] },
+      "robot_rover": { "name": "Робот-ровер", "parent": "mobile_ground", "children": [] },
+      "robot_courier": { "name": "Робот-курьер", "parent": "mobile_ground", "children": [] },
+      "mobile_manipulator": { "name": "Мобильный манипулятор", "parent": "mobile_ground", "children": [] },
+      "demolition_robot": { "name": "Демонтажный робот", "parent": "mobile_ground", "children": [] },
+      "spider_robot": { "name": "Робот-паук", "parent": "mobile_ground", "children": [] },
+      "inpipe_system": { "name": "Внутритрубная система", "parent": "mobile_ground", "children": [] },
+      "unmanned_bulldozer": { "name": "Беспилотный бульдозер", "parent": "mobile_ground", "children": [] },
+      "unmanned_roller": { "name": "Беспилотный каток", "parent": "mobile_ground", "children": [] },
+      "unmanned_asphalt": { "name": "Беспилотный асфальтоукладчик", "parent": "mobile_ground", "children": [] },
+      "unmanned_tractor": { "name": "Беспилотный трактор", "parent": "mobile_ground", "children": [] },
+      "agrobot": { "name": "Агробот", "parent": "mobile_ground", "children": [] },
+      "fruit_collector": { "name": "Робот для сбора плодов", "parent": "mobile_ground", "children": [] },
+      "high_cross_country": { "name": "МРК высокой проходимости", "parent": "mobile_ground", "children": [] },
+      "guard_robot": { "name": "Охранный робот", "parent": "mobile_ground", "children": [] },
+
+      "smart_storage": { "name": "Система умного хранения", "parent": "stationary", "children": [] },
+      "robot_manipulator": { "name": "Робот-манипулятор", "parent": "stationary", "children": [] },
+      "cobot": { "name": "Кобот", "parent": "stationary", "children": [] },
+      "welding_robot": { "name": "Сварочный робот", "parent": "stationary", "children": [] },
+      "anthropomorphic": { "name": "Антропоморфный робот", "parent": "stationary", "children": [] },
+      "robot_cafe": { "name": "Робо-кафе", "parent": "stationary", "children": [] },
+      "robotic_3d_printer": { "name": "Роботизированный 3D-принтер", "parent": "stationary", "children": [] },
+      "welding_complex": { "name": "Сварочный комплекс", "parent": "stationary", "children": [] },
+      "loading_cranes": { "name": "Погрузочные краны", "parent": "stationary", "children": [] },
+      "milking_unit": { "name": "Доильная установка", "parent": "stationary", "children": [] },
+      "lab_robot": { "name": "Робот-лаборант", "parent": "stationary", "children": [] },
+      "fire_nozzle": { "name": "Лафетный ствол", "parent": "stationary", "children": [] },
+
+      "uas": { "name": "БАС", "parent": "aerial", "children": [] },
+      "uas_multirotor": { "name": "БАС мультироторный", "parent": "aerial", "children": [] },
+      "uas_fixed_wing": { "name": "БАС самолётный", "parent": "aerial", "children": [] },
+      "uas_vtol": { "name": "VTOL", "parent": "aerial", "children": [] },
+      "uas_delivery": { "name": "БАС доставка", "parent": "aerial", "children": [] },
+      "uas_monitoring": { "name": "БАС мониторинг", "parent": "aerial", "children": [] },
+      "uas_aerophoto": { "name": "БАС аэрофотосъёмка", "parent": "aerial", "children": [] },
+
+      "marine_robot": { "name": "Морской робот", "parent": "marine", "children": [] },
+      "unmanned_boat": { "name": "Беспилотный катер", "parent": "marine", "children": [] },
+      "tnpa": { "name": "ТНПА", "parent": "marine", "children": [] },
+
+      "software": { "name": "ПО", "parent": "software", "children": [] },
+      "software_sorting": { "name": "ПО сортировки", "parent": "software", "children": [] },
+      "software_brs": { "name": "ПО БРС", "parent": "software", "children": [] }
+    }
+  },
+
+  "rules": [
+    { "id": "mobile-indoor",       "from": "mobile", "to": "indoor",  "type": "allowed" },
+    { "id": "mobile-outdoor",      "from": "mobile", "to": "outdoor", "type": "allowed" },
+    { "id": "mobile-no-air",       "from": "mobile", "to": "air",     "type": "forbidden", "reason": "Наземный мобильный робот не работает в воздухе" },
+    { "id": "mobile-no-underwater","from": "mobile", "to": "underwater", "type": "forbidden", "reason": "Наземный робот не работает под водой" },
+
+    { "id": "amr-warehouse",       "from": "amr", "to": "warehouse_logistics", "type": "allowed" },
+    { "id": "amr-production",      "from": "amr", "to": "production_logistics", "type": "allowed" },
+    { "id": "amr-sorting",         "from": "amr", "to": "cargo_sorting", "type": "allowed" },
+    { "id": "amr-no-underwater",   "from": "amr", "to": "underwater_work", "type": "forbidden", "reason": "AMR не работает под водой" },
+    { "id": "amr-req-charging",    "from": "amr", "to": "point_charging", "type": "requires", "reason": "AMR требует зону зарядки" },
+    { "id": "amr-req-flat",        "from": "amr", "to": "flat_floor", "type": "requires" },
+    { "id": "amr-no-heavy-35t",    "from": "amr", "to": "up_to_35000", "type": "forbidden" },
+
+    { "id": "fmr-pallets",         "from": "fmr_loader", "to": "pallets", "type": "allowed" },
+    { "id": "fmr-req-flat",        "from": "fmr_loader", "to": "flat_floor", "type": "requires" },
+    { "id": "fmr-no-small",        "from": "fmr_loader", "to": "small_cargo", "type": "forbidden" },
+
+    { "id": "stacker-racks",       "from": "robot_stacker", "to": "racks", "type": "allowed" },
+    { "id": "stacker-high",        "from": "robot_stacker", "to": "high_racks", "type": "allowed" },
+
+    { "id": "tug-carts",           "from": "robot_tug", "to": "carts", "type": "requires", "reason": "Тягач требует тележки" },
+    { "id": "tug-production",      "from": "robot_tug", "to": "production_logistics", "type": "allowed" },
+
+    { "id": "cleaner-indoor",      "from": "robot_cleaner", "to": "indoor_cleaning", "type": "allowed" },
+    { "id": "cleaner-street",      "from": "robot_cleaner", "to": "street_cleaning", "type": "allowed" },
+
+    { "id": "sorter-cargo",        "from": "robot_sorter", "to": "cargo_sorting", "type": "allowed" },
+    { "id": "sorter-production",   "from": "robot_sorter", "to": "production_sorting", "type": "allowed" },
+
+    { "id": "inventory-wh",        "from": "robot_inventory", "to": "warehouse_inventory", "type": "allowed" },
+
+    { "id": "rover-delivery",      "from": "robot_rover", "to": "last_mile", "type": "allowed" },
+    { "id": "rover-outdoor",       "from": "robot_rover", "to": "outdoor", "type": "allowed" },
+
+    { "id": "courier-lastmile",    "from": "robot_courier", "to": "last_mile", "type": "allowed" },
+    { "id": "courier-outdoor",     "from": "robot_courier", "to": "outdoor", "type": "allowed" },
+
+    { "id": "cobot-indoor",        "from": "cobot", "to": "indoor", "type": "allowed" },
+    { "id": "cobot-no-outdoor",    "from": "cobot", "to": "outdoor", "type": "forbidden", "reason": "Кобот работает только в помещении" },
+    { "id": "cobot-assembly",      "from": "cobot", "to": "assembly", "type": "allowed" },
+    { "id": "cobot-welding",       "from": "cobot", "to": "production", "type": "allowed" },
+
+    { "id": "welding-production",  "from": "welding_robot", "to": "production", "type": "allowed" },
+
+    { "id": "anthropomorphic-office", "from": "anthropomorphic", "to": "office", "type": "allowed" },
+    { "id": "anthropomorphic-shop",   "from": "anthropomorphic", "to": "shop", "type": "allowed" },
+
+    { "id": "robocafe-drink",      "from": "robot_cafe", "to": "drink_prep", "type": "allowed" },
+
+    { "id": "3dprint-construction", "from": "robotic_3d_printer", "to": "construction_site", "type": "allowed" },
+
+    { "id": "labrobot-lab",        "from": "lab_robot", "to": "lab_analysis", "type": "allowed" },
+
+    { "id": "inpipe-diag",         "from": "inpipe_system", "to": "inpipe_diag", "type": "allowed" },
+    { "id": "inpipe-repair",       "from": "inpipe_system", "to": "inpipe_repair", "type": "allowed" },
+    { "id": "inpipe-pipe",         "from": "inpipe_system", "to": "pipe", "type": "requires" },
+
+    { "id": "tractor-plowing",     "from": "unmanned_tractor", "to": "plowing", "type": "allowed" },
+    { "id": "tractor-harvest",     "from": "unmanned_tractor", "to": "harvest", "type": "allowed" },
+    { "id": "tractor-agri",        "from": "unmanned_tractor", "to": "agriculture", "type": "allowed" },
+
+    { "id": "agrobot-agri",        "from": "agrobot", "to": "agriculture", "type": "allowed" },
+    { "id": "agrobot-monitoring",  "from": "agrobot", "to": "crop_monitoring", "type": "allowed" },
+
+    { "id": "fruit-harvest",       "from": "fruit_collector", "to": "harvest", "type": "allowed" },
+
+    { "id": "milking-milk",        "from": "milking_unit", "to": "milk_collection", "type": "allowed" },
+    { "id": "milking-indoor",      "from": "milking_unit", "to": "indoor", "type": "allowed" },
+
+    { "id": "guard-patrol",        "from": "guard_robot", "to": "area_patrol", "type": "allowed" },
+    { "id": "guard-security",      "from": "guard_robot", "to": "security", "type": "allowed" },
+
+    { "id": "fire-nozzle-fire",    "from": "fire_nozzle", "to": "firefighting", "type": "allowed" },
+
+    { "id": "uas-monitoring",      "from": "uas", "to": "monitoring", "type": "allowed" },
+    { "id": "uas-air",             "from": "uas", "to": "air", "type": "requires" },
+    { "id": "uas-no-indoor",       "from": "uas", "to": "indoor", "type": "forbidden", "reason": "БАС работает преимущественно на улице" },
+
+    { "id": "uas-multirotor-gnss", "from": "uas_multirotor", "to": "gnss", "type": "requires", "condition": { "environment": "outdoor" } },
+    { "id": "uas-multirotor-deliv","from": "uas_multirotor", "to": "uas_delivery", "type": "allowed" },
+
+    { "id": "uas-fixedwing-outdoor", "from": "uas_fixed_wing", "to": "outdoor", "type": "allowed" },
+    { "id": "uas-fixedwing-no-indoor", "from": "uas_fixed_wing", "to": "indoor", "type": "forbidden" },
+
+    { "id": "uas-vtol-takeoff",    "from": "uas_vtol", "to": "outdoor", "type": "allowed" },
+
+    { "id": "uas-delivery-air",    "from": "uas_delivery", "to": "cargo_main", "type": "allowed" },
+    { "id": "uas-delivery-remote", "from": "uas_delivery", "to": "delivery_remote", "type": "allowed" },
+
+    { "id": "uas-aerophoto-survey","from": "uas_aerophoto", "to": "preproject_survey", "type": "allowed" },
+    { "id": "uas-aerophoto-construction", "from": "uas_aerophoto", "to": "construction_control", "type": "allowed" },
+    { "id": "uas-aerophoto-quarry","from": "uas_aerophoto", "to": "quarry_control", "type": "allowed" },
+
+    { "id": "uas-facade-wash",     "from": "uas_facade_wash", "to": "facade_wash", "type": "allowed" },
+    { "id": "uas-facade-height",   "from": "uas_facade_wash", "to": "height", "type": "requires" },
+
+    { "id": "uas-search-people",   "from": "uas_search", "to": "search_people", "type": "allowed" },
+
+    { "id": "marine-water",        "from": "marine_robot", "to": "water", "type": "requires" },
+    { "id": "marine-no-air",       "from": "marine_robot", "to": "air", "type": "forbidden" },
+
+    { "id": "boat-patrol",         "from": "unmanned_boat", "to": "patrol_water", "type": "allowed" },
+    { "id": "boat-cargo",          "from": "unmanned_boat", "to": "water_delivery", "type": "allowed" },
+
+    { "id": "tnpa-underwater",     "from": "tnpa", "to": "underwater", "type": "requires" },
+    { "id": "tnpa-underwater-work","from": "tnpa", "to": "underwater_work", "type": "allowed" },
+    { "id": "tnpa-no-air",         "from": "tnpa", "to": "air", "type": "forbidden" },
+
+    { "id": "sw-brs-brs",          "from": "software_brs", "to": "software", "type": "allowed" },
+    { "id": "sw-sorting",          "from": "software_sorting", "to": "cargo_sorting", "type": "allowed" },
+
+    { "id": "task-warehouse-indoor","from": "warehouse_logistics", "to": "indoor", "type": "requires" },
+    { "id": "task-production-indoor","from": "production_logistics", "to": "indoor", "type": "requires" },
+    { "id": "task-underwater-marine","from": "underwater_work", "to": "marine", "type": "requires" },
+    { "id": "task-air-uav",         "from": "monitoring", "to": "aerial", "type": "allowed" },
+    { "id": "task-air-uav-2",       "from": "search_people", "to": "aerial", "type": "allowed" },
+    { "id": "task-water-marine",    "from": "water_work", "to": "marine", "type": "requires" },
+    { "id": "task-field-agri",      "from": "plowing", "to": "agriculture", "type": "requires" },
+    { "id": "task-harvest-agri",    "from": "harvest", "to": "agriculture", "type": "requires" },
+    { "id": "task-pipe-pipe",       "from": "inpipe_diag", "to": "pipe", "type": "requires" },
+    { "id": "task-rail-rail",       "from": "rail_service", "to": "railway", "type": "requires" },
+    { "id": "task-port-port",       "from": "underwater_delivery", "to": "port", "type": "requires" }
+  ],
+
+  "requirements": [
+    {
+      "id": "req-amr-charging",
+      "entity": "amr",
+      "requires_any": ["point_charging"],
+      "message": "Для AMR нужна зона зарядки"
+    },
+    {
+      "id": "req-uas-gnss",
+      "entity": "uas",
+      "requires_all": ["gnss"],
+      "message": "БАС требует GNSS на улице",
+      "condition": { "environment": "outdoor" }
+    },
+    {
+      "id": "req-tnpa-underwater",
+      "entity": "tnpa",
+      "requires_all": ["underwater"],
+      "message": "ТНПА работает под водой"
+    },
+    {
+      "id": "req-cobot-safety",
+      "entity": "cobot",
+      "requires_any": ["zone_sterile", "workshop"],
+      "message": "Для кобота нужна рабочая зона"
+    }
+  ]
+}

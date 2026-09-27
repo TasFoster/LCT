@@ -19,3 +19,9 @@ __pycache__
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright MCP scratch files
+.playwright-mcp/
+
+# 85 МБ, дублирует catalog_export_v4.csv (та же таблица, свёрстанная для чтения) — см. CLAUDE.md
+Датасет/Датасет/ФЦ БАС — Каталог внедрения*.pdf

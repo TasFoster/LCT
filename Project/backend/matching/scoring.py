@@ -3,13 +3,15 @@ MatchCandidate). Формула — MVP команды (готовой в ТЗ �
 задокументирована здесь и видна пользователю через factors/reasons (см.
 CLAUDE.md, "все формулы... обязаны быть видны пользователю").
 
-compatibility (вес 0.5) — по вердиктам сработавших CompatibilityRule: любой
-FORBIDDEN обнуляет score и переводит в EXCLUDED (остальные факторы в этом
-случае не считаются — сумма factors.contribution всегда равна score, без
-факторов, которые не то повлияли, не то нет); WARNING/NEEDS_REVIEW/нехватка
-данных снижают compatibility и не пускают выше NEEDS_REVIEW; отсутствие
-сработавших правил не значит "всё проверено" — это отдельная пометка в
-reasons, score всё равно считается по вторичным факторам.
+compatibility (вес 0.5) — по вердиктам сработавших CompatibilityRule (числовые
+пороги) И категориальных правил Артёма (category_rules.CategoryTaxonomy, если
+передана) — два независимых источника на один и тот же фактор, не на разные
+веса. Любой FORBIDDEN (с любой стороны) обнуляет score и переводит в EXCLUDED
+(остальные факторы в этом случае не считаются — сумма factors.contribution
+всегда равна score, без факторов, которые не то повлияли, не то нет);
+WARNING/NEEDS_REVIEW/нехватка данных снижают compatibility и не пускают выше
+NEEDS_REVIEW; отсутствие сработавших правил не значит "всё проверено" — это
+отдельная пометка в reasons, score всё равно считается по вторичным факторам.
 availability (0.2) / data_quality (0.15) / applicability (0.15) — вторичные
 факторы качества самой позиции каталога, не про пригодность к конкретной
 задаче (это уже compatibility).
@@ -27,6 +29,7 @@ from contracts import (
     ProjectInput,
 )
 
+from .category_rules import CategoryTaxonomy, CategoryVerdict
 from .rules import RuleOutcome, evaluate_rule
 
 _AVAILABILITY_SCORE = {"available": 1.0, "limited": 0.6, "upcoming": 0.3, "discontinued": 0.0}
@@ -38,7 +41,12 @@ DATA_QUALITY_WEIGHT = 0.15
 APPLICABILITY_WEIGHT = 0.15
 
 
-def score_candidate(item: CatalogItem, project_input: ProjectInput, rules: list[CompatibilityRule]) -> MatchCandidate:
+def score_candidate(
+    item: CatalogItem,
+    project_input: ProjectInput,
+    rules: list[CompatibilityRule],
+    taxonomy: CategoryTaxonomy | None = None,
+) -> MatchCandidate:
     reasons: list[str] = []
     forbidden_hit = False
     warning_hit = False
@@ -59,6 +67,22 @@ def score_candidate(item: CatalogItem, project_input: ProjectInput, rules: list[
             forbidden_hit = True
         elif rule.verdict in (CompatibilityVerdict.WARNING, CompatibilityVerdict.NEEDS_REVIEW):
             warning_hit = True
+
+    # Категориальные правила Артёма (compatibility_tree.json) — тот же фактор
+    # "Совместимость", второй независимый источник вердиктов (см. докстринг
+    # category_rules.py: числовые CompatibilityRule и категориальные правила
+    # Артёма проверяют разное и не заменяют друг друга).
+    if taxonomy is not None:
+        category_verdict, category_reasons = taxonomy.evaluate(item, project_input.object_type)
+        if category_verdict is CategoryVerdict.FORBIDDEN:
+            forbidden_hit = True
+            reasons.extend(category_reasons)
+        elif category_verdict is CategoryVerdict.ALLOWED:
+            applied_count += 1
+            reasons.extend(category_reasons)
+        # NOT_APPLICABLE (позиция не опознана либо для неё нет правила Артёма
+        # на релевантную задачу/среду) ничего не меняет — как и отсутствие
+        # сработавших CompatibilityRule выше.
 
     if applied_count == 0 and not unknown_hit:
         reasons.append("нет применимых правил совместимости для этого объекта — оценка только по общим факторам каталога")

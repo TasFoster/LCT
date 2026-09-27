@@ -15,8 +15,18 @@ from datetime import datetime, timezone
 
 from contracts import CatalogItem, CompatibilityRule, MatchCandidate, MatchResult, MatchStatus, ProjectInput
 
+from .category_rules import CategoryTaxonomy
 from .quantity import estimate_quantity
 from .scoring import score_candidate
+
+_default_taxonomy: CategoryTaxonomy | None = None
+
+
+def _load_default_taxonomy() -> CategoryTaxonomy:
+    global _default_taxonomy
+    if _default_taxonomy is None:
+        _default_taxonomy = CategoryTaxonomy.load()
+    return _default_taxonomy
 
 
 def _with_quantity(candidate: MatchCandidate, item: CatalogItem, project_input: ProjectInput) -> MatchCandidate:
@@ -34,15 +44,24 @@ def run_matching(
     rules: list[CompatibilityRule],
     *,
     project_id: str,
+    taxonomy: CategoryTaxonomy | None = None,
 ) -> MatchResult:
     """Один прогон подбора: для каждой позиции каталога считает вердикт
-    правил совместимости + explainable score (scoring.py) и, если позиция не
-    исключена, оценку требуемого количества (quantity.py). Кандидаты
-    отсортированы по убыванию score — но выбор итогового состава
+    правил совместимости (числовых CompatibilityRule + категориальных правил
+    Артёма из compatibility_tree.json) + explainable score (scoring.py) и,
+    если позиция не исключена, оценку требуемого количества (quantity.py).
+    Кандидаты отсортированы по убыванию score — но выбор итогового состава
     (selected_equipment) делает пользователь на фронте, matching его за него
-    не решает."""
+    не решает.
+
+    taxonomy=None (по умолчанию) лениво грузит общий словарь
+    contracts/dictionaries/compatibility_tree.json один раз на процесс —
+    передавай свой экземпляр только в тестах/демо, где нужен контроль над
+    деревом категорий."""
+    active_taxonomy = taxonomy if taxonomy is not None else _load_default_taxonomy()
     candidates = [
-        _with_quantity(score_candidate(item, project_input, rules), item, project_input) for item in catalog
+        _with_quantity(score_candidate(item, project_input, rules, active_taxonomy), item, project_input)
+        for item in catalog
     ]
     candidates.sort(key=lambda c: c.score, reverse=True)
 
