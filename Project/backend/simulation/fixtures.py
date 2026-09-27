@@ -102,12 +102,16 @@ def resolve_catalog_item(
     catalog: dict[str, CatalogItem] = STUB_CATALOG,
     defaults: dict[str, str] = STUB_CATEGORY_DEFAULTS,
 ) -> CatalogItem:
-    """catalog_item_id, если его уже поставил matching/пользователь, иначе болванка по category."""
-    item_id = robot.catalog_item_id or defaults.get(robot.category)
-    if item_id is None or item_id not in catalog:
+    """catalog_item_id, если это одна из двух болванок каталога, иначе — болванка по
+    category. Не пытается разрешить настоящий catalog_item_id (реальный каталог,
+    contracts/catalog.py) через STUB_CATALOG: у реальных позиций своих числовых ТТХ
+    всё равно нет (catalog/loader.py, TechnicalSpecs везде пусто), так что для
+    симуляции они настолько же "болванка", насколько и явные cat-amr-*."""
+    item_id = robot.catalog_item_id if robot.catalog_item_id in catalog else defaults.get(robot.category)
+    if item_id is None:
         raise KeyError(
             f"нет болванки каталога для робота {robot.id!r} (category={robot.category!r}, "
-            f"catalog_item_id={robot.catalog_item_id!r}) — добавь в STUB_CATALOG/STUB_CATEGORY_DEFAULTS"
+            f"catalog_item_id={robot.catalog_item_id!r}) — добавь категорию в STUB_CATEGORY_DEFAULTS"
         )
     return catalog[item_id]
 

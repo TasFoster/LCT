@@ -95,16 +95,27 @@ def load_catalog(csv_path: Path = CATALOG_CSV_PATH) -> list[CatalogItem]:
     with open(csv_path, encoding="utf-8-sig") as f:
         rows = list(csv.DictReader(f, delimiter=";"))
 
-    items = []
+    # 223 строки CSV -> 187 уникальных id: 36 строк — тот же физический продукт,
+    # перечисленный ещё раз под другую отрасль/сценарий/кейс (проверено построчно:
+    # единственные поля, которые когда-либо отличаются внутри группы одного id —
+    # Отрасль/Сценарий/Кейсы и изредка Цена изделия). Схлопываем в один CatalogItem
+    # на id, а не оставляем как отдельные позиции — иначе `id` перестаёт быть
+    # первичным ключом контракта (на нём завязаны MatchCandidate.catalog_item_id,
+    # SceneObject.catalog_item_id и т.д.), а фронт получает дублирующиеся React key.
+    groups: dict[str, list[dict[str, str]]] = {}
     for row in rows:
-        case_studies = [row["Кейсы"].strip()] if row["Кейсы"].strip() else []
-        tags = [f"тип:{row['тип']}", f"статус:{row['статус']}"]
-        if row["Отрасль"].strip():
-            tags.append(f"отрасль:{row['Отрасль'].strip()}")
+        groups.setdefault(row["id"], []).append(row)
+
+    items = []
+    for item_id, group in groups.items():
+        row = group[0]
+        case_studies = list(dict.fromkeys(r["Кейсы"].strip() for r in group if r["Кейсы"].strip()))
+        industries = list(dict.fromkeys(r["Отрасль"].strip() for r in group if r["Отрасль"].strip()))
+        tags = [f"тип:{row['тип']}", f"статус:{row['статус']}"] + [f"отрасль:{ind}" for ind in industries]
 
         items.append(
             CatalogItem(
-                id=row["id"],
+                id=item_id,
                 identification=Identification(
                     manufacturer=row["компания"].strip() or "не указан",
                     product_name=row["Название"].strip(),
@@ -116,6 +127,9 @@ def load_catalog(csv_path: Path = CATALOG_CSV_PATH) -> list[CatalogItem]:
                 technical=TechnicalSpecs(),  # см. докстринг модуля — честно пусто, не гадаем
                 infrastructure=Infrastructure(),
                 economics=EconomicsInfo(
+                    # Цена изредка отличается на пару строк группы (опечатка/округление
+                    # источника, не разная цена по отраслям для одного и того же изделия) —
+                    # берём цену первой строки, не гадаем среднее.
                     equipment_cost=_parse_price(row["Цена изделия"]),
                     acquisition_model=AcquisitionModel.PURCHASE,
                 ),
@@ -127,6 +141,9 @@ def load_catalog(csv_path: Path = CATALOG_CSV_PATH) -> list[CatalogItem]:
                 ),
                 tags=tags,
                 attributes={
+                    # Все отрасли группы — в tags (`отрасль:X`, может быть несколько);
+                    # здесь только первая, потому что attributes — плоский словарь
+                    # скаляров (contracts/catalog.py), без списков.
                     "industry": row["Отрасль"].strip(),
                     "region": row["Регион"].strip(),
                     "trl": _num_or_str(row["УГТ"]),
