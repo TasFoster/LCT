@@ -1,0 +1,12 @@
+# Контекст сборки backend-образа — корень репозитория (см. docker-compose.yml).
+.git
+.claude
+.playwright-mcp
+Project/frontend/node_modules
+Project/frontend/dist
+Project/архив
+Документация
+**/__pycache__
+**/*.pyc
+# 85 МБ, дублирует catalog_export_v4.csv — см. .gitignore/CLAUDE.md
+Датасет/Датасет/ФЦ БАС — Каталог внедрения*.pdf
