@@ -1,15 +1,12 @@
-"""HTTP-слой поверх уже готовых движков (matching/, simulation/) и реального
-каталога — минимальный срез API, нужный фронту прямо сейчас (2026-09-28,
-«Соедени бек и фронт по API»).
+"""HTTP-слой поверх уже готовых движков (matching/, simulation/, economics/) и
+реального каталога + реальное хранение проектов (api/projects.py, SQLite,
+2026-09-29) — заменяет мок фронта (features/projectApi/mockServer.ts).
 
-Осознанно НЕ включает: создание/чтение проектов, версии записи, авторизацию —
-это контракт 9 (ProjectRecord), зона ответственности Владимирова
-(backend-glue ↔ БД, см. корневой CLAUDE.md). Проекты, параметры и план
-объекта по-прежнему живут в моке фронта (features/projectApi/mockServer.ts);
-здесь — только то, что уже полностью реализовано в этом репозитории и не
-требует хранения состояния между запросами: подбор и симуляция принимают
-весь вход в теле запроса и отдают результат синхронно, каталог — из уже
-загруженного CSV.
+Осознанно НЕ включает: историю версий (ProjectVersion, contracts/records.py —
+одна текущая запись на проект, без снапшотов прошлых версий), авторизацию,
+геометрические проверки сцены (sceneChecks.ts) — см. докстринг api/projects.py.
+matching/simulation/economics по-прежнему без собственного хранения состояния —
+весь вход в теле запроса, результат синхронно в ответе.
 
 Запуск (см. CLAUDE.md, «Команды разработки»):
     cd Project/backend
@@ -18,20 +15,24 @@
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from api.projects import router as projects_router
 from catalog.loader import load_catalog
 from contracts import CatalogItem, MatchResult, ProjectInput, Scene, SimulationTimeline
 from contracts.economics import EconomicsResult, ScenarioInput
 from contracts.matching import SelectedEquipment
+from db.storage import init_db
 from economics.wrapper import run_economics
 from matching.fixtures import DEMO_RULES
 from matching.service import run_matching
 from simulation.service import run_simulation
 
-app = FastAPI(title="ROBOCALC API (минимальный срез: catalog/matching/simulation/economics)", version="0.1.0")
+app = FastAPI(title="ROBOCALC API (catalog/matching/simulation/economics/projects)", version="0.2.0")
 
 # Vite dev server фронта — 127.0.0.1 и localhost порознь, т.к. браузер их не отождествляет.
 app.add_middleware(
@@ -40,6 +41,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """FastAPI по умолчанию отдаёт {"detail": [...]} на невалидное тело запроса —
+    фронт (shared/api/projectState.ts: SaveResult) везде ждёт {"errors": [{path,
+    code, message}]} (та же форма, что и раньше отдавал мок). Единый обработчик,
+    а не по одному try/except на каждый эндпоинт."""
+    errors = [
+        {"path": ".".join(str(p) for p in err["loc"]), "code": err["type"], "message": err["msg"]}
+        for err in exc.errors()
+    ]
+    return JSONResponse(status_code=422, content={"errors": errors})
+
+
+init_db()
+app.include_router(projects_router)
 
 # Каталог читается один раз при старте процесса — 223 позиции, файл организатора
 # не меняется во время работы сервера (см. catalog/loader.py).

@@ -1,12 +1,15 @@
 /**
  * Клиент API проектов. Пути — из `api-routes.md` (разделы 2, 3, 6).
- * Сейчас ходит в мок (mockServer.ts); при подключении бэкенда здесь меняются
- * только тела функций — на вызовы эндпоинтов из `shared/api/endpoints/`.
+ * С 2026-09-29 ходит в реальный бэкенд (Project/backend/api/projects.py,
+ * SQLite) вместо мока (mockServer.ts остаётся только источником useApiDb —
+ * общего клиентского кэша/лога запросов, который здесь заполняется реальными
+ * ответами сервера).
  */
 
 import { useEffect } from 'react';
 import type { SceneBackgroundUploadResponse } from '../../shared/api/endpoints/dto';
 import type {
+  FieldError,
   InputSaveRequest,
   ProjectCreateRequest,
   ProjectState,
@@ -14,60 +17,84 @@ import type {
   SceneSaveRequest,
 } from '../../shared/api/projectState';
 import type { SceneCheckContext } from './sceneChecks';
-import { serverCreate, serverGet, serverPutInput, serverPutScene, serverUploadBackground, useApiDb } from './mockServer';
+import { useApiDb } from './mockServer';
 
-const LATENCY_MS = 350;
-const wait = () => new Promise((r) => setTimeout(r, LATENCY_MS));
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://127.0.0.1:8000';
 
 function log(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url: string, request: unknown, status: number, response: unknown) {
   useApiDb.getState().record({ at: new Date().toISOString(), method, url, request, status, response });
 }
 
+/** Реальный HTTP-вызов, без исключений на 409/422 — это ожидаемые исходы
+ * контракта (SaveResult), а не сетевая ошибка. Сетевой сбой (сервер не
+ * поднят) пробрасывается дальше как обычное исключение fetch — вызывающие
+ * шаги визарда (StepParams/StepTopology) сами решают, как это показать. */
+async function call(method: string, path: string, body?: unknown): Promise<{ status: number; json: unknown }> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  const json = await res.json().catch(() => null);
+  return { status: res.status, json };
+}
+
 /** GET /api/projects/{id} */
 export async function fetchProject(projectId: string): Promise<ProjectState> {
-  await wait();
-  const body = serverGet(projectId);
-  log('GET', `/api/projects/${projectId}`, null, 200, body);
-  return body;
+  const { status, json } = await call('GET', `/api/projects/${projectId}`);
+  log('GET', `/api/projects/${projectId}`, null, status, json);
+  const state = json as ProjectState;
+  useApiDb.getState().put(state);
+  return state;
 }
 
 /** POST /api/projects */
 export async function createProject(req: ProjectCreateRequest): Promise<ProjectState> {
-  await wait();
-  const body = serverCreate(req);
-  log('POST', '/api/projects', req, 201, body);
-  return body;
+  const { status, json } = await call('POST', '/api/projects', req);
+  log('POST', '/api/projects', req, status, json);
+  const state = json as ProjectState;
+  useApiDb.getState().put(state);
+  return state;
 }
 
 /** PUT /api/projects/{id}/input — параметры объекта с формы (шаг 2) */
 export async function saveInput(projectId: string, req: InputSaveRequest): Promise<SaveResult> {
-  await wait();
-  const result = serverPutInput(projectId, req);
-  log('PUT', `/api/projects/${projectId}/input`, req, result.status, result.body);
-  return result;
+  const { status, json } = await call('PUT', `/api/projects/${projectId}/input`, req);
+  log('PUT', `/api/projects/${projectId}/input`, req, status, json);
+  if (status === 200) {
+    useApiDb.getState().put(json as ProjectState);
+    return { status: 200, body: json as ProjectState };
+  }
+  if (status === 409) return { status: 409, body: json as { current: ProjectState } };
+  return { status: 422, body: json as { errors: FieldError[] } };
 }
 
 /** PUT /api/projects/{id}/scene — план объекта из редактора (шаг 7) */
-export async function saveScene(projectId: string, req: SceneSaveRequest, ctx: SceneCheckContext): Promise<SaveResult> {
-  await wait();
-  const result = serverPutScene(projectId, req, ctx);
-  log('PUT', `/api/projects/${projectId}/scene`, req, result.status, result.body);
-  return result;
+export async function saveScene(projectId: string, req: SceneSaveRequest, _ctx: SceneCheckContext): Promise<SaveResult> {
+  // _ctx (минимальная ширина прохода/площадь формы) раньше уходил в клиентскую
+  // проверку sceneChecks.ts — сервер её пока не считает (см. api/projects.py),
+  // предупреждения по плану честно приходят пустым списком, а не выдуманные.
+  const { status, json } = await call('PUT', `/api/projects/${projectId}/scene`, req);
+  log('PUT', `/api/projects/${projectId}/scene`, req, status, json);
+  if (status === 200) {
+    useApiDb.getState().put(json as ProjectState);
+    return { status: 200, body: json as ProjectState };
+  }
+  if (status === 409) return { status: 409, body: json as { current: ProjectState } };
+  return { status: 422, body: json as { errors: FieldError[] } };
 }
 
 /**
- * POST /api/projects/{id}/scene/background — подложка грузится отдельно,
- * в плане остаётся только ссылка (`Scene.site.background.image_url`).
- * Сервер отдаёт один `image_url`; размер картинки в пикселях меряем здесь же,
- * на клиенте, — он нужен, чтобы посадить подложку на план без искажений.
+ * POST /api/projects/{id}/scene/background — подложка. Бэкенд пока не хранит
+ * файлы (см. api/projects.py) — остаётся прежнее клиентское поведение:
+ * blob-URL живёт только во вкладке браузера, в план кладётся только ссылка.
  */
 export async function uploadBackground(
   projectId: string,
   file: File,
 ): Promise<SceneBackgroundUploadResponse & { width_px: number; height_px: number }> {
   const size = await imageSize(file);
-  await wait();
-  const body = serverUploadBackground(file);
+  const body: SceneBackgroundUploadResponse = { image_url: URL.createObjectURL(file) };
   log('POST', `/api/projects/${projectId}/scene/background`, { name: file.name, size_bytes: file.size, type: file.type }, 201, body);
   return { ...body, width_px: size.width, height_px: size.height };
 }
