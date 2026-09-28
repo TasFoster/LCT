@@ -1,27 +1,50 @@
-import { computeScenario, DEFAULT_SCENARIOS } from '../../../features/wizard/mockEconomics';
+import { useState } from 'react';
+import { DEFAULT_SCENARIOS } from '../../../features/wizard/mockEconomics';
 import type { EconomicsInputs } from '../../../features/wizard/store';
 import { FINANCING_LABEL } from '../../../shared/mock/dictionaries';
-import type { FinancingType } from '../../../shared/types/contracts';
+import { catalogById } from '../../../shared/mock/catalog';
+import type { EconomicsResult, FinancingType } from '../../../shared/types/contracts';
 import { formatDateTime, formatPct, formatRub, formatRubShort, formatSigned, formatYears } from '../../../shared/lib/format';
-import { Alert, Button, Card, EmptyState, MockNote, NumberField, SelectField, Stat } from '../../../shared/ui';
-import { useMockCalc } from '../../../features/wizard/useMockCalc';
+import { Alert, Button, Card, EmptyState, NumberField, SelectField, Stat } from '../../../shared/ui';
+import { buildScenarioInput, equipmentCostTotalFrom, RealApiError, runRealEconomics, selectedEquipmentFrom } from '../../../features/projectApi/realApi';
 import { CalcStatus } from '../../../widgets/CalcStatus';
 import { Breakdown } from '../../../widgets/EconomicsBreakdown';
 import { useWizard } from '../context';
 import { WizardFooter } from '../WizardFooter';
 
-/** Шаг 5. Экономика основного сценария против базового. */
+const BASELINE: EconomicsResult = {
+  scenario_id: 'baseline',
+  project_id: '',
+  scenario_kind: 'baseline',
+  capex_total: 0,
+  capex_breakdown: {},
+  opex_annual: 0,
+  opex_breakdown: {},
+  opex_delta_vs_baseline: 0,
+  annual_effect: 0,
+  payback_years: null,
+  roi_pct: 0,
+  tco_total: 0,
+  npv: 0,
+  sensitivity: [],
+  calculated_at: '',
+  assumptions_note: '',
+  warnings: [],
+};
+
+/** Шаг 5. Экономика основного сценария против базового — реальный расчёт
+ * (POST /api/economics/run, формулы Александры, economics/wrapper.py). */
 export function StepEconomics() {
-  const { draft, update } = useWizard();
+  const { draft, update, projectId } = useWizard();
   const econ = draft.economics;
-  const calc = useMockCalc(1800);
+  const [running, setRunning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<EconomicsResult | null>(null);
 
   const setEcon = (patch: Partial<EconomicsInputs>) => update((d) => ({ economics: { ...d.economics, ...patch }, econCalculatedAt: null }));
 
-  const main = draft.scenarios.find((s) => s.kind !== 'baseline') ?? DEFAULT_SCENARIOS[1];
-  const mainDef = { ...main, financing: econ.financing };
-  const result = computeScenario(draft, mainDef);
-  const baseline = computeScenario(draft, DEFAULT_SCENARIOS[0]);
+  const type = draft.objectType ?? 'warehouse';
+  const staffCount = typeof draft.params[type]?.staff_count === 'number' ? (draft.params[type]!.staff_count as number) : 0;
 
   const issues = {
     hours: econ.hoursPerYear <= 0 || econ.hoursPerYear > 8784 ? 'От 1 до 8 784 часов в году' : null,
@@ -30,9 +53,26 @@ export function StepEconomics() {
     staff: econ.staffCostPerMonth <= 0 ? 'Укажите стоимость больше 0' : null,
   };
   const invalid = Object.values(issues).some(Boolean);
-  const calculated = Boolean(draft.econCalculatedAt);
+  const calculated = Boolean(draft.econCalculatedAt) && result !== null;
 
-  const run = () => calc.start(() => update({ econCalculatedAt: new Date().toISOString() }));
+  const run = async () => {
+    setRunning(true);
+    setError(null);
+    try {
+      const main = draft.scenarios.find((s) => s.kind !== 'baseline') ?? DEFAULT_SCENARIOS[1];
+      const mainDef = { ...main, financing: econ.financing };
+      const equipmentCostTotal = equipmentCostTotalFrom(draft, catalogById);
+      const scenario = buildScenarioInput(projectId, draft, mainDef, staffCount, equipmentCostTotal);
+      const r = await runRealEconomics(scenario, selectedEquipmentFrom(draft));
+      setResult(r);
+      update({ econCalculatedAt: new Date().toISOString() });
+    } catch (e) {
+      setError(e instanceof RealApiError ? e.message : 'Не удалось рассчитать экономику');
+    } finally {
+      setRunning(false);
+    }
+  };
+  const baseline = BASELINE;
 
   return (
     <>
@@ -43,9 +83,6 @@ export function StepEconomics() {
             <h1>Экономика</h1>
             <p className="muted">Задайте условия эксплуатации — посчитаем затраты, эффект и окупаемость относительно работы без роботов.</p>
           </div>
-          <div className="page-head__actions">
-            <MockNote>Расчёт-заглушка на фронте</MockNote>
-          </div>
         </div>
 
         <div className="step-2col" style={{ gridTemplateColumns: '360px minmax(0, 1fr)' }}>
@@ -53,7 +90,7 @@ export function StepEconomics() {
             <Card
               title="Условия расчёта"
               actions={
-                <Button size="sm" variant="primary" onClick={run} disabled={invalid || calc.running}>
+                <Button size="sm" variant="primary" onClick={() => void run()} disabled={invalid || running}>
                   {calculated ? 'Пересчитать' : 'Рассчитать'}
                 </Button>
               }
@@ -75,16 +112,21 @@ export function StepEconomics() {
           </aside>
 
           <div className="stack">
-            {calc.running && <CalcStatus progress={calc.progress} label="Считаем экономику" />}
+            {running && <CalcStatus progress={70} label="Считаем экономику" />}
+            {error && (
+              <Alert tone="danger" title="Сервер экономики недоступен" action={<Button size="sm" variant="primary" onClick={() => void run()}>Повторить</Button>}>
+                {error}
+              </Alert>
+            )}
 
-            {!calculated && !calc.running ? (
+            {!result && !running ? (
               <Card>
                 <EmptyState icon="₽" title="Здесь появится расчёт">
                   Проверьте условия слева и нажмите «Рассчитать». Если условия поменяются, результат нужно будет пересчитать.
                 </EmptyState>
               </Card>
-            ) : (
-              <div className="stack" style={{ opacity: calc.running ? 0.5 : 1 }}>
+            ) : result ? (
+              <div className="stack" style={{ opacity: running ? 0.5 : 1 }}>
                 {draft.econCalculatedAt && (
                   <span className="faint">
                     Сценарий «{FINANCING_LABEL[econ.financing]}» против базового · рассчитано {formatDateTime(draft.econCalculatedAt)}
@@ -122,7 +164,7 @@ export function StepEconomics() {
                   {result.assumptions_note}
                 </Alert>
               </div>
-            )}
+            ) : null}
 
             {draft.selected.length === 0 && (
               <EmptyState title="Не выбрано оборудование">Вернитесь на шаг «Сравнение» и включите решения в состав.</EmptyState>
@@ -131,7 +173,7 @@ export function StepEconomics() {
         </div>
       </div>
       <WizardFooter
-        blockedReason={calc.running ? 'Дождитесь окончания расчёта' : invalid ? 'Исправьте условия расчёта' : !calculated ? 'Нажмите «Рассчитать»' : null}
+        blockedReason={running ? 'Дождитесь окончания расчёта' : invalid ? 'Исправьте условия расчёта' : !calculated ? 'Нажмите «Рассчитать»' : null}
       />
     </>
   );

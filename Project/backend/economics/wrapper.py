@@ -141,7 +141,10 @@ def run_economics(
         sensitivity=[
             SensitivityResultPoint(
                 parameter=p.parameter,
-                delta_pct=p.delta_pct,
+                # calculator.SensitivityPoint.delta_pct — доля (0.2 для ±20%, см.
+                # EconInput.sensitivity_delta_pct); контракт 8 и фронт (как roi_pct,
+                # payback и т.д.) исторически используют "число процентов" (20, не 0.2).
+                delta_pct=p.delta_pct * 100,
                 resulting_payback_years=p.resulting_payback_years,
                 resulting_roi_pct=p.resulting_roi_pct,
                 resulting_annual_effect=p.resulting_annual_effect,

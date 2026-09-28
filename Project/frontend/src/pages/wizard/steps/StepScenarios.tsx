@@ -1,32 +1,91 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { computeScenario, computeSensitivity } from '../../../features/wizard/mockEconomics';
 import type { ScenarioDef } from '../../../features/wizard/mockEconomics';
 import { FINANCING_LABEL } from '../../../shared/mock/dictionaries';
+import { catalogById } from '../../../shared/mock/catalog';
 import { ROUTES } from '../../../shared/config/routes';
-import type { FinancingType } from '../../../shared/types/contracts';
+import type { EconomicsResult, FinancingType } from '../../../shared/types/contracts';
 import { pluralize } from '../../../shared/lib/format';
-import { Alert, Button, Card, MockNote, NumberField, SelectField, TextField } from '../../../shared/ui';
+import { Alert, Button, Card, NumberField, SelectField, TextField } from '../../../shared/ui';
+import { buildScenarioInput, equipmentCostTotalFrom, RealApiError, runRealEconomics, selectedEquipmentFrom } from '../../../features/projectApi/realApi';
+import { CalcStatus } from '../../../widgets/CalcStatus';
 import { ScenarioTable } from '../../../widgets/ScenarioTable';
+import type { ScenarioColumn } from '../../../widgets/ScenarioTable';
 import { SensitivityTable } from '../../../widgets/SensitivityTable';
 import { useWizard } from '../context';
 import { WizardFooter } from '../WizardFooter';
 
 const MIN_SCENARIOS = 3;
 
-/** Шаг 6. Сценарии и what-if: несколько вариантов финансирования и допущений. */
+const BASELINE_RESULT: EconomicsResult = {
+  scenario_id: 'baseline',
+  project_id: '',
+  scenario_kind: 'baseline',
+  capex_total: 0,
+  capex_breakdown: {},
+  opex_annual: 0,
+  opex_breakdown: {},
+  opex_delta_vs_baseline: 0,
+  annual_effect: 0,
+  payback_years: null,
+  roi_pct: 0,
+  tco_total: 0,
+  npv: 0,
+  sensitivity: [],
+  calculated_at: '',
+  assumptions_note: 'Текущая организация работ без роботизации.',
+  warnings: [],
+};
+
+/** Шаг 6. Сценарии и what-if: несколько вариантов финансирования и допущений
+ * — реальный расчёт по каждому (POST /api/economics/run на состав шага 4). */
 export function StepScenarios() {
-  const { draft, update, isDemo } = useWizard();
+  const { draft, update, isDemo, projectId } = useWizard();
   const [editing, setEditing] = useState<string | null>(null);
   const [sensId, setSensId] = useState<string>(draft.scenarios.find((s) => s.kind !== 'baseline')?.id ?? '');
+  const [columns, setColumns] = useState<ScenarioColumn[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const columns = useMemo(() => draft.scenarios.map((def) => ({ def, result: computeScenario(draft, def) })), [draft]);
+  const type = draft.objectType ?? 'warehouse';
+  const staffCount = typeof draft.params[type]?.staff_count === 'number' ? (draft.params[type]!.staff_count as number) : 0;
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const equipmentCostTotal = equipmentCostTotalFrom(draft, catalogById);
+    const selectedEquipment = selectedEquipmentFrom(draft);
+    Promise.all(
+      draft.scenarios.map(async (def) => {
+        if (def.kind === 'baseline') return { def, result: BASELINE_RESULT };
+        const scenario = buildScenarioInput(projectId, draft, def, staffCount, equipmentCostTotal);
+        const result = await runRealEconomics(scenario, selectedEquipment);
+        return { def, result };
+      }),
+    )
+      .then((cols) => {
+        if (!cancelled) setColumns(cols);
+      })
+      .catch((e: unknown) => {
+        if (!cancelled) setError(e instanceof RealApiError ? e.message : 'Не удалось рассчитать сценарии');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft.scenarios, draft.selected, draft.quantities, draft.params, draft.economics, projectId]);
+
   const nonBase = draft.scenarios.filter((s) => s.kind !== 'baseline');
   const guestLimitReached = isDemo && nonBase.length >= 1;
 
   const sensDef = draft.scenarios.find((s) => s.id === sensId) ?? nonBase[0];
-  const sensBase = sensDef ? computeScenario(draft, sensDef) : null;
-  const sensPoints = sensDef ? computeSensitivity(draft, sensDef) : [];
+  const sensCol = sensDef ? columns.find((c) => c.def.id === sensDef.id) : undefined;
+  const sensBase = sensCol?.result ?? null;
+  const sensPoints = sensBase?.sensitivity ?? [];
 
   const addScenario = (financing: FinancingType) => {
     const id = `sc-${Date.now().toString(36)}`;
@@ -64,10 +123,10 @@ export function StepScenarios() {
               {pluralize(MIN_SCENARIOS, ['сценарий', 'сценария', 'сценариев'])}, включая базовый.
             </p>
           </div>
-          <div className="page-head__actions">
-            <MockNote>Расчёт-заглушка на фронте</MockNote>
-          </div>
         </div>
+
+        {loading && <CalcStatus progress={70} label="Считаем сценарии" />}
+        {error && <Alert tone="danger" title="Сервер экономики недоступен">{error}</Alert>}
 
         {isDemo && (
           <Alert tone="info" title="В демо-режиме — один сценарий против базового" action={<Link className="btn btn--primary btn--sm" to={ROUTES.register}>Зарегистрироваться</Link>}>

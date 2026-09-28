@@ -2,6 +2,13 @@ import type { EconomicsResult, SensitivityResultPoint } from '../shared/types/co
 import { formatNumber, formatPct, formatYears } from '../shared/lib/format';
 import { Chip } from '../shared/ui';
 
+/** Параметры чувствительности приходят как имена полей EconInput (economics/calculator.py) — переводим для показа. */
+const PARAMETER_LABEL: Record<string, string> = {
+  equipment_cost_total: 'Стоимость оборудования',
+  staff_salary_per_month: 'Стоимость персонала',
+  operating_hours_per_year: 'Часы работы в год',
+};
+
 /** Чувствительность в формате «было → стало»: важна устойчивость вывода, а не новое число. */
 export function SensitivityTable({ base, points }: { base: EconomicsResult; points: SensitivityResultPoint[] }) {
   if (!points.length) return <p className="muted">Для базового сценария чувствительность не считается.</p>;
@@ -24,8 +31,8 @@ export function SensitivityTable({ base, points }: { base: EconomicsResult; poin
             const tone = payback === null ? 'danger' : worse > 1.3 ? 'warn' : 'ok';
             const text = payback === null ? 'перестаёт окупаться' : worse > 1.3 ? 'ключевой риск' : 'вывод устойчив';
             return (
-              <tr key={p.parameter}>
-                <td>{p.parameter}</td>
+              <tr key={`${p.parameter}-${p.delta_pct}`}>
+                <td>{PARAMETER_LABEL[p.parameter] ?? p.parameter}</td>
                 <td className="r">
                   {p.delta_pct > 0 ? '+' : '−'}
                   {formatNumber(Math.abs(p.delta_pct))} %
