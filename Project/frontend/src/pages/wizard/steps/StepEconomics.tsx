@@ -161,7 +161,7 @@ export function StepEconomics() {
                 </div>
 
                 <Alert tone="info" title="Допущения расчёта">
-                  {result.assumptions_note}
+                  <span style={{ whiteSpace: 'pre-line' }}>{result.assumptions_note}</span>
                 </Alert>
               </div>
             ) : null}

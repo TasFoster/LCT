@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { bestScenario, computeScenario } from '../../features/wizard/mockEconomics';
+import { useEffect } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { bestScenario } from '../../features/wizard/mockEconomics';
 import { useDraft, useProject } from '../../features/wizard/store';
 import { PARAMS_SCHEMA, displayParamValue } from '../../features/wizard/paramsSchema';
 import { catalogById } from '../../shared/mock/catalog';
@@ -13,17 +13,41 @@ import { solutionTypeLabel } from '../../shared/dictionaries';
 /** Предпросмотр отчёта: печатная вёрстка того, что уйдёт в PDF. */
 export function ReportPage() {
   const { projectId = '' } = useParams();
+  const [searchParams] = useSearchParams();
   const project = useProject(projectId);
   const draft = useDraft(projectId);
   const type = draft.objectType ?? project.object_type;
   const values = draft.params[type] ?? {};
-  const results = useMemo(() => draft.scenarios.map((def) => ({ def, result: computeScenario(draft, def) })), [draft]);
+  const results = draft.economicsResults ?? [];
   const best = bestScenario(results, draft.economics.horizonYears);
+
+  useEffect(() => {
+    if (searchParams.get('print') === '1' && results.length > 0) {
+      const t = setTimeout(() => window.print(), 300);
+      return () => clearTimeout(t);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, results.length]);
 
   const shownFields = PARAMS_SCHEMA[type]
     .flatMap((s) => s.fields)
     .filter((f) => f.kind !== 'radio' || values[f.key])
     .filter((f) => values[f.key] !== undefined && values[f.key] !== null && values[f.key] !== '' && !(Array.isArray(values[f.key]) && (values[f.key] as unknown[]).length === 0));
+
+  if (results.length === 0) {
+    return (
+      <div className="page" style={{ maxWidth: 1000 }}>
+        <div className="row row--between no-print">
+          <ButtonLink to={ROUTES.dashboard(projectId)} variant="ghost">
+            ‹ К дашборду
+          </ButtonLink>
+        </div>
+        <p className="muted">
+          Экономика ещё не рассчитана — откройте шаг «Сценарии» визарда и нажмите «Рассчитать», затем вернитесь сюда.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="page" style={{ maxWidth: 1000 }}>
@@ -138,7 +162,7 @@ export function ReportPage() {
 
         <section className="stack stack--sm">
           <h2>Допущения</h2>
-          <p style={{ color: '#5c6673' }}>{(best ?? results[0]).result.assumptions_note}</p>
+          <p style={{ color: '#5c6673', whiteSpace: 'pre-line' }}>{(best ?? results[0]).result.assumptions_note}</p>
         </section>
       </article>
     </div>

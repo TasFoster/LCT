@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import type { FinancingType, ObjectType } from '../../shared/types/contracts';
+import type { EconomicsResult, FinancingType, ObjectType } from '../../shared/types/contracts';
 import { WIZARD_STEPS } from '../../shared/config/routes';
 import type { WizardStepSlug } from '../../shared/config/routes';
 import { DEMO_WAREHOUSE_PARAMS, projectById } from '../../shared/mock/projects';
@@ -40,6 +40,9 @@ export interface Draft {
   scenarios: ScenarioDef[];
   /** Когда последний раз нажимали «Рассчитать» на шаге 5 */
   econCalculatedAt: string | null;
+  /** Последний реальный расчёт по каждому сценарию (POST /api/economics/run,
+   * см. StepScenarios.tsx) — читают шаг 8 и дашборд, чтобы не пересчитывать. */
+  economicsResults: { def: ScenarioDef; result: EconomicsResult }[];
   completed: WizardStepSlug[];
   savedAt: string | null;
 }
@@ -64,6 +67,7 @@ function emptyDraft(): Draft {
     economics: DEFAULT_ECON,
     scenarios: DEFAULT_SCENARIOS.slice(0, 2),
     econCalculatedAt: null,
+    economicsResults: [],
     completed: [],
     savedAt: null,
   };

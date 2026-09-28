@@ -65,7 +65,10 @@ export function StepScenarios() {
       }),
     )
       .then((cols) => {
-        if (!cancelled) setColumns(cols);
+        if (!cancelled) {
+          setColumns(cols);
+          update({ economicsResults: cols });
+        }
       })
       .catch((e: unknown) => {
         if (!cancelled) setError(e instanceof RealApiError ? e.message : 'Не удалось рассчитать сценарии');

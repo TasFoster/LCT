@@ -411,13 +411,29 @@ export const CATALOG: CatalogItem[] = [
   }),
 ];
 
-// Реальный каталог (223 позиции, GET /api/catalog) — подгружается один раз шагом
-// подбора (StepMatching) и кэшируется здесь же, чтобы более поздние шаги (сравнение,
-// топология, экономика), которые ищут позицию по id тем же catalogById, видели те же
-// объекты без переписывания остального приложения на асинхронный источник.
-let realCatalog: CatalogItem[] = [];
+// Реальный каталог (187 позиций, GET /api/catalog) — подгружается шагом подбора
+// (StepMatching) и кэшируется здесь же, чтобы более поздние шаги (сравнение,
+// топология, экономика, экспорт), которые ищут позицию по id тем же catalogById,
+// видели те же объекты без переписывания остального приложения на асинхронный
+// источник. Дублируется в sessionStorage: обычная переменная модуля не переживает
+// полную перезагрузку страницы (F5, прямой переход по URL) — без этого шаги после
+// перезагрузки молча откатывались на 6-позиционный мок для любого реального id.
+const STORAGE_KEY = 'robocalc-real-catalog-v1';
+let realCatalog: CatalogItem[] = (() => {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as CatalogItem[]) : [];
+  } catch {
+    return [];
+  }
+})();
 export const setRealCatalog = (items: CatalogItem[]) => {
   realCatalog = items;
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch {
+    // sessionStorage недоступен (приватный режим и т.п.) — кэш остаётся только в памяти
+  }
 };
 /** Реальный каталог, если уже загружен, иначе — заглушка (демо без бэкенда). */
 export const allCatalog = () => (realCatalog.length ? realCatalog : CATALOG);

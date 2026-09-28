@@ -1,12 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { bestScenario, computeScenario } from '../../../features/wizard/mockEconomics';
+import { bestScenario } from '../../../features/wizard/mockEconomics';
 import { catalogById } from '../../../shared/mock/catalog';
 import { objectTypeLabel } from '../../../shared/mock/dictionaries';
 import { useProject } from '../../../features/wizard/store';
 import { ROUTES } from '../../../shared/config/routes';
 import { formatRubShort, formatYears } from '../../../shared/lib/format';
 import { Alert, Button, Card, Chip, Stat } from '../../../shared/ui';
+import { downloadCsv } from '../../../shared/lib/csvExport';
 import { GuestLock } from '../GuestLock';
 import { useWizard } from '../context';
 import { WizardFooter } from '../WizardFooter';
@@ -19,10 +20,36 @@ export function StepExport() {
   const project = useProject(projectId);
   const [comment, setComment] = useState('');
   const [saved, setSaved] = useState<number | null>(null);
-  const [exportNote, setExportNote] = useState<string | null>(null);
 
-  const results = useMemo(() => draft.scenarios.map((def) => ({ def, result: computeScenario(draft, def) })), [draft]);
+  const results = draft.economicsResults ?? [];
   const best = bestScenario(results, draft.economics.horizonYears);
+  const hasEconomics = results.length > 0;
+
+  const exportCsv = () => {
+    const rows: unknown[][] = [
+      ['Состав оборудования'],
+      ['Решение', 'Тип', 'Количество', 'Стоимость, ₽'],
+      ...draft.selected.map((id) => {
+        const c = catalogById(id);
+        const q = draft.quantities[id] ?? 1;
+        return [c?.identification.product_name ?? id, solutionTypeLabel(c?.identification.solution_type ?? ''), q, (c?.economics.equipment_cost ?? 0) * q];
+      }),
+      [],
+      ['Сценарии'],
+      ['Сценарий', 'Финансирование', 'CAPEX, ₽', 'OPEX/год, ₽', 'Годовой эффект, ₽', 'Срок окупаемости, лет', 'ROI, %', 'TCO на горизонте, ₽'],
+      ...results.map(({ def, result }) => [
+        def.title,
+        def.kind === 'baseline' ? 'без роботизации' : def.financing,
+        result.capex_total,
+        result.opex_annual,
+        def.kind === 'baseline' ? '' : result.annual_effect,
+        def.kind === 'baseline' ? '' : result.payback_years,
+        def.kind === 'baseline' ? '' : result.roi_pct,
+        result.tco_total,
+      ]),
+    ];
+    downloadCsv(`${project.name || 'расчёт'}.csv`, rows);
+  };
 
   if (isDemo) {
     return <GuestLock title="Сохранение и экспорт — после регистрации" benefit="Расчёт сохранится как проект с историей версий, его можно выгрузить в PDF и Excel." />;
@@ -35,7 +62,7 @@ export function StepExport() {
     { label: 'Тип объекта', ok: Boolean(type), value: type ? objectTypeLabel(type) : 'не выбран', step: 'object' as const },
     { label: 'Параметры объекта', ok: draft.completed.includes('params'), value: draft.staleAfterParams ? 'изменены после расчёта' : 'заполнены', step: 'params' as const },
     { label: 'Состав оборудования', ok: draft.selected.length > 0, value: `${draft.selected.length} поз.`, step: 'comparison' as const },
-    { label: 'Сценарии', ok: draft.scenarios.length >= 3, value: `${draft.scenarios.length} шт.`, step: 'scenarios' as const },
+    { label: 'Сценарии', ok: draft.scenarios.length >= 3 && hasEconomics, value: hasEconomics ? `${draft.scenarios.length} шт., рассчитано` : 'не рассчитаны — откройте шаг и нажмите «Рассчитать»', step: 'scenarios' as const },
     { label: 'Визуализация', ok: topologyDone, value: topologyDone ? 'пройдена' : 'пропущена — необязательно', step: 'topology' as const, optional: true },
   ];
 
@@ -126,15 +153,17 @@ export function StepExport() {
 
             <Card title="Выгрузить">
               <div className="stack stack--sm">
-                <Button block onClick={() => setExportNote('PDF')}>Отчёт PDF</Button>
-                <Button block onClick={() => setExportNote('Excel')}>Таблицы Excel</Button>
+                <Button block disabled={!hasEconomics} onClick={() => navigate(`${ROUTES.report(projectId)}?print=1`)}>
+                  Отчёт PDF
+                </Button>
+                <Button block disabled={!hasEconomics} onClick={exportCsv}>
+                  Таблицы Excel (CSV)
+                </Button>
                 <Button block variant="ghost" onClick={() => navigate(ROUTES.report(projectId))}>
                   Предпросмотр отчёта
                 </Button>
-                {exportNote && (
-                  <p className="field__hint">
-                    Выгрузка {exportNote} появится с бэкендом. Пока можно открыть предпросмотр и распечатать его в PDF средствами браузера.
-                  </p>
+                {!hasEconomics && (
+                  <p className="field__hint">Сначала рассчитайте сценарии на шаге 6 — выгружать пока нечего.</p>
                 )}
               </div>
             </Card>
