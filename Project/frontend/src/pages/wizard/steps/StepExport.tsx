@@ -4,9 +4,10 @@ import { bestScenario } from '../../../features/wizard/mockEconomics';
 import { catalogById } from '../../../shared/mock/catalog';
 import { objectTypeLabel } from '../../../shared/mock/dictionaries';
 import { useProject } from '../../../features/wizard/store';
+import { saveVersion, useProjectState } from '../../../features/projectApi';
 import { ROUTES } from '../../../shared/config/routes';
 import { formatRubShort, formatYears } from '../../../shared/lib/format';
-import { Alert, Button, Card, Chip, Stat } from '../../../shared/ui';
+import { Alert, Button, Card, Stat } from '../../../shared/ui';
 import { downloadCsv } from '../../../shared/lib/csvExport';
 import { GuestLock } from '../GuestLock';
 import { useWizard } from '../context';
@@ -18,8 +19,29 @@ export function StepExport() {
   const { draft, isDemo, projectId, goTo, path } = useWizard();
   const navigate = useNavigate();
   const project = useProject(projectId);
+  const server = useProjectState(projectId, !isDemo);
   const [comment, setComment] = useState('');
   const [saved, setSaved] = useState<number | null>(null);
+  const [savingVersion, setSavingVersion] = useState(false);
+  const [versionError, setVersionError] = useState<string | null>(null);
+  const currentVersion = server?.current_version ?? project.current_version;
+
+  const saveVersionNow = async () => {
+    if (!server) return;
+    setSavingVersion(true);
+    setVersionError(null);
+    try {
+      const res = await saveVersion(projectId, server.revision, comment.trim() || null);
+      if (res.status === 201) setSaved(res.body.current_version);
+      else if (res.status === 409) setVersionError('Проект изменили в другой вкладке — обновите страницу и попробуйте снова');
+      else if (res.status === 403) setVersionError('Этот проект принадлежит другому пользователю');
+      else setVersionError(res.body.detail);
+    } catch {
+      setVersionError('Не удалось сохранить версию — проверьте, что сервер запущен');
+    } finally {
+      setSavingVersion(false);
+    }
+  };
 
   const results = draft.economicsResults ?? [];
   const best = bestScenario(results, draft.economics.horizonYears);
@@ -134,19 +156,19 @@ export function StepExport() {
             <Card title="Сохранить версию">
               <div className="stack">
                 <p className="muted">
-                  Будет создана версия {project.current_version + 1}. Старые версии не меняются — их можно открыть и увидеть те же данные и результат.
+                  Будет создана версия {currentVersion + 1} — снимок сохранённых параметров и плана. Старые версии не меняются, их можно открыть отдельно.
                 </p>
                 <label className="field">
                   <span className="field__label">Что изменилось</span>
                   <textarea className="textarea" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Например: добавлен сценарий с кредитом" />
                 </label>
-                <Button variant="primary" block onClick={() => setSaved(project.current_version + 1)} disabled={saved !== null}>
-                  {saved ? `✓ Версия ${saved} сохранена` : 'Сохранить версию'}
+                <Button variant="primary" block onClick={() => void saveVersionNow()} disabled={saved !== null || savingVersion}>
+                  {savingVersion ? 'Сохраняем…' : saved ? `✓ Версия ${saved} сохранена` : 'Сохранить версию'}
                 </Button>
-                {saved && (
-                  <Chip tone="warn" plain>
-                    Заглушка: версия не уходит на сервер
-                  </Chip>
+                {versionError && (
+                  <Alert tone="danger" title="Не удалось сохранить">
+                    {versionError}
+                  </Alert>
                 )}
               </div>
             </Card>

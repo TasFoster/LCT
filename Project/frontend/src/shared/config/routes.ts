@@ -13,6 +13,7 @@ export const ROUTES = {
   newProject: '/projects/new',
   project: (id = ':projectId') => `/projects/${id}`,
   versions: (id = ':projectId') => `/projects/${id}/versions`,
+  versionSnapshot: (id = ':projectId', version: string | number = ':version') => `/projects/${id}/versions/${version}`,
   dashboard: (id = ':projectId') => `/projects/${id}/dashboard`,
   report: (id = ':projectId') => `/projects/${id}/report`,
   wizard: (id = ':projectId') => `/projects/${id}/wizard`,

@@ -15,7 +15,9 @@ import type {
   ProjectState,
   SaveResult,
   SceneSaveRequest,
+  VersionSaveResult,
 } from '../../shared/api/projectState';
+import { currentUserId } from '../auth/session';
 import type { SceneCheckContext } from './sceneChecks';
 import { useApiDb } from './mockServer';
 
@@ -28,21 +30,26 @@ function log(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url: string, request: un
 /** Реальный HTTP-вызов, без исключений на 409/422 — это ожидаемые исходы
  * контракта (SaveResult), а не сетевая ошибка. Сетевой сбой (сервер не
  * поднят) пробрасывается дальше как обычное исключение fetch — вызывающие
- * шаги визарда (StepParams/StepTopology) сами решают, как это показать. */
+ * шаги визарда (StepParams/StepTopology) сами решают, как это показать.
+ * X-User-Id — изоляция между "пользователями" на реальном бэкенде (не
+ * авторизация, см. features/auth/session.ts), на каждый запрос к проектам. */
 async function call(method: string, path: string, body?: unknown): Promise<{ status: number; json: unknown }> {
   const res = await fetch(`${API_BASE}${path}`, {
     method,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUserId() },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   const json = await res.json().catch(() => null);
   return { status: res.status, json };
 }
 
-/** GET /api/projects/{id} */
+/** GET /api/projects/{id} — 403/404 пробрасывается исключением, а не телом
+ * ошибки под видом ProjectState (иначе `{detail: ...}` осело бы в кэше под
+ * ключом project_id === undefined). */
 export async function fetchProject(projectId: string): Promise<ProjectState> {
   const { status, json } = await call('GET', `/api/projects/${projectId}`);
   log('GET', `/api/projects/${projectId}`, null, status, json);
+  if (status !== 200) throw new Error(`GET /projects/${projectId} вернул ${status}`);
   const state = json as ProjectState;
   useApiDb.getState().put(state);
   return state;
@@ -65,6 +72,7 @@ export async function saveInput(projectId: string, req: InputSaveRequest): Promi
     useApiDb.getState().put(json as ProjectState);
     return { status: 200, body: json as ProjectState };
   }
+  if (status === 403) return { status: 403, body: json as { detail: string } };
   if (status === 409) return { status: 409, body: json as { current: ProjectState } };
   return { status: 422, body: json as { errors: FieldError[] } };
 }
@@ -80,6 +88,7 @@ export async function saveScene(projectId: string, req: SceneSaveRequest, _ctx: 
     useApiDb.getState().put(json as ProjectState);
     return { status: 200, body: json as ProjectState };
   }
+  if (status === 403) return { status: 403, body: json as { detail: string } };
   if (status === 409) return { status: 409, body: json as { current: ProjectState } };
   return { status: 422, body: json as { errors: FieldError[] } };
 }
@@ -115,11 +124,80 @@ function imageSize(file: File): Promise<{ width: number; height: number }> {
   });
 }
 
+/** GET /api/projects — только проекты текущего владельца (X-User-Id) */
+export async function listProjects(): Promise<ProjectState[]> {
+  const { status, json } = await call('GET', '/api/projects');
+  log('GET', '/api/projects', null, status, json);
+  if (status !== 200) throw new Error(`GET /projects вернул ${status}`);
+  return json as ProjectState[];
+}
+
+export interface VersionSummary {
+  version: number;
+  comment: string | null;
+  created_at: string;
+}
+
+export interface VersionDetail extends VersionSummary {
+  project_id: string;
+  input: unknown;
+  scene: unknown;
+}
+
+/** POST /api/projects/{id}/versions — снимок текущего input+scene как новой
+ * версии. base_revision — та же защита от гонки, что у saveInput/saveScene
+ * (см. api/projects.py); 403/404/409 — ожидаемые исходы, не исключение. */
+export async function saveVersion(projectId: string, baseRevision: number, comment: string | null): Promise<VersionSaveResult> {
+  const { status, json } = await call('POST', `/api/projects/${projectId}/versions`, { base_revision: baseRevision, comment });
+  log('POST', `/api/projects/${projectId}/versions`, { base_revision: baseRevision, comment }, status, json);
+  if (status === 201) {
+    useApiDb.getState().put(json as ProjectState);
+    return { status: 201, body: json as ProjectState };
+  }
+  if (status === 409) return { status: 409, body: json as { current: ProjectState } };
+  return { status: status === 404 ? 404 : 403, body: json as { detail: string } };
+}
+
+/** GET /api/projects/{id}/versions — 404/403 пробрасывается исключением (не
+ * пустым списком): ProjectVersionsPage различает «реальный проект без версий»
+ * (200, []) от «этого id на сервере нет» (старая демо-карточка из мока) и
+ * только во втором случае откатывается на иллюстративные VERSIONS. */
+export async function listVersions(projectId: string): Promise<VersionSummary[]> {
+  const { status, json } = await call('GET', `/api/projects/${projectId}/versions`);
+  log('GET', `/api/projects/${projectId}/versions`, null, status, json);
+  if (status !== 200) throw new Error(`GET /versions вернул ${status}`);
+  return json as VersionSummary[];
+}
+
+/** GET /api/projects/{id}/versions/{v} — снапшот, только чтение */
+export async function getVersion(projectId: string, version: number): Promise<VersionDetail> {
+  const { status, json } = await call('GET', `/api/projects/${projectId}/versions/${version}`);
+  log('GET', `/api/projects/${projectId}/versions/${version}`, null, status, json);
+  if (status !== 200) throw new Error(`GET /versions/${version} вернул ${status}`);
+  return json as VersionDetail;
+}
+
+/** POST /api/projects/{id}/versions/{v}/promote — «сделать текущей» (копией).
+ * base_revision — promote переписывает текущие input/scene, поэтому нужна та
+ * же защита от гонки, что у saveInput/saveScene/saveVersion. */
+export async function promoteVersion(projectId: string, version: number, baseRevision: number): Promise<VersionSaveResult> {
+  const { status, json } = await call('POST', `/api/projects/${projectId}/versions/${version}/promote`, { base_revision: baseRevision });
+  log('POST', `/api/projects/${projectId}/versions/${version}/promote`, { base_revision: baseRevision }, status, json);
+  if (status === 201) {
+    useApiDb.getState().put(json as ProjectState);
+    return { status: 201, body: json as ProjectState };
+  }
+  if (status === 409) return { status: 409, body: json as { current: ProjectState } };
+  return { status: status === 404 ? 404 : 403, body: json as { detail: string } };
+}
+
 /** Текущее состояние записи проекта (как его последний раз вернул сервер). */
 export function useProjectState(projectId: string, enabled = true): ProjectState | undefined {
   const state = useApiDb((s) => s.projects[projectId]);
   useEffect(() => {
-    if (enabled && !state) void fetchProject(projectId);
+    // Не найден/чужой (403/404) — молча остаёмся без server-состояния, вызывающие
+    // компоненты уже трактуют undefined как «сервер ничего не знает про этот id».
+    if (enabled && !state) void fetchProject(projectId).catch(() => {});
   }, [enabled, projectId, state]);
   return state;
 }

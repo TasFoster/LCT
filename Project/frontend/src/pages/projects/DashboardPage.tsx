@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { bestScenario, cashflow, computeScenario, computeSensitivity, fastestPayback, horizonGain } from '../../features/wizard/mockEconomics';
+import { bestScenario, cashflow, fastestPayback, horizonGain } from '../../features/wizard/mockEconomics';
 import { useDraft, useProject, useWizardStore } from '../../features/wizard/store';
+import { buildScenarioInput, equipmentCostTotalFrom, RealApiError, runRealEconomics, selectedEquipmentFrom } from '../../features/projectApi/realApi';
 import { catalogById } from '../../shared/mock/catalog';
 import { ROUTES } from '../../shared/config/routes';
 import { formatNumber, formatPct, formatRubShort, formatYears, pluralize } from '../../shared/lib/format';
-import { Alert, Button, ButtonLink, Card, EmptyState, MockNote, Segmented, Stat } from '../../shared/ui';
-import { useMockCalc } from '../../features/wizard/useMockCalc';
+import { Alert, Button, ButtonLink, Card, EmptyState, Segmented, Stat } from '../../shared/ui';
 import { CalcStatus } from '../../widgets/CalcStatus';
 import { CashflowChart } from '../../widgets/CashflowChart';
 import { Breakdown } from '../../widgets/EconomicsBreakdown';
@@ -16,13 +16,16 @@ import { SensitivityTable } from '../../widgets/SensitivityTable';
 
 type ChartView = 'chart' | 'table';
 
-/** Итоговый дашборд: KPI → таблица сравнения → графики → чувствительность → допущения. */
+/** Итоговый дашборд: KPI → таблица сравнения → графики → чувствительность → допущения.
+ * Источник данных — draft.economicsResults (реальный расчёт со шага 6, POST
+ * /api/economics/run); смена горизонта здесь пересчитывает через тот же API. */
 export function DashboardPage() {
   const { projectId = '' } = useParams();
   const project = useProject(projectId);
   const draft = useDraft(projectId);
   const update = useWizardStore((s) => s.update);
-  const calc = useMockCalc(2200);
+  const [recalculating, setRecalculating] = useState(false);
+  const [recalcError, setRecalcError] = useState<string | null>(null);
   const [structureId, setStructureId] = useState<string | null>(null);
   const [sensId, setSensId] = useState<string | null>(null);
   const [chartView, setChartView] = useState<ChartView>('chart');
@@ -30,10 +33,35 @@ export function DashboardPage() {
   const [exportNote, setExportNote] = useState(false);
 
   const horizon = draft.economics.horizonYears;
-  const columns = useMemo(() => draft.scenarios.map((def) => ({ def, result: computeScenario(draft, def) })), [draft]);
+  const columns = draft.economicsResults ?? [];
   const nonBase = columns.filter((c) => c.def.kind !== 'baseline');
   const best = bestScenario(columns, horizon);
   const fastest = fastestPayback(columns);
+
+  const setHorizon = async (h: number) => {
+    setRecalculating(true);
+    setRecalcError(null);
+    update(projectId, (d) => ({ economics: { ...d.economics, horizonYears: h } }));
+    try {
+      const type = draft.objectType ?? 'warehouse';
+      const staffCount = typeof draft.params[type]?.staff_count === 'number' ? (draft.params[type]!.staff_count as number) : 0;
+      const equipmentCostTotal = equipmentCostTotalFrom(draft, catalogById);
+      const selectedEquipment = selectedEquipmentFrom(draft);
+      const recomputed = await Promise.all(
+        draft.scenarios.map(async (def) => {
+          if (def.kind === 'baseline') return columns.find((c) => c.def.kind === 'baseline') ?? { def, result: columns[0]?.result };
+          const scenario = buildScenarioInput(projectId, { ...draft, economics: { ...draft.economics, horizonYears: h } }, def, staffCount, equipmentCostTotal);
+          const result = await runRealEconomics(scenario, selectedEquipment);
+          return { def, result };
+        }),
+      );
+      update(projectId, () => ({ economicsResults: recomputed }));
+    } catch (e) {
+      setRecalcError(e instanceof RealApiError ? e.message : 'Не удалось пересчитать — показаны значения для прежнего горизонта');
+    } finally {
+      setRecalculating(false);
+    }
+  };
 
   const ready = draft.econCalculatedAt && nonBase.length > 0 && draft.selected.length > 0;
 
@@ -77,15 +105,11 @@ export function DashboardPage() {
             </p>
           </div>
           <div className="page-head__actions">
-            <MockNote>Расчёт-заглушка на фронте</MockNote>
             <div className="control" style={{ width: 150, height: 34 }}>
               <select
                 aria-label="Горизонт расчёта"
                 value={horizon}
-                onChange={(e) => {
-                  const h = Number(e.target.value);
-                  calc.start(() => update(projectId, (d) => ({ economics: { ...d.economics, horizonYears: h } })));
-                }}
+                onChange={(e) => void setHorizon(Number(e.target.value))}
               >
                 {[5, 7, 10].map((h) => (
                   <option key={h} value={h}>
@@ -112,9 +136,10 @@ export function DashboardPage() {
             Показан расчёт по прежним параметрам объекта.
           </Alert>
         )}
-        {calc.running && <CalcStatus progress={calc.progress} label="Пересчитываем сценарии" />}
+        {recalcError && <Alert tone="danger" title="Не удалось пересчитать сценарии">{recalcError}</Alert>}
+        {recalculating && <CalcStatus progress={70} label="Пересчитываем сценарии" />}
 
-        <div className="grid grid--4" style={{ opacity: calc.running ? 0.5 : 1 }}>
+        <div className="grid grid--4" style={{ opacity: recalculating ? 0.5 : 1 }}>
           <Stat
             label="Лучший сценарий"
             value={best?.def.title ?? 'нет'}
@@ -131,7 +156,7 @@ export function DashboardPage() {
         </div>
 
         <Card title="Сравнение сценариев" flush actions={<span className="faint">★ — лучшее значение в строке; строки CAPEX и OPEX раскрываются</span>}>
-          <div style={{ opacity: calc.running ? 0.5 : 1 }}>
+          <div style={{ opacity: recalculating ? 0.5 : 1 }}>
             <ScenarioTable columns={columns} />
           </div>
         </Card>
@@ -220,7 +245,7 @@ export function DashboardPage() {
             </div>
           }
         >
-          <SensitivityTable base={sens.result} points={computeSensitivity(draft, sens.def)} />
+          <SensitivityTable base={sens.result} points={sens.result.sensitivity} />
         </Card>
 
         <Alert tone="info" title={`Допущения расчёта · сценарий «${structure.def.title}»`}>

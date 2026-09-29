@@ -10,6 +10,7 @@ import { ProjectsListPage } from '../pages/projects/ProjectsListPage';
 import { NewProjectPage } from '../pages/projects/NewProjectPage';
 import { ProjectOverviewPage } from '../pages/projects/ProjectOverviewPage';
 import { ProjectVersionsPage } from '../pages/projects/ProjectVersionsPage';
+import { ProjectVersionSnapshotPage } from '../pages/projects/ProjectVersionSnapshotPage';
 import { DashboardPage } from '../pages/projects/DashboardPage';
 import { ReportPage } from '../pages/projects/ReportPage';
 import { ProfilePage } from '../pages/projects/ProfilePage';
@@ -52,6 +53,7 @@ export function App() {
             <Route path={ROUTES.newProject} element={<NewProjectPage />} />
             <Route path={ROUTES.project()} element={<ProjectOverviewPage />} />
             <Route path={ROUTES.versions()} element={<ProjectVersionsPage />} />
+            <Route path={ROUTES.versionSnapshot()} element={<ProjectVersionSnapshotPage />} />
             <Route path={ROUTES.dashboard()} element={<DashboardPage />} />
             <Route path={ROUTES.report()} element={<ReportPage />} />
             <Route path={ROUTES.wizard()} element={<WizardEntry />} />

@@ -105,6 +105,8 @@ export function StepTopology() {
       setNotice(null);
     } else if (res.status === 422) {
       setErrors(res.body.errors);
+    } else if (res.status === 403) {
+      setNotice('Этот проект принадлежит другому пользователю — сохранение недоступно.');
     } else {
       setNotice('Проект за это время сохранили в другой вкладке. Загружена актуальная версия — повторите сохранение плана.');
     }

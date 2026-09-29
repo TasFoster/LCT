@@ -1,10 +1,18 @@
 """SQLite-хранилище записи проекта — одна строка на проект, входные параметры
 (contract 4, ProjectInput) и план (contract 6, Scene) хранятся целиком как JSON
-в отдельных колонках. Не пытается воспроизвести весь contracts/records.py
-(версионирование полными снапшотами, ProjectVersion) — только то, что нужно,
-чтобы проект реально переживал перезапуск браузера/сервера: одна текущая
-версия записи с ревизией для optimistic concurrency, как и было в моке
-(features/projectApi/mockServer.ts), без истории версий."""
+в отдельных колонках. Версии (`project_versions`) — полные снапшоты input+scene
+на момент сохранения (contract 9, ProjectVersion), без match_result/scenarios:
+подбор и экономика в этом репозитории считаются без сохранения состояния
+(matching/economics не пишут в БД), поэтому снапшот версии честно ограничен
+тем, что реально хранится — входом и планом, а не выдумывает состав/сценарии
+на момент версии.
+
+owner_user_id — изоляция между "пользователями": авторизация в проекте —
+заглушка (см. корневой CLAUDE.md), поэтому это не пароль/сессия, а стабильный
+идентификатор браузера с фронта (features/auth/session.ts, localStorage).
+Разные браузеры/компьютеры не видят и не могут изменить чужие проекты; это
+не защита от подмены заголовка (не то же самое, что настоящая авторизация),
+но проекты больше не общие на всех — а не были ничем изолированы вообще."""
 
 from __future__ import annotations
 
@@ -44,6 +52,7 @@ def init_db() -> None:
             """
             CREATE TABLE IF NOT EXISTS projects (
                 id TEXT PRIMARY KEY,
+                owner_user_id TEXT NOT NULL,
                 name TEXT NOT NULL,
                 site TEXT,
                 object_type TEXT NOT NULL,
@@ -62,20 +71,40 @@ def init_db() -> None:
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS project_versions (
+                project_id TEXT NOT NULL,
+                version INTEGER NOT NULL,
+                comment TEXT,
+                input_json TEXT,
+                scene_json TEXT,
+                created_at TEXT NOT NULL,
+                PRIMARY KEY (project_id, version)
+            )
+            """
+        )
         conn.commit()
 
 
-def create_project(name: str, object_type: str, site: str | None) -> sqlite3.Row:
+def create_project(name: str, object_type: str, site: str | None, owner_user_id: str) -> sqlite3.Row:
     project_id = new_project_id()
     at = now_iso()
     with connect() as conn:
         conn.execute(
-            """INSERT INTO projects (id, name, site, object_type, status, revision, current_version, created_at, updated_at)
-               VALUES (?, ?, ?, ?, 'draft', 0, 1, ?, ?)""",
-            (project_id, name, site, object_type, at, at),
+            """INSERT INTO projects (id, owner_user_id, name, site, object_type, status, revision, current_version, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, 'draft', 0, 1, ?, ?)""",
+            (project_id, owner_user_id, name, site, object_type, at, at),
         )
         conn.commit()
-        return get_project(project_id)  # type: ignore[return-value]
+        return conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
+
+
+def list_projects(owner_user_id: str) -> list[sqlite3.Row]:
+    with connect() as conn:
+        return conn.execute(
+            "SELECT * FROM projects WHERE owner_user_id = ? ORDER BY updated_at DESC", (owner_user_id,)
+        ).fetchall()
 
 
 def get_project(project_id: str) -> sqlite3.Row | None:
@@ -120,6 +149,97 @@ def save_scene(project_id: str, base_revision: int, based_on_input_revision: int
         return True, conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
 
 
+def save_version(project_id: str, base_revision: int, comment: str | None) -> tuple[bool, sqlite3.Row | None]:
+    """(ok, row) — тот же протокол, что у save_input/save_scene. Снимок сам по
+    себе ничего не перезаписывает, но base_revision всё равно нужен: без него
+    два одновременных «Сохранить версию» из разных вкладок читают один и тот
+    же current_version и пытаются вставить одну и ту же пару (project_id,
+    version) — второй упадёт с IntegrityError вместо понятного 409."""
+    with connect() as conn:
+        row = conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
+        if row is None:
+            return False, None
+        if row["revision"] != base_revision:
+            return False, row
+        at = now_iso()
+        new_version = row["current_version"] + 1
+        conn.execute(
+            """INSERT INTO project_versions (project_id, version, comment, input_json, scene_json, created_at)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (project_id, new_version, comment, row["input_json"], row["scene_json"], at),
+        )
+        conn.execute("UPDATE projects SET current_version=?, updated_at=? WHERE id=?", (new_version, at, project_id))
+        conn.commit()
+        return True, conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
+
+
+def list_versions(project_id: str) -> list[sqlite3.Row]:
+    with connect() as conn:
+        return conn.execute(
+            "SELECT project_id, version, comment, created_at FROM project_versions WHERE project_id = ? ORDER BY version DESC",
+            (project_id,),
+        ).fetchall()
+
+
+def get_version(project_id: str, version: int) -> sqlite3.Row | None:
+    with connect() as conn:
+        return conn.execute(
+            "SELECT * FROM project_versions WHERE project_id = ? AND version = ?", (project_id, version)
+        ).fetchone()
+
+
+def promote_version(project_id: str, version: int, base_revision: int) -> tuple[str, sqlite3.Row | None]:
+    """"Сделать текущей" — копией: старый снапшот input/scene становится
+    состоянием проекта под НОВЫМ номером версии (сама версия `version` не
+    трогается, как и требует contracts/records.py — история неизменна).
+
+    Возвращает ("ok"|"conflict"|"not_found", row) — promote переписывает
+    текущие input/scene совсем как save_input/save_scene, поэтому base_revision
+    проверяется точно так же (409 с актуальной записью, а не тихая перезапись
+    чужого конкурентного изменения)."""
+    with connect() as conn:
+        row = conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
+        if row is None:
+            return "not_found", None
+        if row["revision"] != base_revision:
+            return "conflict", row
+        snapshot = conn.execute(
+            "SELECT * FROM project_versions WHERE project_id = ? AND version = ?", (project_id, version)
+        ).fetchone()
+        if snapshot is None:
+            return "not_found", None
+        at = now_iso()
+        new_revision = row["revision"] + 1
+        new_version = row["current_version"] + 1
+        has_input = snapshot["input_json"] is not None
+        has_scene = snapshot["scene_json"] is not None
+        conn.execute(
+            """UPDATE projects SET revision=?, input_json=?, input_revision=?, input_saved_at=?,
+               scene_json=?, scene_revision=?, scene_saved_at=?, scene_based_on_input_revision=?,
+               current_version=?, updated_at=? WHERE id=?""",
+            (
+                new_revision,
+                snapshot["input_json"],
+                new_revision if has_input else None,
+                at if has_input else None,
+                snapshot["scene_json"],
+                new_revision if has_scene else None,
+                at if has_scene else None,
+                new_revision if has_scene else None,
+                new_version,
+                at,
+                project_id,
+            ),
+        )
+        conn.execute(
+            """INSERT INTO project_versions (project_id, version, comment, input_json, scene_json, created_at)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (project_id, new_version, f"Восстановлено из версии {version}", snapshot["input_json"], snapshot["scene_json"], at),
+        )
+        conn.commit()
+        return "ok", conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
+
+
 def row_to_state(row: sqlite3.Row) -> dict[str, Any]:
     input_saved = row["input_json"] is not None
     scene_saved = row["scene_json"] is not None
@@ -137,6 +257,7 @@ def row_to_state(row: sqlite3.Row) -> dict[str, Any]:
 
     return {
         "project_id": row["id"],
+        "owner_user_id": row["owner_user_id"],
         "name": row["name"],
         "site": row["site"],
         "object_type": row["object_type"],
@@ -166,3 +287,7 @@ def row_to_state(row: sqlite3.Row) -> dict[str, Any]:
         "created_at": row["created_at"],
         "updated_at": row["updated_at"],
     }
+
+
+def version_row_to_summary(row: sqlite3.Row) -> dict[str, Any]:
+    return {"version": row["version"], "comment": row["comment"], "created_at": row["created_at"]}

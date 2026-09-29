@@ -114,5 +114,14 @@ export interface FieldError {
 
 export type SaveResult =
   | { status: 200; body: ProjectState }
+  | { status: 403; body: { detail: string } }
   | { status: 409; body: { current: ProjectState } }
   | { status: 422; body: { errors: FieldError[] } };
+
+/** POST /api/projects/{id}/versions и .../promote — тот же протокол conflict/
+ * forbidden, что у SaveResult, только успех приходит с 201, а не 200. */
+export type VersionSaveResult =
+  | { status: 201; body: ProjectState }
+  | { status: 403; body: { detail: string } }
+  | { status: 404; body: { detail: string } }
+  | { status: 409; body: { current: ProjectState } };

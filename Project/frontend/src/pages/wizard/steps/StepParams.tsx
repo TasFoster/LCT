@@ -73,6 +73,7 @@ export function StepParams() {
   const [saving, setSaving] = useState(false);
   const [serverErrors, setServerErrors] = useState<FieldError[]>([]);
   const [conflict, setConflict] = useState(false);
+  const [forbidden, setForbidden] = useState(false);
   const type = draft.objectType;
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [triedNext, setTriedNext] = useState(false);
@@ -341,6 +342,11 @@ export function StepParams() {
             Загружена актуальная запись проекта. Проверьте поля и нажмите «Далее» ещё раз.
           </Alert>
         )}
+        {forbidden && (
+          <Alert tone="danger" title="Этот проект принадлежит другому пользователю">
+            Сохранение недоступно — похоже, вы открыли ссылку из другого браузера или профиля.
+          </Alert>
+        )}
         {!isDemo && server && server.scene.state !== 'missing' && (
           <Alert tone="info" title="У проекта уже есть план объекта">
             Если поменять площадь или рабочие зоны, план на шаге 7 будет помечен как устаревший — он не удалится.
@@ -462,6 +468,7 @@ export function StepParams() {
                 setSaving(true);
                 setServerErrors([]);
                 setConflict(false);
+                setForbidden(false);
                 // PUT /api/projects/{id}/input — параметры уходят в ту же запись проекта
                 const res = await saveInput(projectId, {
                   base_revision: server.revision,
@@ -472,6 +479,7 @@ export function StepParams() {
                 setSaving(false);
                 if (res.status === 200) next();
                 else if (res.status === 422) setServerErrors(res.body.errors);
+                else if (res.status === 403) setForbidden(true);
                 else setConflict(true);
               }
         }

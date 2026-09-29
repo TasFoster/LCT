@@ -1,17 +1,42 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { OBJECT_ICON, PROJECTS } from '../../shared/mock/projects';
 import type { ProjectListItem } from '../../shared/mock/projects';
+import { listProjects } from '../../features/projectApi';
+import type { ProjectState } from '../../shared/api/projectState';
 import { OBJECT_TYPES, PROJECT_STATUS_LABEL, objectTypeLabel } from '../../shared/mock/dictionaries';
 import { ROUTES, WIZARD_STEPS } from '../../shared/config/routes';
+import type { WizardStepSlug } from '../../shared/config/routes';
 import type { ObjectType, ProjectStatus } from '../../shared/types/contracts';
 import { formatDate, formatYears, pluralize } from '../../shared/lib/format';
-import { Button, ButtonLink, Card, Chip, EmptyState, MockNote, PageHeader, Progress, Segmented } from '../../shared/ui';
+import { Alert, Button, ButtonLink, Card, Chip, EmptyState, PageHeader, Progress, Segmented } from '../../shared/ui';
 import type { Tone } from '../../shared/ui';
 
 const STATUS_TONE: Record<ProjectStatus, Tone> = { draft: 'warn', calculated: 'ok', archived: 'neutral' };
 type StatusFilter = 'active' | ProjectStatus;
 type Sort = 'updated' | 'name' | 'payback';
+
+/** Реальный ProjectState (contract 9, минимальный срез) не несёт last_step/
+ * best_payback_years/scenarios_count — подбор и экономика в этом репозитории
+ * без сохранения состояния, сервер их не знает. Честные заглушки вместо
+ * выдуманных чисел: последний шаг — по факту того, что реально сохранено. */
+function realToListItem(s: ProjectState): ProjectListItem {
+  const lastStep: WizardStepSlug = s.scene.state !== 'missing' ? 'topology' : s.input.state !== 'missing' ? 'params' : 'object';
+  return {
+    id: s.project_id,
+    owner_user_id: 'me',
+    name: s.name,
+    object_type: s.object_type,
+    status: s.status,
+    created_at: s.created_at,
+    updated_at: s.updated_at,
+    current_version: s.current_version,
+    last_step: lastStep,
+    best_payback_years: null,
+    scenarios_count: 0,
+    site: s.site ?? '',
+  };
+}
 
 export function ProjectsListPage() {
   const navigate = useNavigate();
@@ -20,6 +45,25 @@ export function ProjectsListPage() {
   const [type, setType] = useState<'all' | ObjectType>('all');
   const [sort, setSort] = useState<Sort>('updated');
   const [projects, setProjects] = useState<ProjectListItem[]>(PROJECTS);
+  const [realIds, setRealIds] = useState<ReadonlySet<string>>(() => new Set());
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const realProjectsApplied = useRef(false);
+
+  // Реальные проекты (этот владелец, X-User-Id) — впереди демо-карточек, не вместо них:
+  // старые демо-id (p-old-kazan и т.п.) никогда не создавались через POST /api/projects
+  // и по ним ничего не сохранить, но их удобно оставить для показа интерфейса. Флаг
+  // вместо голого useEffect(..., []) — StrictMode вызывает эффект дважды на монтировании,
+  // без него список из POST /api/projects задваивался бы (дубли ключей в таблице).
+  useEffect(() => {
+    listProjects()
+      .then((real) => {
+        if (realProjectsApplied.current) return;
+        realProjectsApplied.current = true;
+        setProjects((prev) => [...real.map(realToListItem), ...prev]);
+        setRealIds(new Set(real.map((r) => r.project_id)));
+      })
+      .catch(() => setLoadError('Не удалось загрузить сохранённые проекты — показаны только демонстрационные.'));
+  }, []);
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -53,14 +97,13 @@ export function ProjectsListPage() {
         title="Мои проекты"
         description={`${counts.active} ${pluralize(counts.active, ['активный проект', 'активных проекта', 'активных проектов'])}: ${counts.calculated} рассчитано, ${counts.draft} в работе.`}
         actions={
-          <>
-            <MockNote />
-            <ButtonLink to={ROUTES.newProject} variant="primary">
-              + Новый проект
-            </ButtonLink>
-          </>
+          <ButtonLink to={ROUTES.newProject} variant="primary">
+            + Новый проект
+          </ButtonLink>
         }
       />
+
+      {loadError && <Alert tone="warn" title={loadError} />}
 
       <div className="row row--between">
         <Segmented<StatusFilter>
@@ -171,12 +214,20 @@ export function ProjectsListPage() {
                               Дашборд
                             </ButtonLink>
                           )}
-                          <Button size="sm" variant="ghost" onClick={() => duplicate(p)} title="Создать копию проекта">
-                            Копия
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => archive(p.id)}>
-                            {p.status === 'archived' ? 'Вернуть' : 'В архив'}
-                          </Button>
+                          {/* «Копия»/«В архив» — для сохранённых проектов бэкенд пока не умеет
+                              ни то, ни другое (нет эндпоинтов статуса/дублирования, см. api/projects.py):
+                              честнее не показывать действие, которое не переживёт обновление страницы,
+                              чем притвориться, что оно сохраняется. */}
+                          {!realIds.has(p.id) && (
+                            <>
+                              <Button size="sm" variant="ghost" onClick={() => duplicate(p)} title="Создать копию проекта">
+                                Копия
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => archive(p.id)}>
+                                {p.status === 'archived' ? 'Вернуть' : 'В архив'}
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
